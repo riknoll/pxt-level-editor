@@ -1,3 +1,6 @@
+# Setup
+
+`npm install` to setup, `npm run start` to launch webapp.
 
 # Contributing
 
