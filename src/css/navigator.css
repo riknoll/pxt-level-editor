@@ -1,0 +1,6 @@
+.navigator {
+    height: 16em;
+
+    /* temporary values for display */
+    border: 4px dashed #3498db;
+}
