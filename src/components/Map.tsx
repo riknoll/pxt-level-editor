@@ -3,11 +3,12 @@ import '../css/map.css';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
 import { MapRect, MapData } from '../map';
+interface MapProps{map:MapData}
 
-export class Map extends React.Component<{}, {}> {
+export class Map extends React.Component<MapProps, {}> {
     protected workspace: MapCanvas;
 
-    constructor(props: {}) {
+    constructor(props: MapProps) {
         super(props);
     }
 
@@ -28,7 +29,7 @@ export class Map extends React.Component<{}, {}> {
     }
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
-        if (ref) this.workspace = new MapCanvas(ref);
+        if (ref) this.workspace = new MapCanvas(ref, this.props.map);
     };
 
     handleResize = () => {
@@ -37,7 +38,6 @@ export class Map extends React.Component<{}, {}> {
 }
 
 export class MapCanvas implements GestureTarget {
-    protected map: MapData;
 
     protected zoomMultiplier = 10;
     protected offsetX = 0;
@@ -49,9 +49,8 @@ export class MapCanvas implements GestureTarget {
 
     protected tileset: TileSet;
 
-    constructor(protected canvas: HTMLCanvasElement) {
+    constructor(protected canvas: HTMLCanvasElement, protected map: MapData) {
         this.context = canvas.getContext("2d");
-        this.map = new MapData();
 
         this.resize();
         bindGestureEvents(canvas, this);
