@@ -1,5 +1,9 @@
 .toolbox-panel-grid-tile {
+  border: 1px solid #ccc;
   cursor: pointer;
   display: inline-block;
-  margin: 5px;
+  height: 48px;
+  margin: 4px;
+  text-align: center;
+  width: 48px;
 }

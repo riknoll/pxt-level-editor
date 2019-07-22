@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import '../../css/toolbox.css';
 import { Tile } from './toolboxTypes';
 import { Panel } from '../Panel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
