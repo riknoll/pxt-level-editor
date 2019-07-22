@@ -13,6 +13,10 @@ interface IitemBase {
      */
     value?: number;
 
+    /**
+     * key value pair for rest properties
+     */
+    [properties: string]: number | string;
 }
 
 interface IPropertyEditorInput {
@@ -35,19 +39,19 @@ export class PropertyEditor extends React.Component<{}, {}> {
     }
 
     private closeEditor(): void {
-        // TODO: 
+        // TODO:
         return;
     }
 
     private save(): void {
-        // TODO: 
+        // TODO:
         return;
     }
 
     private renderEditorField(): JSX.Element {
-        // TODO: 
+        // TODO:
         return (
-            <PropertyEditorField />
+            <PropertyEditorField Text="aaa"/>
         )
     }
 }

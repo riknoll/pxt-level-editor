@@ -1,15 +1,19 @@
 import * as React from 'react';
 
 interface IPropertyEditorFieldInput extends React.AllHTMLAttributes<{}> {
-    Label: string;
+    label: string;
 
-    PlaceHolder?: string;
+    value: string;
 
-    Suffix?: string
+    type: string;
 
-    Required?: boolean;
+    placeHolder?: string;
 
-    Selections?: number[] | string[];
+    suffix?: string
+
+    required?: boolean;
+
+    // selections?: number[] | string[];
 }
 
 export class PropertyEditorField extends React.Component<{}, {}> {
@@ -18,11 +22,12 @@ export class PropertyEditorField extends React.Component<{}, {}> {
 
     constructor(props: IPropertyEditorFieldInput) {
         super(props);
-        this._label = props.Label;
-
+        this._label = props.label;
+        this._value = props.value || props.placeHolder;
     }
 
     public get value(): number | string {
+        // TODO: return type shuld be better defined.
         return this._value;
     }
 
@@ -30,8 +35,7 @@ export class PropertyEditorField extends React.Component<{}, {}> {
         // TODO: implement the input box
         return (
             <div className="propertyEditorField">
-                <p>{this._label}</p>
-                <input></input>
+                {this._label}: <input></input>
             </div>
         );
     }
