@@ -3,11 +3,16 @@ import '../css/map.css';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
 import { MapRect, MapData } from '../map';
+import { MapTools } from '../util';
 
-export class Map extends React.Component<{}, {}> {
+export interface MapProps {
+    tool: MapTools
+}
+
+export class Map extends React.Component<MapProps, {}> {
     protected workspace: MapCanvas;
 
-    constructor(props: {}) {
+    constructor(props: MapProps) {
         super(props);
     }
 
@@ -18,15 +23,19 @@ export class Map extends React.Component<{}, {}> {
             </div>
         );
     }
-
+    
     componentDidMount() {
         window.addEventListener("resize", this.handleResize);
     }
-
+    
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);
     }
 
+    componentDidUpdate() {
+        this.workspace.updateTool(this.props.tool);
+    }
+    
     handleCanvasRef = (ref: HTMLCanvasElement) => {
         if (ref) this.workspace = new MapCanvas(ref);
     };
@@ -38,6 +47,7 @@ export class Map extends React.Component<{}, {}> {
 
 export class MapCanvas implements GestureTarget {
     protected map: MapData;
+    protected tool: MapTools;
 
     protected zoomMultiplier = 10;
     protected offsetX = 0;
@@ -45,6 +55,7 @@ export class MapCanvas implements GestureTarget {
 
     protected context: CanvasRenderingContext2D;
     protected cachedBounds: ClientRect;
+    protected isDragging: boolean = false;
     protected dragLast: ClientCoordinates;
 
     protected tileset: TileSet;
@@ -63,6 +74,13 @@ export class MapCanvas implements GestureTarget {
                 this.tileset = new TileSet(el);
                 this.redraw();
             });
+    }
+
+    centerOnTile(x: number, y: number) {
+        this.offsetX = -(this.mapToCanvas(x) - this.canvas.width / 2 + this.mapToCanvas(0.5));
+        this.offsetY = -(this.mapToCanvas(y) - this.canvas.height / 2 + this.mapToCanvas(0.5));
+
+        this.redraw();
     }
 
     redraw() {
@@ -111,25 +129,41 @@ export class MapCanvas implements GestureTarget {
         }
     }
 
+    updateTool(tool?: MapTools) {
+        // Developer's note: On Chrome, cursors do not update properly with the devtools open. Close the devtools when testing changes to this code
+        if (tool != null)
+            this.tool = tool;
+        switch (this.tool) {
+            case MapTools.Pan:
+                this.canvas.style.cursor = this.isDragging ? "grabbing" : "grab";
+                break;
+        }
+    }
+
     onClick(coord: ClientCoordinates) {
         coord = this.clientToCanvas(coord);
 
         this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
     }
-
+    
     onDragStart(coord: ClientCoordinates) {
+        this.isDragging = true;
+        this.updateTool();
         this.dragLast = coord;
     }
 
     onDragMove(coord: ClientCoordinates) {
-        this.offsetX += coord.clientX - this.dragLast.clientX;
-        this.offsetY += coord.clientY - this.dragLast.clientY;
-        this.dragLast = coord;
-
-        this.redraw();
+        if (this.tool === MapTools.Pan) {
+            this.offsetX += coord.clientX - this.dragLast.clientX;
+            this.offsetY += coord.clientY - this.dragLast.clientY;
+            this.dragLast = coord;
+            this.redraw();
+        }
     }
 
     onDragEnd(coord: ClientCoordinates) {
+        this.isDragging = false;
+        this.updateTool();
         this.onDragMove(coord);
         this.dragLast = undefined;
     }
@@ -152,7 +186,9 @@ export class MapCanvas implements GestureTarget {
             left: this.canvasToMap(-this.offsetX) - 1,
             top: this.canvasToMap(-this.offsetY) - 1,
             right: this.canvasToMap(-this.offsetX + this.cachedBounds.width) + 1,
-            bottom: this.canvasToMap(-this.offsetY + this.cachedBounds.height) + 1
+            bottom: this.canvasToMap(-this.offsetY + this.cachedBounds.height) + 1,
+            width: this.canvasToMap(this.cachedBounds.width) + 1,
+            height: this.canvasToMap(this.cachedBounds.height) + 1
         }
     }
 
