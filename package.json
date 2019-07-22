@@ -8,7 +8,8 @@
         "build:prod": "./node_modules/.bin/webpack --mode production --config webpack.prod.js",
         "start": "npm run build:dev && webpack-dev-server --open --config webpack.dev.js",
         "predeploy": "npm run build:prod",
-        "deploy": "gh-pages -d dist"
+        "deploy": "gh-pages -d dist",
+        "test": "npm run build:dev"
     },
     "devDependencies": {
         "eventemitter3": "3.1.0",
