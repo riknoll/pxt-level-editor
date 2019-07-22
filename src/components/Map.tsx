@@ -76,6 +76,15 @@ export class MapCanvas implements GestureTarget {
             });
     }
 
+    centerOnPoint(x: number, y: number) {
+        const bounds = this.visibleRect();
+
+        // This centers to a point, not a tile (0.5 should be added to both coordinates to center on the center of a tile)
+        this.offsetX = -this.mapToCanvas(x - bounds.width / 2);
+        this.offsetY = -this.mapToCanvas(y - bounds.height / 2);
+        this.redraw();
+    }
+
     redraw() {
         window.requestAnimationFrame(() => {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -179,7 +188,9 @@ export class MapCanvas implements GestureTarget {
             left: this.canvasToMap(-this.offsetX) - 1,
             top: this.canvasToMap(-this.offsetY) - 1,
             right: this.canvasToMap(-this.offsetX + this.cachedBounds.width) + 1,
-            bottom: this.canvasToMap(-this.offsetY + this.cachedBounds.height) + 1
+            bottom: this.canvasToMap(-this.offsetY + this.cachedBounds.height) + 1,
+            width: this.canvasToMap(this.cachedBounds.width) + 1,
+            height: this.canvasToMap(this.cachedBounds.height) + 1
         }
     }
 

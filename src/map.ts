@@ -3,6 +3,8 @@ export interface MapRect {
     top: number;
     right: number;
     bottom: number;
+    width: number;
+    height: number;
 }
 
 export class MapLocation {
