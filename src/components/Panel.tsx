@@ -22,7 +22,7 @@ export class Panel extends React.Component<Props, { expanded: boolean }> {
 
     renderPanel() {
         return this.state.expanded
-            ? <div className="panel-contents">{this.props.children}</div>
+            ? <div className="panel-contents">{this.props.children}</div>gi
             : null;
     }
 
@@ -37,7 +37,6 @@ export class Panel extends React.Component<Props, { expanded: boolean }> {
             </div>
         );
     }
-    //<p className="caret icon">{this.state.expanded?"\uf0d8":"\uf0d7"}</p>
 
 
 }
