@@ -16,10 +16,15 @@ export class MapObject extends MapLocation {
 export class MapQuadrant {
     protected objects: MapObject[];
     protected data: number[][];
+    protected width: number;
+    protected height: number;
 
     constructor() {
         this.data = [];
         this.objects = [];
+
+        this.width = 0;
+        this.height = 0;
     }
 
     addObject(obj: MapObject) {
@@ -42,6 +47,9 @@ export class MapQuadrant {
         col = Math.abs(col);
         row = Math.abs(row);
 
+        this.height = Math.max(row + 1, this.height);
+        this.width = Math.max(col + 1, this.height);
+
         if (!this.data[col]) this.data[col] = [];
         this.data[col][row] = data;
     }
@@ -55,6 +63,14 @@ export class MapQuadrant {
         }
 
         return undefined;
+    }
+
+    getWidth() {
+        return this.width;
+    }
+
+    getHeight() {
+        return this.height;
     }
 }
 
@@ -111,5 +127,15 @@ export class MapData {
         else {
             return this.ne;
         }
+    }
+
+    getBounds() {
+        let bounds: MapRect = {
+            left: -Math.max(this.sw.getWidth(), this.nw.getWidth()),
+            bottom: -Math.max(this.sw.getHeight(), this.se.getHeight()),
+            right: Math.max(this.se.getWidth(), this.ne.getWidth()) - 1,
+            top: Math.max(this.nw.getHeight(), this.ne.getHeight()) - 1
+        }
+        return bounds;
     }
 }
