@@ -1,0 +1,6 @@
+.editButton {
+    /* temporary values for display */
+    height: 1em;
+    width: 1em;
+    border: 1px dashed #3498db;
+}
