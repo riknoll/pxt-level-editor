@@ -1,4 +1,5 @@
 .editingTools {
-    /* temporary values for display */
-    border: 4px dashed #4c34eb;
+    /* values for display of the button icons in the row */
+    justify-content:flex-start;
+    align-items:flex-start;
 }

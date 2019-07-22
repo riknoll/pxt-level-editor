@@ -1,6 +1,13 @@
 .editButton {
-    /* temporary values for display */
+    /* values for the font awesome icon displays for buttons */
     height: 1em;
     width: 1em;
-    border: 1px dashed #3498db;
+    border: 1px solid black;
+    padding: .25em;
+    margin: .15em;
+    display:inline-block;
+    
 }
+
+
+
