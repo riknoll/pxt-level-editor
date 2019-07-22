@@ -20,6 +20,10 @@ export class Map extends React.Component<MapProps, {}> {
         return (
             <div className="map">
                 <canvas ref={this.handleCanvasRef} />
+                <div className="zoom">
+                    <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
+                    <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
+                </div>
             </div>
         );
     }
@@ -50,6 +54,10 @@ export class MapCanvas implements GestureTarget {
     protected tool: MapTools;
 
     protected zoomMultiplier = 10;
+    protected minMultiplier = 1;
+    protected maxMultiplier = 70;
+    protected amountToZoom = 3;
+
     protected offsetX = 0;
     protected offsetY = 0;
 
@@ -166,6 +174,20 @@ export class MapCanvas implements GestureTarget {
         this.updateTool();
         this.onDragMove(coord);
         this.dragLast = undefined;
+    }
+
+    zoomIn(isZoomIn: boolean){
+
+        var currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
+        this.zoomMultiplier += currentZoomAmount;
+
+        if(isZoomIn){
+            this.zoomMultiplier = Math.min(this.maxMultiplier, this.zoomMultiplier);
+        }else{
+            this.zoomMultiplier = Math.max(this.minMultiplier, this.zoomMultiplier);
+        }
+        
+        this.redraw();
     }
 
     protected drawTile(x: number, y: number, data: number) {
