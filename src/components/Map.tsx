@@ -101,8 +101,8 @@ export class MapCanvas implements GestureTarget {
         try {
             this.cachedBounds = this.canvas.parentElement.getBoundingClientRect();
 
-            this.canvas.width = this.cachedBounds.width;
-            this.canvas.height = this.cachedBounds.height;
+            this.canvas.width = this.canvas.parentElement.clientWidth;
+            this.canvas.height = this.canvas.parentElement.clientHeight;
 
             this.redraw();
         }
