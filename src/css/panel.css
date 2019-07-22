@@ -1,5 +1,6 @@
 .toolbox-panel {
   border: 1px solid #aaa;
+  float: none;
 }
 
 .toolbox-panel > .panel-title {
