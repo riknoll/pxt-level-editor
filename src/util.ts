@@ -10,6 +10,10 @@ export function isTouchEnabled(): boolean {
             || (navigator && navigator.maxTouchPoints > 0));       // works on IE10/11 and Surface);
 }
 
+export enum MapTools {
+    Pan
+}
+
 export interface IPointerEvents {
     up: string,
     down: string[],
