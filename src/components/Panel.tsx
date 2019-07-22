@@ -29,9 +29,15 @@ export class Panel extends React.Component<Props, { expanded: boolean }> {
     render() {
         return (
             <div className="toolbox-panel">
-                <h3 className="panel-title" onClick={this.clickTitle}>{this.props.title}</h3>
+                <h3 className="panel-title" onClick={this.clickTitle}>{this.props.title}
+                <i className={this.state.expanded?"panel-icon fas fa-chevron-circle-up":"panel-icon fas fa-chevron-circle-down"}></i>
+                </h3>
+                
                 {this.renderPanel()}
             </div>
         );
     }
+    //<p className="caret icon">{this.state.expanded?"\uf0d8":"\uf0d7"}</p>
+
+
 }
