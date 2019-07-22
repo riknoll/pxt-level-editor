@@ -24,26 +24,59 @@ interface IPropertyEditorInput {
     inputObject: IitemBase;
 }
 
-export class PropertyEditor extends React.Component<{}, {}> {
+/**
+ * Defines Property Editor State
+ */
+interface IPropertyEditorState {
+    // indicate if Property Editor should be rendered.
+    shouldRender: boolean;
+}
+
+export class PropertyEditor extends React.Component<IPropertyEditorInput, IPropertyEditorState> {
 
     constructor(props: IPropertyEditorInput) {
         super(props);
+        this.state = {shouldRender: true};
+        this.closeEditor = this.closeEditor.bind(this);
+        this.saveChanges = this.saveChanges.bind(this);
     }
 
     render() {
-        return (
-            <div className="propertyEditor">
-                {this.renderEditorField()}
-            </div>
-        );
+        if (this.state.shouldRender) {
+            return (
+                <div className="propertyEditor">
+                    {this.renderCloseButton()}
+                    {this.renderEditorField()}
+                    {this.renderSaveButton()}
+                </div>
+            );
+        }
+
     }
 
+    /**
+     * renders the close button
+     */
+    private renderCloseButton(): JSX.Element {
+        return (<button onClick={this.closeEditor}>Close</button>);
+    }
+
+    /**
+     * close Property Editor
+     */
     private closeEditor(): void {
-        // TODO:
+        this.setState({shouldRender: false});
         return;
     }
 
-    private save(): void {
+    /**
+     * render Save Changes button
+     */
+    private renderSaveButton(): JSX.Element {
+        return (<button onClick={this.saveChanges}>Save</button>);
+    }
+
+    private saveChanges(): void {
         // TODO:
         return;
     }
@@ -51,7 +84,7 @@ export class PropertyEditor extends React.Component<{}, {}> {
     private renderEditorField(): JSX.Element {
         // TODO:
         return (
-            <PropertyEditorField Text="aaa"/>
+            <PropertyEditorField />
         )
     }
 }
