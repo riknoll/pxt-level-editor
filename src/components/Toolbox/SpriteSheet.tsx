@@ -41,7 +41,6 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
         return (
             <img
                 alt={alt || `tile-${index}`}
-                ref={'spriteSheetCanvas'}
                 src={src}
                 style={{
                     zoom: finalSize / size,
