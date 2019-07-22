@@ -76,12 +76,10 @@ export class MapCanvas implements GestureTarget {
             });
     }
 
-    centerOnPoint(x: number, y: number) {
-        const bounds = this.visibleRect();
+    centerOnTile(x: number, y: number) {
+        this.offsetX = -(this.mapToCanvas(x) - this.canvas.width / 2 + this.mapToCanvas(0.5));
+        this.offsetY = -(this.mapToCanvas(y) - this.canvas.height / 2 + this.mapToCanvas(0.5));
 
-        // This centers to a point, not a tile (0.5 should be added to both coordinates to center on the center of a tile)
-        this.offsetX = -this.mapToCanvas(x - bounds.width / 2);
-        this.offsetY = -this.mapToCanvas(y - bounds.height / 2);
         this.redraw();
     }
 
