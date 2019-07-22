@@ -11,7 +11,9 @@ export function isTouchEnabled(): boolean {
 }
 
 export enum MapTools {
-    Pan
+    Pan,
+    Stamp,
+    Erase
 }
 
 export interface IPointerEvents {

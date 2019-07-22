@@ -137,13 +137,26 @@ export class MapCanvas implements GestureTarget {
             case MapTools.Pan:
                 this.canvas.style.cursor = this.isDragging ? "grabbing" : "grab";
                 break;
+            case MapTools.Stamp:
+            case MapTools.Erase:
+                this.canvas.style.cursor = "crosshair";
+                break;
+            default:
+                this.canvas.style.cursor = "default";
         }
     }
 
     onClick(coord: ClientCoordinates) {
         coord = this.clientToCanvas(coord);
 
-        this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
+        switch (this.tool) {
+            case MapTools.Stamp:
+                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
+                break;
+            case MapTools.Erase:
+                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), null);
+                break;
+        }
     }
     
     onDragStart(coord: ClientCoordinates) {
@@ -158,6 +171,16 @@ export class MapCanvas implements GestureTarget {
             this.offsetY += coord.clientY - this.dragLast.clientY;
             this.dragLast = coord;
             this.redraw();
+        } else {
+            coord = this.clientToCanvas(coord);
+            switch (this.tool) {
+                case MapTools.Stamp:
+                    this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
+                    break;
+                case MapTools.Erase:
+                    this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), null);
+                    break;
+            }
         }
     }
 
