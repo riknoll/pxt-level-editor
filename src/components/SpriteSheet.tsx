@@ -6,6 +6,7 @@ interface SpriteSheetProps {
     src: string;
     index: number;
     size?: number;
+    finalSize: number;
     alt?: string;
 }
 
@@ -34,7 +35,7 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
     }
 
     public render() {
-        const { src, alt, index, size } = this.props;
+        const { src, alt, index, size, finalSize } = this.props;
         const { coords } = this.state;
 
         return (
@@ -43,6 +44,7 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
                 ref={'spriteSheetCanvas'}
                 src={src}
                 style={{
+                    zoom: finalSize / size,
                     width: size,
                     height: size,
                     objectFit: 'none',

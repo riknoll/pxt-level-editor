@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Panel } from './Panel';
-import SpriteSheet from './SpriteSheet';
 import '../css/toolbox.css';
 import { ToolboxTerrainPanel } from './Toolbox/ToolboxTerrainPanel';
 import { ToolboxItemPanel } from './Toolbox/ToolboxItemPanel';
