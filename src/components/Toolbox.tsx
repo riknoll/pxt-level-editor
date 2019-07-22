@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Panel } from './Panel';
 
 import '../css/toolbox.css';
 import { ToolboxTerrainPanel } from './Toolbox/ToolboxTerrainPanel';
