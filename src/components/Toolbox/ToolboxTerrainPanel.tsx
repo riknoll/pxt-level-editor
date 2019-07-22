@@ -1,5 +1,5 @@
 import * as React from 'react';
-import SpriteSheet from '../SpriteSheet';
+import SpriteSheet from './SpriteSheet';
 import { Tile } from './toolboxTypes';
 import { Panel } from '../Panel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';

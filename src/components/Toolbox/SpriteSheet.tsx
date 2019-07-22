@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { loadImageAsync, ClientCoordinates } from '../util';
-import { TileSet } from '../tileset';
+import { loadImageAsync, ClientCoordinates } from '../../util';
+import { TileSet } from '../../tileset';
 
 interface SpriteSheetProps {
     src: string;
