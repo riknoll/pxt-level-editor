@@ -166,7 +166,6 @@ export class MapCanvas implements GestureTarget {
 
     static applyOperation(state: MapData, op: Operation): MapData {
         if (op.kind === "settile") {
-            // TODO(dz): handle layer
             state.setTile(op.row, op.col, 1);
         } else if (op.kind === "setobj") {
             state.addObjectToLayer(op.layer, op.obj)

@@ -1,6 +1,5 @@
 import { MapObjectLayers, MapObject } from './map';
 
-// TODO(dz): handle global operations
 export type Operation = MapOperation | Nop
 export type MapOperation = SetTileOp | SetObjectOp
 
