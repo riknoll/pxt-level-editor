@@ -1,4 +1,4 @@
 export interface Tile {
-  name: string;
-  image: any;
+    name?: string;
+    image: any;
 }

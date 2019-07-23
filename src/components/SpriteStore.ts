@@ -8,7 +8,6 @@ export interface Sprite {
     height?: number;
     width?: number;
     name?: string;
-    finalSize?: number;
 }
 
 interface GalleryStore {
@@ -82,4 +81,18 @@ export const SpriteDictionary: Dictionary<Sprite[]> = {};
 SpriteDictionary['Items'] = [
     ...getSpritesFromGallery('bigFood'),
     ...getSpritesFromGallery('smallFood'),
+];
+SpriteDictionary['Spawners'] = [
+    getSpritesFromGallery('space')[0],
+    getSpritesFromGallery('skelly')[0],
+];
+SpriteDictionary['Interactables'] = [
+    ...getSpritesFromGallery('car'),
+    ...getSpritesFromGallery('house'),
+];
+SpriteDictionary['Terrains'] = [
+    ...getSpritesFromGallery('tile'),
+];
+SpriteDictionary['Areas'] = [
+    ...getSpritesFromGallery('road'),
 ];
