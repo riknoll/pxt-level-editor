@@ -70,8 +70,7 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator map={this.map}>
-                    <Navigator />
+                    <Navigator map={this.map}/>
                     <EditingTools />
                     <Toolbox />
                 </div>
