@@ -22,7 +22,7 @@ export class Panel extends React.Component<Props, { expanded: boolean }> {
 
     renderPanel() {
         return this.state.expanded
-            ? <div className="panel-contents">{this.props.children}</div>gi
+            ? <div className="panel-contents">{this.props.children}</div>
             : null;
     }
 
