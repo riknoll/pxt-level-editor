@@ -1,0 +1,13 @@
+.toolbar-panel-grid {
+  margin: 10px 0px 10px 5px;
+}
+
+.toolbox-panel-grid-tile {
+  /* border: 1px solid #aaa; */
+  cursor: pointer;
+  display: inline-block;
+  height: 48px;
+  margin: 4px;
+  text-align: center;
+  width: 48px;
+}
