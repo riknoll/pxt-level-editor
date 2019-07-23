@@ -1,7 +1,12 @@
 .toolbox {
     flex: 1;
-
+    padding: 1;
+    overflow-y: scroll;
     /* temporary values for display */ 
     margin: 0.2em;
     border: 4px dashed #f1c40f;
+}
+
+.toolbox div h2 {
+    text-align: center;
 }

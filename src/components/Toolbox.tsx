@@ -14,8 +14,8 @@ export class Toolbox extends React.Component<{}, {}> {
     render() {
         return (
             <div className="toolbox">
-                <div style={{ display: "block", width: "100%" }}>
-                    <h2>Toolbox component</h2>
+                <div style={{ display: "block", width: "100%", height: "100%" }}>
+                    <h2>Toolbox</h2>
                     <ToolboxTerrainPanel></ToolboxTerrainPanel>
                     <ToolboxItemPanel></ToolboxItemPanel>
                     <ToolboxSpawnersPanel></ToolboxSpawnersPanel>
