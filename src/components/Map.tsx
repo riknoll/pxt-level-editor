@@ -159,9 +159,9 @@ export class MapCanvas implements GestureTarget {
     }
 
     protected drawTile(x: number, y: number, data: number) {
-        if (this.tileset) {
+        if (this.tileset && data != null) {
             this.context.imageSmoothingEnabled = false;
-            const coord = this.tileset.indexToCoord(data || 0);
+            const coord = this.tileset.indexToCoord(data);
             this.context.drawImage(this.tileset.src, coord.clientX, coord.clientY, TILE_SIZE, TILE_SIZE, x, y, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier)
         }
         else {
