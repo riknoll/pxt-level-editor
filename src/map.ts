@@ -22,9 +22,6 @@ export class MapQuadrant {
     constructor() {
         this.data = [];
         this.objects = [];
-
-        this.width = 0;
-        this.height = 0;
     }
 
     addObject(obj: MapObject) {
@@ -47,9 +44,6 @@ export class MapQuadrant {
         col = Math.abs(col);
         row = Math.abs(row);
 
-        this.height = Math.max(row + 1, this.height);
-        this.width = Math.max(col + 1, this.height);
-
         if (!this.data[col]) this.data[col] = [];
         this.data[col][row] = data;
     }
@@ -64,14 +58,6 @@ export class MapQuadrant {
 
         return undefined;
     }
-
-    getWidth() {
-        return this.width;
-    }
-
-    getHeight() {
-        return this.height;
-    }
 }
 
 export class MapData {
@@ -80,6 +66,8 @@ export class MapData {
     protected se: MapQuadrant;
     protected sw: MapQuadrant;
     protected nw: MapQuadrant;
+
+    protected bounds: MapRect;
 
     constructor() {
         this.ne = new MapQuadrant();
@@ -102,6 +90,16 @@ export class MapData {
 
     setTile(column: number, row: number, data: number) {
         this.getQuadrant(column, row).setTile(column, row, data);
+
+        if (this.bounds == null) {
+            this.bounds = {top: row, left: column, bottom: row, right: column};
+        }
+        else {
+            this.bounds.top = Math.min(this.bounds.top, row);
+            this.bounds.bottom = Math.max(this.bounds.bottom, row);
+            this.bounds.left = Math.min(this.bounds.left, column);
+            this.bounds.right = Math.max(this.bounds.right, column);
+        }
 
         if (this.changeListener) this.changeListener();
     }
@@ -130,12 +128,6 @@ export class MapData {
     }
 
     getBounds() {
-        let bounds: MapRect = {
-            left: -Math.max(this.sw.getWidth(), this.nw.getWidth()),
-            bottom: -Math.max(this.sw.getHeight(), this.se.getHeight()),
-            right: Math.max(this.se.getWidth(), this.ne.getWidth()) - 1,
-            top: Math.max(this.nw.getHeight(), this.ne.getHeight()) - 1
-        }
-        return bounds;
+        return this.bounds;
     }
 }
