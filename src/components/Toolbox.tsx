@@ -5,6 +5,8 @@ import { ToolboxTerrainPanel } from './Toolbox/ToolboxTerrainPanel';
 import { ToolboxItemPanel } from './Toolbox/ToolboxItemPanel';
 import { ToolboxSpawnersPanel } from './Toolbox/ToolboxSpawnersPanel';
 import { ToolboxInteractablesPanel } from './Toolbox/ToolboxInteractablesPanel';
+import { ToolboxAreasPanel } from './Toolbox/ToolboxAreasPanel';
+
 export class Toolbox extends React.Component<{}, {}> {
 
     constructor(props: {}) {
