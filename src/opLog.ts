@@ -1,15 +1,19 @@
-import { MapObjectLayers } from './map';
+import { MapObjectLayers, MapObject } from './map';
 
 // TODO(dz): handle global operations
 export type Operation = MapOperation | Nop
-export type MapOperation = SetTileOp
+export type MapOperation = SetTileOp | SetObjectOp
 
 export interface SetTileOp {
     kind: "settile",
     row: number,
     col: number,
-    layer: MapObjectLayers,
     data: number
+}
+export interface SetObjectOp {
+    kind: "setobj",
+    obj: MapObject,
+    layer: MapObjectLayers
 }
 
 export interface Nop {

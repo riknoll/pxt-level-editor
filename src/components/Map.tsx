@@ -51,6 +51,7 @@ export class Map extends React.Component<MapProps, {}> {
     }
 
     handleKeyup = (e: KeyboardEvent) => {
+        // TODO: add visual undo/redo buttons
         if (e.code == "KeyZ" && (e.ctrlKey || e.metaKey)) {
             this.workspace.undo()
         } else if (e.code == "KeyR" && e.ctrlKey) {
@@ -85,8 +86,11 @@ export class MapCanvas implements GestureTarget {
 
         this.setMap(new MapData())
 
-        // TODO(dz): do addObj in log
-        // this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
+        this.triggerOperation({
+            kind: "setobj",
+            obj: new MapObject(1, 1),
+            layer: MapObjectLayers.Decoration
+        })
 
         this.resize();
         bindGestureEvents(canvas, this);
@@ -157,13 +161,15 @@ export class MapCanvas implements GestureTarget {
 
     private triggerOperation(op: MapOperation) {
         this.log.do(op)
-        this.applyOperation(this.map, op)
+        MapCanvas.applyOperation(this.map, op)
     }
 
-    private applyOperation(state: MapData, op: Operation): MapData {
+    static applyOperation(state: MapData, op: Operation): MapData {
         if (op.kind === "settile") {
             // TODO(dz): handle layer
             state.setTile(op.row, op.col, 1);
+        } else if (op.kind === "setobj") {
+            state.addObjectToLayer(op.layer, op.obj)
         } else {
             // ignore non-map operations
         }
@@ -171,11 +177,10 @@ export class MapCanvas implements GestureTarget {
     }
 
     private computeState(): MapData {
-        return this.log.computeState((p, n) => this.applyOperation(p, n), new MapData())
+        return this.log.computeState((p, n) => MapCanvas.applyOperation(p, n), new MapData())
     }
 
     private rebuildState() {
-        // TODO(dz): work off a snapshot
         this.setMap(this.computeState())
         this.redraw()
     }
@@ -188,7 +193,7 @@ export class MapCanvas implements GestureTarget {
 
     redo() {
         let op = this.log.redo()
-        this.applyOperation(this.map, op)
+        MapCanvas.applyOperation(this.map, op)
     }
 
     onClick(coord: ClientCoordinates) {
@@ -198,8 +203,6 @@ export class MapCanvas implements GestureTarget {
             row: this.canvasToMap(coord.clientX - this.offsetX),
             col: this.canvasToMap(coord.clientY - this.offsetY),
             data: 1,
-            // TODO(dz): handle layer
-            layer: MapObjectLayers.Decoration
         }
         this.triggerOperation(op)
     }
