@@ -3,6 +3,7 @@ import SpriteSheet from './SpriteSheet';
 import { Tile } from './toolboxTypes';
 import { ToolboxPanel } from './ToolboxPanel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
+import { SpriteEditorButton } from './SpriteEditorButton';
 
 interface State {
     tiles: Tile[],
@@ -31,3 +32,4 @@ export class ToolboxTerrainPanel extends React.Component<{}, State> {
         );
     }
 }
+//<SpriteEditorButton/>
