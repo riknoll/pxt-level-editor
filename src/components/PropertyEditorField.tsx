@@ -16,7 +16,7 @@ interface IPropertyEditorFieldInput extends React.AllHTMLAttributes<{}> {
     // selections?: number[] | string[];
 }
 
-export class PropertyEditorField extends React.Component<{}, {}> {
+export class PropertyEditorField extends React.Component<IPropertyEditorFieldInput, {}> {
     private _label: string;
     private _value: any;
 

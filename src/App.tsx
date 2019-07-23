@@ -11,6 +11,8 @@ import { Navigator } from './components/Navigator';
 import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
+import { PropertyEditor } from './components/PropertyEditor';
+import { MapObject } from './map';
 
 export interface AppProps {
     client: PXTClient;
@@ -27,7 +29,7 @@ export class App extends React.Component<AppProps, AppState> {
         super(props);
 
         this.state = {
-            target: props.target
+            target: props.target,
         }
 
         this.deserialize = this.deserialize.bind(this);
@@ -69,6 +71,12 @@ export class App extends React.Component<AppProps, AppState> {
                 </div>
                 <div className="main">
                     <Map />
+                </div>
+                <div className="propertyEditorContainer">
+                    <PropertyEditor
+                        id="property-editor"
+                        inputObject = {{name: "dummy object"}}
+                    />
                 </div>
             </div>
         );

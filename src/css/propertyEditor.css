@@ -1,3 +1,8 @@
 .propertyEditor {
     /* TODO: add css properties */
+    flex: 1;
+
+    /* temporary values for display */
+    margin: 0.2em;
+    border: 4px dashed #2ecc71;
 }

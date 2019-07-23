@@ -1,6 +1,8 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import '../css/propertyEditor.css';
 import { PropertyEditorField } from './PropertyEditorField';
+import { PositionProperty } from 'csstype';
 
 interface IitemBase {
     /**
@@ -36,7 +38,9 @@ export class PropertyEditor extends React.Component<IPropertyEditorInput, IPrope
 
     constructor(props: IPropertyEditorInput) {
         super(props);
-        this.state = {shouldRender: true};
+        this.state = {
+            shouldRender: true,
+        };
         this.closeEditor = this.closeEditor.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
     }
@@ -46,10 +50,9 @@ export class PropertyEditor extends React.Component<IPropertyEditorInput, IPrope
             return (
                 <div className="propertyEditor">
                     {this.renderCloseButton()}
-                    {this.renderEditorField()}
+                    {this.renderEditorFields()}
                     {this.renderSaveButton()}
-                </div>
-            );
+                </div>);
         }
 
     }
@@ -81,10 +84,14 @@ export class PropertyEditor extends React.Component<IPropertyEditorInput, IPrope
         return;
     }
 
-    private renderEditorField(): JSX.Element {
+    private renderEditorFields(): JSX.Element {
         // TODO:
+        // const fields = Object.keys(this.props.inputObject).map(key =>
+        //     <PropertyEditorField label={key} value={this.props.inputObject[key] as string} type="text" />
+        // );
         return (
-            <PropertyEditorField />
-        )
+            <PropertyEditorField id="field-1" label={"name"} value={this.props.inputObject.name as string} type="text" />
+            // <PropertyEditorField id="field-2" label={"value"} value={this.props.inputObject.value as string} type="text" />
+        );
     }
 }
