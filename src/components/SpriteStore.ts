@@ -3,10 +3,11 @@ interface Dictionary<T> {
 }
 
 export interface Sprite {
-    src: string;
+    image: string;
     index: number;
-    size?: number;
-    alt?: string;
+    height?: number;
+    width?: number;
+    name?: string;
     finalSize?: number;
 }
 
@@ -16,6 +17,31 @@ interface GalleryStore {
     height?: number,
     width?: number,
     frames?: string[],
+}
+
+const getSpritesFromGallery = function (name: string): Sprite[] {
+    const spriteGallery = gallery.find((galleryStore) => galleryStore.name === name);
+    if (spriteGallery) {
+        if (!spriteGallery.frames || !spriteGallery.frames.length) {
+            return [{
+                name,
+                height: spriteGallery.height,
+                width: spriteGallery.width,
+                index: 0,
+                image: spriteGallery.image,
+            }];
+        } else {
+            return spriteGallery.frames.map((sprite, index) => {
+                return {
+                    sprite,
+                    height: spriteGallery.height,
+                    width: spriteGallery.width,
+                    index: index,
+                    image: spriteGallery.image,
+                }
+            });
+        }
+    }
 }
 
 const gallery: GalleryStore[] = [
@@ -50,4 +76,10 @@ const gallery: GalleryStore[] = [
     { name: 'space', image: './gallery-icons/space/space.png', height: 16, width: 16, frames: ['SmallAsteroid0', 'SmallAsteroid1', 'SmallAsteroid2', 'SmallAsteroid3', 'Asteroid0', 'Asteroid1', 'SmallAsteroid4', 'SmallAsteroid5', 'RedShip', 'Asteroid2', 'Asteroid3', 'Asteroid4', 'OrangeShip', 'PinkShip', 'BlueShip', 'GreenShip'] },
     { name: 'car', image: './gallery-icons/vehicle/car.png', height: 16, width: 16, frames: ['RedLeft', 'RedRight', 'RedBack', 'RedFront', 'BlueLeft', 'BlueRight', 'BlueBack', 'BlueFront', 'PinkLeft', 'PinkRight', 'PinkBack', 'PinkFront'] },
     { name: 'road', image: './gallery-icons/vehicle/road.png', height: 16, width: 16, frames: ['Turn1', 'Turn2', 'Turn4', 'Intersection1', 'Intersection2', 'Vertical', 'Turn3', 'Horizontal', 'Intersection3', 'Intersection4'] },
+];
+
+export const SpriteDictionary: Dictionary<Sprite[]> = {};
+SpriteDictionary['Items'] = [
+    ...getSpritesFromGallery('bigFood'),
+    ...getSpritesFromGallery('smallFood'),
 ];

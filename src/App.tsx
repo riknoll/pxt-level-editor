@@ -12,7 +12,7 @@ import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
-import { MapData } from './map';
+import { MapData, MapObjectLayers } from './map';
 
 import { MapTools, loadImageAsync } from './util';
 import { TileSet, TILE_SIZE } from './tileset';
@@ -26,6 +26,7 @@ export interface AppProps {
 export interface AppState {
     tileSetLoaded: boolean;
     target: string;
+    tool: MapTools;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -36,9 +37,10 @@ export class App extends React.Component<AppProps, AppState> {
         super(props);
 
         this.state = {
-            tileSetLoaded: false,
-            target: props.target
-        }
+            target: props.target,
+            tool: MapTools.Stamp,
+            tileSetLoaded: false
+        };
 
         this.deserialize = this.deserialize.bind(this);
         this.serialize = this.serialize.bind(this);
@@ -81,11 +83,11 @@ export class App extends React.Component<AppProps, AppState> {
             <div className="app">
                 <div className="sidebar">
                     <Navigator map={this.map} tileSet={this.tileSet}/>
-                    <EditingTools />
+                    <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool}/>
                     <Toolbox />
                 </div>
                 <div className="main">
-                    <Map tool={MapTools.Stamp} map={this.map} tileSet={this.tileSet}/>
+                    <Map tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet}/>
                 </div>
             </div>
         );

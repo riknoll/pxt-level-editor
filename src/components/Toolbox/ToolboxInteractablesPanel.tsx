@@ -17,8 +17,8 @@ export class ToolboxInteractablesPanel extends React.Component<{}, State> {
 
         this.state = {
             tiles: [
-                { name: "House", image: <SpriteSheet size={48} src={'./gallery-icons/castle/house.png'} index={0} finalSize={48} /> },
-                { name: "OtherHouse", image: <SpriteSheet size={48} src={'./gallery-icons/castle/house.png'} index={1} finalSize={48} /> }
+                { name: "House", image: <SpriteSheet height={48} image={'./gallery-icons/castle/house.png'} index={0} finalSize={48} /> },
+                { name: "OtherHouse", image: <SpriteSheet height={48} image={'./gallery-icons/castle/house.png'} index={1} finalSize={48} /> }
             ]
         }
     }
