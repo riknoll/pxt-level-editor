@@ -20,7 +20,7 @@ export class MapLocation {
 export class MapObject extends MapLocation implements MapRect {
     protected static nextID = 0;
     protected static getID() {
-        return MapObject.nextID ++;
+        return MapObject.nextID++;
     }
 
     public readonly id: number;

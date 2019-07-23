@@ -4,6 +4,7 @@ import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync } f
 import { TILE_SIZE, TileSet } from '../tileset';
 import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
+import { OperationLog, MapOperation, SetTileOp } from '../opLog';
 
 export interface MapProps {
     tool: MapTools
@@ -30,6 +31,7 @@ export class Map extends React.Component<MapProps, {}> {
 
     componentDidMount() {
         window.addEventListener("resize", this.handleResize);
+        window.addEventListener("keyup", this.handleKeyup);
     }
 
     componentWillUnmount() {
@@ -47,11 +49,20 @@ export class Map extends React.Component<MapProps, {}> {
     handleResize = () => {
         window.requestAnimationFrame(() => this.workspace.resize());
     }
+
+    handleKeyup = (e: KeyboardEvent) => {
+        if (e.code == "KeyZ" && e.ctrlKey) {
+            this.workspace.undo()
+        } else if (e.code == "KeyU" && e.ctrlKey) {
+            this.workspace.redo()
+        }
+    }
 }
 
 export class MapCanvas implements GestureTarget {
     protected map: MapData;
     protected tool: MapTools;
+    protected log: OperationLog;
 
     protected zoomMultiplier = 10;
     protected minMultiplier = 1;
@@ -71,6 +82,7 @@ export class MapCanvas implements GestureTarget {
     constructor(protected canvas: HTMLCanvasElement) {
         this.context = canvas.getContext("2d");
         this.map = new MapData();
+        this.log = new OperationLog();
 
         this.resize();
         bindGestureEvents(canvas, this);
@@ -138,10 +150,43 @@ export class MapCanvas implements GestureTarget {
         }
     }
 
+    private triggerOperation(op: MapOperation) {
+        this.log.do(op)
+        this.applyOperation(op)
+    }
+
+    private applyOperation(op: MapOperation) {
+        if (op.kind === "settile") {
+            // TODO(dz): handle layer
+            this.map.setTile(op.row, op.col, 1);
+        } else {
+            // let _: never = op
+        }
+    }
+
+    undo() {
+        // TODO(dz):
+        console.log("TODO: undo")
+        let op = this.log.redo()
+    }
+
+    redo() {
+        // TODO(dz):
+        console.log("TODO: redo")
+        let op = this.log.undo()
+    }
+
     onClick(coord: ClientCoordinates) {
         coord = this.clientToCanvas(coord);
-
-        this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
+        let op: SetTileOp = {
+            kind: "settile",
+            row: this.canvasToMap(coord.clientX - this.offsetX),
+            col: this.canvasToMap(coord.clientY - this.offsetY),
+            data: 1,
+            // TODO(dz): handle layer
+            layer: MapObjectLayers.Decoration
+        }
+        this.triggerOperation(op)
     }
 
     onDragStart(coord: ClientCoordinates) {
@@ -166,7 +211,7 @@ export class MapCanvas implements GestureTarget {
         this.dragLast = undefined;
     }
 
-    zoomIn(isZoomIn: boolean){
+    zoomIn(isZoomIn: boolean) {
 
         let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
         this.zoomMultiplier += currentZoomAmount;
@@ -176,7 +221,7 @@ export class MapCanvas implements GestureTarget {
         } else {
             this.zoomMultiplier = Math.max(this.minMultiplier, this.zoomMultiplier);
         }
-        
+
         this.redraw();
     }
 
