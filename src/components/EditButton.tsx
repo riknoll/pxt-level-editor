@@ -14,7 +14,7 @@ export class EditButton extends React.Component<EditButtonProps, {}> {
 
     constructor(props: EditButtonProps) {
         super(props);
-        
+
     }
 
     render() {

@@ -1,7 +1,7 @@
 /// <reference path="../../../dist/js/spriteEditor.d.ts" />
 
-
 import * as React from 'react';
+
 interface ISpriteEditorProps {
     onChange: (v: string) => void;
 }
@@ -60,14 +60,15 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
       render() {
           const {open} = this.state;
           return (
-              <div>
-                  <button
-                      title={("Add your sprite")}
-                      onClick={this.openSpriteEditor}
-                  >{("+")}</button>
-                  {open && <div ref="spriteEditorPopup"></div>}
+              <div className='toolbox-panel-grid-tile'>
+                    <div
+                        role='button'
+                        className={"addSpriteButton fas fa-plus"}
+                        onClick={this.openSpriteEditor} id={'Add sprite'}
+                    ></div>
+                    {open && <div ref="spriteEditorPopup"></div>}
               </div >
-              
+
           );
       }
   }

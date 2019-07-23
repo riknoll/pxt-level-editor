@@ -32,7 +32,7 @@ export default class SpriteSheet extends React.Component<Sprite, SpriteSheetStat
         const { coords } = this.state;
 
         return (
-            <div style={{ overflow: 'hidden', transform: `scale(${(finalSize / size)})`, transformOrigin: `0, 0`, }}>
+            <div style={{ overflow: 'hidden', transform: `scale(${(finalSize / size)})`, transformOrigin: `0 0`, }}>
                 <img
                     alt={alt || `tile-${index}`}
                     src={src}
