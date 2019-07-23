@@ -1,7 +1,7 @@
 .navigator {
     height: 16em;
     overflow: hidden;
-
+    min-height: 8em;
     justify-content: center;
     align-items: center;
 
