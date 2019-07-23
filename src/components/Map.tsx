@@ -201,7 +201,7 @@ export class MapCanvas implements GestureTarget {
         const bounds = this.visibleRect();
 
         // Applies the bitmask based on the current tool
-        if (this.bitmask !== null) {
+        if (this.bitmask != null) {
             for (let c = 0; c <= this.bitmask.width; c++) {
                 for (let r = 0; r <= this.bitmask.height; r ++) {
                     if (this.bitmask.get(c, r) === 1) {
