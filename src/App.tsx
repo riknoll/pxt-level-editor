@@ -13,6 +13,8 @@ import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
 
+import { MapTools } from './util';
+
 export interface AppProps {
     client: PXTClient;
     target: string;
@@ -70,7 +72,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <Toolbox />
                 </div>
                 <div className="main">
-                    <Map />
+                    <Map tool={MapTools.Pan}/>
                 </div>
             </div>
         );

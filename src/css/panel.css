@@ -1,9 +1,0 @@
-.toolbox-panel {
-  border: 1px solid #aaa;
-  float: none;
-}
-
-.toolbox-panel > .panel-title {
-  cursor: pointer;
-  border-bottom: 1px solid #aaa;
-}

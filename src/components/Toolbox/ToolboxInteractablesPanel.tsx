@@ -10,23 +10,23 @@ interface State {
     tiles: Tile[],
 }
 
-export class ToolboxItemPanel extends React.Component<{}, State> {
+export class ToolboxInteractablesPanel extends React.Component<{}, State> {
 
     constructor(props: {}) {
         super(props);
 
         this.state = {
             tiles: [
-                { name: "Ham", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={0} finalSize={48} /> },
-                { name: "Cake", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={5} finalSize={48} /> }
+                { name: "House", image: <SpriteSheet size={48} src={'./gallery-icons/castle/house.png'} index={0} finalSize={48} /> },
+                { name: "OtherHouse", image: <SpriteSheet size={48} src={'./gallery-icons/castle/house.png'} index={1} finalSize={48} /> }
             ]
         }
     }
 
     render() {
         return (
-            <ToolboxPanel title="Item">
-                <ToolboxPanelGrid tiles={this.state.tiles} ></ToolboxPanelGrid>
+            <ToolboxPanel title="Interactables">
+                <ToolboxPanelGrid tiles={this.state.tiles}></ToolboxPanelGrid>
             </ToolboxPanel>
         );
     }

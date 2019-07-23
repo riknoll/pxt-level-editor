@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-import '../css/panel.css';
+import '../../css/toolbox-panel.css';
 
 interface Props {
     expandedByDefault?: boolean,
     title: string,
 }
 
-export class Panel extends React.Component<Props, { expanded: boolean }> {
+export class ToolboxPanel extends React.Component<Props, { expanded: boolean }> {
     constructor(props: Props) {
         super(props);
 
@@ -29,9 +29,14 @@ export class Panel extends React.Component<Props, { expanded: boolean }> {
     render() {
         return (
             <div className="toolbox-panel">
-                <h3 className="panel-title" onClick={this.clickTitle}>{this.props.title}</h3>
+                <h3 className="panel-title" onClick={this.clickTitle}>{this.props.title}
+                    <i className={this.state.expanded ? "panel-icon fas fa-chevron-circle-up" : "panel-icon fas fa-chevron-circle-down"}></i>
+                </h3>
+
                 {this.renderPanel()}
             </div>
         );
     }
+
+
 }
