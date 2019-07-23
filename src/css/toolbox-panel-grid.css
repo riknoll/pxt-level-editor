@@ -3,7 +3,7 @@
 }
 
 .toolbox-panel-grid-tile {
-  border: 1px solid #aaa;
+  /* border: 1px solid #aaa; */
   cursor: pointer;
   display: inline-block;
   height: 48px;

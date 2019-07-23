@@ -1,9 +1,10 @@
 import * as React from 'react';
 import SpriteSheet from './SpriteSheet';
-import '../../css/toolbox.css';
 import { Tile } from './toolboxTypes';
-import { Panel } from '../Panel';
+import { ToolboxPanel } from './ToolboxPanel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
+
+import '../../css/toolbox.css';
 
 interface State {
     tiles: Tile[],
@@ -29,9 +30,9 @@ export class ToolboxAreasPanel extends React.Component<{}, State> {
 
     render() {
         return (
-            <Panel title="Areas">
+            <ToolboxPanel title="Areas">
                 <ToolboxPanelGrid tiles={this.state.tiles}></ToolboxPanelGrid>
-            </Panel>
+            </ToolboxPanel>
         );
     }
 }
