@@ -16,10 +16,11 @@ export class Toolbox extends React.Component<{}, {}> {
             <div className="toolbox">
                 <div style={{ display: "block", width: "100%", height: "100%" }}>
                     <h2>Toolbox</h2>
-                    <ToolboxTerrainPanel></ToolboxTerrainPanel>
-                    <ToolboxItemPanel></ToolboxItemPanel>
-                    <ToolboxSpawnersPanel></ToolboxSpawnersPanel>
+                    <ToolboxTerrainPanel />
+                    <ToolboxItemPanel />
+                    <ToolboxSpawnersPanel />
                     <ToolboxInteractablesPanel />
+                    <ToolboxAreasPanel />
                 </div>
             </div>
         );
