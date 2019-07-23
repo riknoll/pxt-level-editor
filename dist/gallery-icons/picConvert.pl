@@ -38,7 +38,7 @@ while(my $fileName = <>){
                 $newFilePath =~ s/meta/$_/;
                 my $newName = $name;
                 $newName =~ s/meta/$_/;
-                push(@fileContents, "{ name: '$newName', image: './$newFilePath', height: $height, width: $width, frames: [] },\n");
+                push(@fileContents, "{ name: '$newName', image: './$newFilePath', frames: [] },\n");
             }
         }
     }
