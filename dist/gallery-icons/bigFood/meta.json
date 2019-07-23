@@ -1,0 +1,14 @@
+{
+    "width": 32,
+    "height": 32,
+    "blockIdentity": "images._image",
+    "creator": "image.ofBuffer",
+    "basename": "bigFood",
+    "star": {
+        "namespace": "sprites.food",
+        "mimeType": "image/x-mkcd-f4"
+    },
+    "standaloneSprites": [
+        "plate"
+    ]
+}

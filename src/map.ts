@@ -149,13 +149,14 @@ export enum MapObjectLayers {
 }
 
 export class MapData {
-    protected changeListener: () => void;
+    protected changeListeners: (() => void)[];
     protected ne: MapQuadrant;
     protected se: MapQuadrant;
     protected sw: MapQuadrant;
     protected nw: MapQuadrant;
 
     protected layers: MapObjectLayer[];
+    protected bounds: MapRect;
 
     constructor() {
         this.ne = new MapQuadrant();
@@ -164,6 +165,7 @@ export class MapData {
         this.nw = new MapQuadrant();
 
         this.layers = [];
+        this.changeListeners = [];
 
         this.layers[MapObjectLayers.Decoration] = new MapObjectLayer();
         this.layers[MapObjectLayers.Item] = new MapObjectLayer();
@@ -174,15 +176,34 @@ export class MapData {
     setTile(column: number, row: number, data: number) {
         this.getQuadrant(column, row).setTile(column, row, data);
 
-        if (this.changeListener) this.changeListener();
+        if (this.bounds == null) {
+            this.bounds = {
+                top: row,
+                left: column,
+                bottom: row,
+                right: column,
+                width: 1,
+                height: 1,
+            };
+        }
+        else {
+            this.bounds.top = Math.min(this.bounds.top, row);
+            this.bounds.bottom = Math.max(this.bounds.bottom, row);
+            this.bounds.left = Math.min(this.bounds.left, column);
+            this.bounds.right = Math.max(this.bounds.right, column);
+            this.bounds.width = this.bounds.right - this.bounds.left - 1;
+            this.bounds.height = this.bounds.bottom - this.bounds.top - 1;
+        }
+
+        if (this.changeListeners) this.changeListeners.forEach(e => e());
     }
 
     getTile(column: number, row: number) {
         return this.getQuadrant(column, row).getTile(column, row);
     }
 
-    onChange(cb: () => void) {
-        this.changeListener = cb;
+    addChangeListener(cb: () => void) {
+        this.changeListeners.push(cb);
     }
 
     addObjectToLayer(layer: MapObjectLayers, obj: MapObject) {
@@ -212,6 +233,10 @@ export class MapData {
         else {
             return this.ne;
         }
+    }
+
+    getBounds() {
+        return this.bounds;
     }
 }
 

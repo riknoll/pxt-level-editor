@@ -12,8 +12,11 @@ import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
+import { MapData, MapObjectLayers } from './map';
 
-import { MapTools } from './util';
+import { MapTools, loadImageAsync } from './util';
+import { TileSet, TILE_SIZE } from './tileset';
+
 
 export interface AppProps {
     client: PXTClient;
@@ -21,21 +24,34 @@ export interface AppProps {
 }
 
 export interface AppState {
+    tileSetLoaded: boolean;
     target: string;
+    tool: MapTools;
 }
 
 export class App extends React.Component<AppProps, AppState> {
 
+    protected map: MapData;
+    protected tileSet: TileSet;
     constructor(props: AppProps) {
         super(props);
 
         this.state = {
-            target: props.target
-        }
+            target: props.target,
+            tool: MapTools.Stamp,
+            tileSetLoaded: false
+        };
 
         this.deserialize = this.deserialize.bind(this);
         this.serialize = this.serialize.bind(this);
 
+        loadImageAsync("./tile.png")
+            .then(el => {
+                this.tileSet = new TileSet(el, TILE_SIZE);
+                this.setState({tileSetLoaded: true})
+            });
+
+        this.map = new MapData();
         props.client.on('read', this.deserialize);
         props.client.on('hidden', this.serialize);
     }
@@ -63,16 +79,15 @@ export class App extends React.Component<AppProps, AppState> {
 
     render() {
         const { target } = this.state;
-
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator />
-                    <EditingTools />
+                    <Navigator map={this.map} tileSet={this.tileSet}/>
+                    <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool}/>
                     <Toolbox />
                 </div>
                 <div className="main">
-                    <Map tool={MapTools.Pan}/>
+                    <Map tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet}/>
                 </div>
             </div>
         );

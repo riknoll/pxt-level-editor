@@ -17,8 +17,8 @@ export class ToolboxSpawnersPanel extends React.Component<{}, State> {
 
         this.state = {
             tiles: [
-                { name: "Skelly", image: <SpriteSheet size={16} src={'./gallery-icons/space/space.png'} index={0} finalSize={48} /> },
-                { name: "Asteroid", image: <SpriteSheet size={22} src={'./gallery-icons/castle/skelly.png'} index={0} finalSize={48} /> }
+                { name: "Asteroid", image: <SpriteSheet height={16} image={'./gallery-icons/space/space.png'} index={0} finalSize={48} /> },
+                { name: "Skelly", image: <SpriteSheet height={24} image={'./gallery-icons/castle/skelly.png'} index={0} finalSize={48} /> }
             ]
         }
     }
