@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ToolboxTerrainPanel } from './Toolbox/ToolboxTerrainPanel';
-import { ToolboxItemPanel } from './Toolbox/ToolboxItemPanel';
+import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
+import { ToolboxItemPanel } from './ToolboxItemPanel';
 
-import '../css/toolbox.css';
+import '../../css/toolbox.css';
 
 export class Toolbox extends React.Component<{}, {}> {
 
