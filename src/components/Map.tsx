@@ -121,7 +121,9 @@ export class MapCanvas implements GestureTarget {
             }
 
             this.drawObjectLayers(bounds);
-            this.drawGridlines(bounds);
+            this.drawGridlines(bounds, "#dedede", 1, (pos: number) => true); // Draws light grey gridlines every tile
+            this.drawGridlines(bounds, "#9e9e9e", 2, (pos: number) => pos % 5 === 0); // Draws dark grey gridlines every 5 tiles
+            this.drawGridlines(bounds, "#000", 3, (pos: number) => pos === 0); // Draws black gridlines at the origin
         })
     }
 
@@ -299,18 +301,23 @@ export class MapCanvas implements GestureTarget {
         this.context.strokeRect(x, y, width, height);
     }
 
-    protected drawGridlines(bounds: MapRect) {
-        this.context.strokeStyle = "#dedede"
+    protected drawGridlines(bounds: MapRect, color: string, width: number, condition: Function) {
+        this.context.strokeStyle = color;
+        this.context.lineWidth = width;
         this.context.beginPath();
 
         for (let c = bounds.left; c <= bounds.right; c++) {
-            this.context.moveTo(this.offsetX + this.mapToCanvas(c), 0)
-            this.context.lineTo(this.offsetX + this.mapToCanvas(c), this.cachedBounds.height)
+            if (condition(c)) {
+                this.context.moveTo(this.offsetX + this.mapToCanvas(c), 0)
+                this.context.lineTo(this.offsetX + this.mapToCanvas(c), this.cachedBounds.height)
+            }
         }
 
         for (let r = bounds.top; r <= bounds.bottom; r++) {
-            this.context.moveTo(0, this.offsetY + this.mapToCanvas(r))
-            this.context.lineTo(this.cachedBounds.width, this.offsetY + this.mapToCanvas(r))
+            if (condition(r)) {
+                this.context.moveTo(0, this.offsetY + this.mapToCanvas(r))
+                this.context.lineTo(this.cachedBounds.width, this.offsetY + this.mapToCanvas(r))
+            }
         }
 
         this.context.stroke();
