@@ -28,11 +28,6 @@ export class OperationLog {
     }
 
     private truncate() {
-        // TODO(dz):
-        // console.log("TRUNCATING")
-        // console.dir(this.cursor)
-        // console.dir(this.log)
-
         // DESTRUCTIVE
         if (this.cursor < this.log.length)
             this.log.splice(this.cursor + 1)
@@ -70,7 +65,6 @@ export class OperationLog {
         return this.currentOp()
     }
 
-    // TODO(dz): compute state from intermediate snapshot
     computeState<State>(reduceFn: (prevState: State, nextOp: Operation) => State, defState: State): State {
         return this.log.slice(0, this.cursor + 1).reduce(reduceFn, defState)
     }
