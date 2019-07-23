@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import SpriteSheet from './SpriteSheet';
 import '../../css/toolbox.css';
 import { Tile } from './toolboxTypes';
 import { Panel } from '../Panel';
@@ -16,8 +16,8 @@ export class ToolboxItemPanel extends React.Component<{}, State> {
 
         this.state = {
             tiles: [
-                { name: "Treasure", image: <div>T</div> },
-                { name: "Coin", image: <div>C</div> }
+                { name: "Ham", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={0} finalSize={48} /> },
+                { name: "Cake", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={5} finalSize={48} /> }
             ]
         }
     }
