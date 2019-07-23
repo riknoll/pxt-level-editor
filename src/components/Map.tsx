@@ -6,7 +6,8 @@ import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
 
 export interface MapProps {
-    tool: MapTools
+    tool: MapTools,
+    map: MapData,
 }
 
 export class Map extends React.Component<MapProps, {}> {
@@ -20,6 +21,10 @@ export class Map extends React.Component<MapProps, {}> {
         return (
             <div className="map">
                 <canvas ref={this.handleCanvasRef} />
+                <div className="zoom">
+                    <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
+                    <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
+                </div>
             </div>
         );
     }
@@ -37,7 +42,7 @@ export class Map extends React.Component<MapProps, {}> {
     }
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
-        if (ref) this.workspace = new MapCanvas(ref);
+        if (ref) this.workspace = new MapCanvas(ref, this.props.map);
     };
 
     handleResize = () => {
@@ -46,10 +51,13 @@ export class Map extends React.Component<MapProps, {}> {
 }
 
 export class MapCanvas implements GestureTarget {
-    protected map: MapData;
     protected tool: MapTools;
 
     protected zoomMultiplier = 10;
+    protected minMultiplier = 1;
+    protected maxMultiplier = 70;
+    protected amountToZoom = 3;
+
     protected offsetX = 0;
     protected offsetY = 0;
 
@@ -61,9 +69,8 @@ export class MapCanvas implements GestureTarget {
     protected tileset: TileSet;
     protected bitmask: Bitmask;
 
-    constructor(protected canvas: HTMLCanvasElement) {
+    constructor(protected canvas: HTMLCanvasElement, protected map: MapData) {
         this.context = canvas.getContext("2d");
-        this.map = new MapData();
 
         this.resize();
         bindGestureEvents(canvas, this);
@@ -213,6 +220,20 @@ export class MapCanvas implements GestureTarget {
         }
 
         this.dragLast = undefined;
+    }
+
+    zoomIn(isZoomIn: boolean){
+
+        let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
+        this.zoomMultiplier += currentZoomAmount;
+
+        if (isZoomIn) {
+            this.zoomMultiplier = Math.min(this.maxMultiplier, this.zoomMultiplier);
+        } else {
+            this.zoomMultiplier = Math.max(this.minMultiplier, this.zoomMultiplier);
+        }
+        
+        this.redraw();
     }
 
     protected drawTile(x: number, y: number, data: number) {

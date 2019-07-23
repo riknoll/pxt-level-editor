@@ -10,23 +10,28 @@ interface State {
     tiles: Tile[],
 }
 
-export class ToolboxItemPanel extends React.Component<{}, State> {
+export class ToolboxAreasPanel extends React.Component<{}, State> {
 
     constructor(props: {}) {
         super(props);
 
         this.state = {
             tiles: [
-                { name: "Ham", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={0} finalSize={48} /> },
-                { name: "Cake", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={5} finalSize={48} /> }
+                {
+                    name: "Wall", image: <div style={{
+                        backgroundColor: "rgba(200,0,200,.3)",
+                        height: "48px",
+                        width: "48px",
+                    }} />
+                },
             ]
         }
     }
 
     render() {
         return (
-            <ToolboxPanel title="Item">
-                <ToolboxPanelGrid tiles={this.state.tiles} ></ToolboxPanelGrid>
+            <ToolboxPanel title="Areas">
+                <ToolboxPanelGrid tiles={this.state.tiles}></ToolboxPanelGrid>
             </ToolboxPanel>
         );
     }

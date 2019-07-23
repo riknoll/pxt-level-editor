@@ -8,9 +8,11 @@ import { pxt, PXTClient } from '../lib/pxtextensions';
 
 import { Map } from './components/Map';
 import { Navigator } from './components/Navigator';
+import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
+import { MapData } from './map';
 
 import { MapTools } from './util';
 
@@ -25,6 +27,7 @@ export interface AppState {
 
 export class App extends React.Component<AppProps, AppState> {
 
+    protected map: MapData;
     constructor(props: AppProps) {
         super(props);
 
@@ -35,6 +38,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.deserialize = this.deserialize.bind(this);
         this.serialize = this.serialize.bind(this);
 
+        this.map = new MapData();
         props.client.on('read', this.deserialize);
         props.client.on('hidden', this.serialize);
     }
@@ -66,11 +70,12 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator />
+                    <Navigator map={this.map}/>
+                    <EditingTools />
                     <Toolbox />
                 </div>
                 <div className="main">
-                    <Map tool={MapTools.Stamp}/>
+                    <Map tool={MapTools.Stamp} map={this.map}/>
                 </div>
             </div>
         );

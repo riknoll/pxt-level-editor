@@ -39,17 +39,18 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
         const { coords } = this.state;
 
         return (
-            <img
-                alt={alt || `tile-${index}`}
-                src={src}
-                style={{
-                    zoom: finalSize / size,
-                    width: size,
-                    height: size,
-                    objectFit: 'none',
-                    objectPosition: coords && `-${coords.clientX}px -${coords.clientY}px`
-                }}
-            />
+            <div style={{ overflow: 'hidden', transform: `scale(${(finalSize / size)})`, transformOrigin: `0, 0`, }}>
+                <img
+                    alt={alt || `tile-${index}`}
+                    src={src}
+                    style={{
+                        width: size,
+                        height: size,
+                        objectFit: 'none',
+                        objectPosition: coords && `-${coords.clientX}px -${coords.clientY}px`,
+                    }}
+                />
+            </div>
         );
     }
 }

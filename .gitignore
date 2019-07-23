@@ -66,3 +66,4 @@ build/*
 .header.json
 
 package-lock.json
+/.vs
