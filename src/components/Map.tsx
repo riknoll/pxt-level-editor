@@ -93,6 +93,9 @@ export class MapCanvas implements GestureTarget {
 
         this.setMap(new MapData())
 
+        this.resize();
+        bindGestureEvents(canvas, this);
+
         this.triggerOperation({
             kind: "setobj",
             obj: new MapObject(1, 1),
@@ -101,6 +104,7 @@ export class MapCanvas implements GestureTarget {
     }
 
     setTileSet(tiles: TileSet) {
+        // TODO(dz): handle undo/redo?
         this.tileSet = tiles;
     }
 
