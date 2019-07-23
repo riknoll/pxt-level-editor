@@ -15,10 +15,10 @@ export class ToolboxTerrainPanel extends React.Component<{}, State> {
 
         this.state = {
             tiles: [
-                { name: "Grass", image: <SpriteSheet size={16} src={'./gallery-icons/castle/tile.png'} index={5} finalSize={48} /> },
-                { name: "Flowers", image: <SpriteSheet size={16} src={'./gallery-icons/castle/tile.png'} index={1} finalSize={48} /> },
-                { name: "Trees", image: <SpriteSheet size={32} src={'./gallery-icons/castle/tree.png'} index={0} finalSize={48} /> },
-                { name: "Bushes", image: <SpriteSheet size={16} src={'./gallery-icons/castle/shrub.png'} index={0} finalSize={48} /> }
+                { name: "Grass", image: <SpriteSheet height={16} image={'./gallery-icons/castle/tile.png'} index={5} finalSize={48} /> },
+                { name: "Flowers", image: <SpriteSheet height={16} image={'./gallery-icons/castle/tile.png'} index={1} finalSize={48} /> },
+                { name: "Trees", image: <SpriteSheet height={32} image={'./gallery-icons/castle/tree.png'} index={0} finalSize={48} /> },
+                { name: "Bushes", image: <SpriteSheet height={16} image={'./gallery-icons/castle/shrub.png'} index={0} finalSize={48} /> }
             ]
         }
     }

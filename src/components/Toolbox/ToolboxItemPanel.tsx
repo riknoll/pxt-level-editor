@@ -17,8 +17,8 @@ export class ToolboxItemPanel extends React.Component<{}, State> {
 
         this.state = {
             tiles: [
-                { name: "Ham", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={0} finalSize={48} /> },
-                { name: "Cake", image: <SpriteSheet size={32} src={'./gallery-icons/bigFood/big.png'} index={5} finalSize={48} /> }
+                { name: "Ham", image: <SpriteSheet height={32} image={'./gallery-icons/bigFood/big.png'} index={0} finalSize={48} /> },
+                { name: "Cake", image: <SpriteSheet height={32} image={'./gallery-icons/bigFood/big.png'} index={5} finalSize={48} /> }
             ]
         }
     }
