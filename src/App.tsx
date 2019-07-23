@@ -12,7 +12,7 @@ import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
-import { MapData } from './map';
+import { MapData, MapObjectLayers } from './map';
 
 import { MapTools } from './util';
 
@@ -23,6 +23,7 @@ export interface AppProps {
 
 export interface AppState {
     target: string;
+    tool: MapTools;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -32,7 +33,8 @@ export class App extends React.Component<AppProps, AppState> {
         super(props);
 
         this.state = {
-            target: props.target
+            target: props.target,
+            tool: MapTools.Stamp
         }
 
         this.deserialize = this.deserialize.bind(this);
@@ -71,11 +73,11 @@ export class App extends React.Component<AppProps, AppState> {
             <div className="app">
                 <div className="sidebar">
                     <Navigator map={this.map}/>
-                    <EditingTools />
+                    <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool}/>
                     <Toolbox />
                 </div>
                 <div className="main">
-                    <Map tool={MapTools.Stamp} map={this.map}/>
+                    <Map tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area}/>
                 </div>
             </div>
         );

@@ -6,8 +6,9 @@ import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
 
 export interface MapProps {
-    tool: MapTools,
-    map: MapData,
+    tool: MapTools;
+    map: MapData;
+    activeLayer: MapObjectLayers;
 }
 
 export class Map extends React.Component<MapProps, {}> {
@@ -52,6 +53,7 @@ export class Map extends React.Component<MapProps, {}> {
 
 export class MapCanvas implements GestureTarget {
     protected tool: MapTools;
+    protected activeLayer: MapObjectLayers;
 
     protected zoomMultiplier = 10;
     protected minMultiplier = 1;
@@ -76,7 +78,6 @@ export class MapCanvas implements GestureTarget {
         bindGestureEvents(canvas, this);
 
         this.map.onChange(() => this.redraw());
-
         this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
 
         loadImageAsync("./tile.png")
@@ -156,6 +157,10 @@ export class MapCanvas implements GestureTarget {
         }
     }
 
+    updateActiveLayer(layer: MapObjectLayers) {
+        this.activeLayer = layer;
+    }
+
     onClick(coord: ClientCoordinates) {
         coord = this.clientToCanvas(coord);
 
@@ -201,7 +206,7 @@ export class MapCanvas implements GestureTarget {
         const bounds = this.visibleRect();
 
         // Applies the bitmask based on the current tool
-        if (this.bitmask !== null) {
+        if (this.bitmask) {
             for (let c = 0; c <= this.bitmask.width; c++) {
                 for (let r = 0; r <= this.bitmask.height; r ++) {
                     if (this.bitmask.get(c, r) === 1) {
@@ -232,7 +237,7 @@ export class MapCanvas implements GestureTarget {
         } else {
             this.zoomMultiplier = Math.max(this.minMultiplier, this.zoomMultiplier);
         }
-        
+
         this.redraw();
     }
 
