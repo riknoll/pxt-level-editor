@@ -1,7 +1,7 @@
 import { MapObjectLayers } from './map';
 
 // TODO(dz): handle global operations
-export type Operation = MapOperation
+export type Operation = MapOperation | Nop
 export type MapOperation = SetTileOp
 
 export interface SetTileOp {
@@ -12,17 +12,27 @@ export interface SetTileOp {
     data: number
 }
 
+export interface Nop {
+    kind: "nop"
+}
+export const NOP: Nop = { kind: "nop" }
+
 export class OperationLog {
-    log: Operation[] = []
+    log: Operation[] = [NOP]
     cursor: number = 0
 
     constructor() {
     }
 
     private truncate() {
+        // TODO(dz):
+        // console.log("TRUNCATING")
+        // console.dir(this.cursor)
+        // console.dir(this.log)
+
         // DESTRUCTIVE
         if (this.cursor < this.log.length)
-            this.log.splice(this.cursor)
+            this.log.splice(this.cursor + 1)
     }
     private lastIdx(): number {
         return this.log.length - 1
@@ -59,6 +69,6 @@ export class OperationLog {
 
     // TODO(dz): compute state from intermediate snapshot
     computeState<State>(reduceFn: (prevState: State, nextOp: Operation) => State, defState: State): State {
-        return this.log.reduce(reduceFn, defState)
+        return this.log.slice(0, this.cursor + 1).reduce(reduceFn, defState)
     }
 }

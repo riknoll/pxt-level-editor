@@ -4,7 +4,7 @@ import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync } f
 import { TILE_SIZE, TileSet } from '../tileset';
 import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
-import { OperationLog, MapOperation, SetTileOp } from '../opLog';
+import { OperationLog, MapOperation, SetTileOp, Operation } from '../opLog';
 
 export interface MapProps {
     tool: MapTools
@@ -51,9 +51,9 @@ export class Map extends React.Component<MapProps, {}> {
     }
 
     handleKeyup = (e: KeyboardEvent) => {
-        if (e.code == "KeyZ" && e.ctrlKey) {
+        if (e.code == "KeyZ" && (e.ctrlKey || e.metaKey)) {
             this.workspace.undo()
-        } else if (e.code == "KeyU" && e.ctrlKey) {
+        } else if (e.code == "KeyR" && e.ctrlKey) {
             this.workspace.redo()
         }
     }
@@ -81,21 +81,26 @@ export class MapCanvas implements GestureTarget {
 
     constructor(protected canvas: HTMLCanvasElement) {
         this.context = canvas.getContext("2d");
-        this.map = new MapData();
         this.log = new OperationLog();
+
+        this.setMap(new MapData())
+
+        // TODO(dz): do addObj in log
+        // this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
 
         this.resize();
         bindGestureEvents(canvas, this);
-
-        this.map.onChange(() => this.redraw());
-
-        this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
 
         loadImageAsync("./tile.png")
             .then(el => {
                 this.tileset = new TileSet(el);
                 this.redraw();
             });
+    }
+
+    private setMap(data: MapData) {
+        this.map = data
+        this.map.onChange(() => this.redraw());
     }
 
     centerOnTile(x: number, y: number) {
@@ -152,28 +157,38 @@ export class MapCanvas implements GestureTarget {
 
     private triggerOperation(op: MapOperation) {
         this.log.do(op)
-        this.applyOperation(op)
+        this.applyOperation(this.map, op)
     }
 
-    private applyOperation(op: MapOperation) {
+    private applyOperation(state: MapData, op: Operation): MapData {
         if (op.kind === "settile") {
             // TODO(dz): handle layer
-            this.map.setTile(op.row, op.col, 1);
+            state.setTile(op.row, op.col, 1);
         } else {
-            // let _: never = op
+            // ignore non-map operations
         }
+        return state
+    }
+
+    private computeState(): MapData {
+        return this.log.computeState((p, n) => this.applyOperation(p, n), new MapData())
+    }
+
+    private rebuildState() {
+        // TODO(dz): work off a snapshot
+        this.setMap(this.computeState())
+        this.redraw()
     }
 
     undo() {
-        // TODO(dz):
-        console.log("TODO: undo")
-        let op = this.log.redo()
+        // TODO: incremental undo
+        let op = this.log.undo()
+        this.rebuildState()
     }
 
     redo() {
-        // TODO(dz):
-        console.log("TODO: redo")
-        let op = this.log.undo()
+        let op = this.log.redo()
+        this.applyOperation(this.map, op)
     }
 
     onClick(coord: ClientCoordinates) {
