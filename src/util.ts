@@ -11,7 +11,31 @@ export function isTouchEnabled(): boolean {
 }
 
 export enum MapTools {
-    Pan
+    Pan,
+    Stamp,
+    Erase
+}
+
+export class Bitmask {
+    protected mask: Uint8Array;
+
+    constructor(public width: number, public height: number) {
+        this.mask = new Uint8Array(Math.ceil(width * height / 8));
+    }
+
+    set(col: number, row: number) {
+        const cellIndex = col + this.width * row;
+        const index = cellIndex >> 3;
+        const offset = cellIndex & 7;
+        this.mask[index] |= (1 << offset);
+    }
+
+    get(col: number, row: number) {
+        const cellIndex = col + this.width * row;
+        const index = cellIndex >> 3;
+        const offset = cellIndex & 7;
+        return (this.mask[index] >> offset) & 1;
+    }
 }
 
 export interface IPointerEvents {
