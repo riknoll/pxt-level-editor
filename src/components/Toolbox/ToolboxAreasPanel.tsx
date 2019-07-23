@@ -16,15 +16,20 @@ export class ToolboxAreasPanel extends React.Component<{}, State> {
 
         this.state = {
             tiles: [
-                { name: "Skelly", image: <SpriteSheet size={16} src={'./gallery-icons/space/space.png'} index={0} finalSize={48} /> },
-                { name: "Asteroid", image: <SpriteSheet size={22} src={'./gallery-icons/castle/skelly.png'} index={0} finalSize={48} /> }
+                {
+                    name: "Wall", image: <div style={{
+                        backgroundColor: "rgba(200,0,200,.3)",
+                        height: "48px",
+                        width: "48px",
+                    }} />
+                },
             ]
         }
     }
 
     render() {
         return (
-            <Panel title="Spawners">
+            <Panel title="Areas">
                 <ToolboxPanelGrid tiles={this.state.tiles}></ToolboxPanelGrid>
             </Panel>
         );
