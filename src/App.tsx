@@ -75,7 +75,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <Toolbox />
                 </div>
                 <div className="main">
-                    <Map tool={MapTools.Pan} map={this.map}/>
+                    <Map tool={MapTools.Stamp} map={this.map}/>
                 </div>
             </div>
         );
