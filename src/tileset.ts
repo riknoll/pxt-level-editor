@@ -6,6 +6,7 @@ export const TILE_SIZE = 16;
 export class TileSet {
     columns: number;
     rows: number;
+    tileSize: number;
     colors: String[];
 
     constructor(public readonly src: HTMLImageElement, tileSize?: number) {
