@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Panel } from './Panel';
-import '../css/toolbox.css';
-import { ToolboxTerrainPanel } from './Toolbox/ToolboxTerrainPanel';
-import { ToolboxItemPanel } from './Toolbox/ToolboxItemPanel';
-import { ToolboxSpawnersPanel } from './Toolbox/ToolboxSpawnersPanel';
-import { ToolboxInteractablesPanel } from './Toolbox/ToolboxInteractablesPanel';
-import { ToolboxAreasPanel } from './Toolbox/ToolboxAreasPanel';
+import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
+import { ToolboxItemPanel } from './ToolboxItemPanel';
+import { ToolboxSpawnersPanel } from './ToolboxSpawnersPanel';
+import { ToolboxInteractablesPanel } from './ToolboxInteractablesPanel';
+import { ToolboxAreasPanel } from './ToolboxAreasPanel';
+
+import '../../css/toolbox.css';
 
 export class Toolbox extends React.Component<{}, {}> {
 
