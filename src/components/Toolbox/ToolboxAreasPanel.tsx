@@ -9,7 +9,7 @@ interface State {
     tiles: Tile[],
 }
 
-export class ToolboxSpawnersPanel extends React.Component<{}, State> {
+export class ToolboxAreasPanel extends React.Component<{}, State> {
 
     constructor(props: {}) {
         super(props);
