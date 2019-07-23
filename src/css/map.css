@@ -5,3 +5,14 @@
     margin: 0.2em;
     border: 4px dashed #2ecc71;
 }
+
+.zoom {
+    cursor: pointer;
+    position: absolute;
+    bottom: 70px;
+    right: 30px;
+}
+
+.zoom span {
+    margin: 3px;
+}

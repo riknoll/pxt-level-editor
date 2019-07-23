@@ -1,4 +1,4 @@
-/// <reference path="../../dist/js/spriteEditor.d.ts" />
+/// <reference path="../../../dist/js/spriteEditor.d.ts" />
 
 
 import * as React from 'react';

@@ -3,39 +3,77 @@ export interface MapRect {
     top: number;
     right: number;
     bottom: number;
+    width: number;
+    height: number;
 }
 
 export class MapLocation {
     constructor(public column: number, public row: number) {
     }
+
+    setLocation(column: number, row: number) {
+        this.column = column;
+        this.row = row;
+    }
 }
 
-export class MapObject extends MapLocation {
+export class MapObject extends MapLocation implements MapRect {
+    protected static nextID = 0;
+    protected static getID() {
+        return MapObject.nextID ++;
+    }
+
+    public readonly id: number;
+    public width = 1;
+    public height = 1;
+
+    constructor(column = 0, row = 0) {
+        super(column, row);
+
+        this.id = MapObject.getID();
+    }
+
+    get left() {
+        return this.column;
+    }
+
+    get top() {
+        return this.row;
+    }
+
+    get right() {
+        return this.column + this.width - 1;
+    }
+
+    get bottom() {
+        return this.row + this.height - 1;
+    }
+}
+
+export class MapArea extends MapObject {
+    primaryColor = "#00a1f2";
+    outlineColor = "#00a1f2";
+
+    constructor(public width = 1, public height = 1) {
+        super(0, 0);
+    }
+
+    setColors(primary: string, outline: string) {
+        this.primaryColor = primary;
+        this.outlineColor = outline;
+    }
+
+    setDimensions(width: number, height: number) {
+        if (width > 0) this.width = width | 0;
+        if (height > 0) this.height = height | 0;
+    }
 }
 
 export class MapQuadrant {
-    protected objects: MapObject[];
     protected data: number[][];
 
     constructor() {
         this.data = [];
-        this.objects = [];
-    }
-
-    addObject(obj: MapObject) {
-        this.objects.push(obj);
-    }
-
-    removeObject(obj: MapObject) {
-        const i = this.objects.indexOf(obj);
-
-        if (i >= 0) {
-            this.objects.splice(i, 1);
-        }
-    }
-
-    getObjects() {
-        return this.objects.slice();
     }
 
     setTile(col: number, row: number, data: number) {
@@ -58,6 +96,58 @@ export class MapQuadrant {
     }
 }
 
+// This could be made into a quadtree if performance is an issue
+export class MapObjectLayer {
+    protected objects: MapObject[];
+
+    constructor() {
+        this.objects = [];
+    }
+
+    addObject(object: MapObject) {
+        this.objects.push(object);
+    }
+
+    removeObject(object: MapObject) {
+        this.removeObjectById(object.id);
+    }
+
+    removeObjectById(id: number) {
+        for (let i = 0; i < this.objects.length; i++) {
+            if (this.objects[i].id === id) {
+                this.objects = this.objects.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    getObjectById(id: number) {
+        for (let i = 0; i < this.objects.length; i++) {
+            if (this.objects[i].id === id) {
+                return this.objects[i];
+            }
+        }
+
+        return undefined;
+    }
+
+    numObjects() {
+        return this.objects.length;
+    }
+
+    getObjects(): ReadonlyArray<MapObject> {
+        return this.objects;
+    }
+}
+
+export enum MapObjectLayers {
+    Decoration = 0,
+    Item = 1,
+    Interactable = 2,
+    Spawner = 3,
+    Area = 4
+}
+
 export class MapData {
     protected changeListener: () => void;
     protected ne: MapQuadrant;
@@ -65,27 +155,44 @@ export class MapData {
     protected sw: MapQuadrant;
     protected nw: MapQuadrant;
 
+    protected layers: MapObjectLayer[];
+    protected bounds: MapRect;
+
     constructor() {
         this.ne = new MapQuadrant();
         this.se = new MapQuadrant();
         this.sw = new MapQuadrant();
         this.nw = new MapQuadrant();
-    }
 
-    addObject(obj: MapObject) {
-        this.getQuadrant(obj.column, obj.row).addObject(obj);
+        this.layers = [];
 
-        if (this.changeListener) this.changeListener();
-    }
-
-    removeObject(obj: MapObject) {
-        this.getQuadrant(obj.column, obj.row).removeObject(obj);
-
-        if (this.changeListener) this.changeListener();
+        this.layers[MapObjectLayers.Decoration] = new MapObjectLayer();
+        this.layers[MapObjectLayers.Item] = new MapObjectLayer();
+        this.layers[MapObjectLayers.Interactable] = new MapObjectLayer();
+        this.layers[MapObjectLayers.Spawner] = new MapObjectLayer();
     }
 
     setTile(column: number, row: number, data: number) {
         this.getQuadrant(column, row).setTile(column, row, data);
+
+        if (this.bounds == null) {
+            this.bounds = {
+                top: row,
+                left: column,
+                bottom: row,
+                right: column,
+                width: 1,
+                height: 1,
+            };
+        }
+        else {
+            this.bounds.top = Math.min(this.bounds.top, row);
+            this.bounds.bottom = Math.max(this.bounds.bottom, row);
+            this.bounds.left = Math.min(this.bounds.left, column);
+            this.bounds.right = Math.max(this.bounds.right, column);
+            this.bounds.width = this.bounds.right - this.bounds.left - 1;
+            this.bounds.height = this.bounds.bottom - this.bounds.top - 1;
+        }
 
         if (this.changeListener) this.changeListener();
     }
@@ -96,6 +203,20 @@ export class MapData {
 
     onChange(cb: () => void) {
         this.changeListener = cb;
+    }
+
+    addObjectToLayer(layer: MapObjectLayers, obj: MapObject) {
+        if (this.layers[layer]) {
+            this.layers[layer].addObject(obj);
+        }
+    }
+
+    getLayer(layer: MapObjectLayers) {
+        return this.layers[layer];
+    }
+
+    getLayers(): ReadonlyArray<MapObjectLayer> {
+        return this.layers;
     }
 
     protected getQuadrant(x: number, y: number) {
@@ -112,4 +233,13 @@ export class MapData {
             return this.ne;
         }
     }
+
+    getBounds() {
+        return this.bounds;
+    }
+}
+
+
+export function overlaps(a: MapRect, b: MapRect) {
+    return !(a.bottom < b.top || a.top > b.bottom || a.left > b.right || a.right < b.left);
 }
