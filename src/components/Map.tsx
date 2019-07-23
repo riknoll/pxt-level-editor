@@ -301,7 +301,7 @@ export class MapCanvas implements GestureTarget {
         this.context.strokeRect(x, y, width, height);
     }
 
-    protected drawGridlines(bounds: MapRect, color: string, width: number, condition: Function) {
+    protected drawGridlines(bounds: MapRect, color: string, width: number, condition: (pos: number) => boolean) {
         this.context.strokeStyle = color;
         this.context.lineWidth = width;
         this.context.beginPath();
