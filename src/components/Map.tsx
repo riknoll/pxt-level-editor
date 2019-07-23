@@ -79,7 +79,7 @@ export class MapCanvas implements GestureTarget {
         this.resize();
         bindGestureEvents(canvas, this);
 
-        this.map.onChange(() => this.redraw());
+        this.map.addChangeListener(() => this.redraw());
 
         this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
 

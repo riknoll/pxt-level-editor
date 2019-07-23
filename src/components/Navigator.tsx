@@ -53,14 +53,13 @@ export class NavigatorCanvas implements GestureTarget {
         this.context = canvas.getContext("2d");
 
         bindGestureEvents(canvas, this);
-        this.map.onChange(() => this.redraw());
+        this.map.addChangeListener(() => this.redraw());
     }
 
     setTileSet(tiles:TileSet){
         this.tileSet=tiles;
         this.redraw();
     }
-
 
     redraw() {
         window.requestAnimationFrame(() => {
