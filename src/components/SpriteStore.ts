@@ -59,7 +59,7 @@ const gallery: GalleryStore[] = [
     { name: 'skelly', image: './gallery-icons/castle/skelly.png', height: 24, width: 24, frames: ['Front', 'WalkFront1', 'WalkFront2', 'WalkFront3', 'AttackFront1', 'AttackFront2', 'AttackFront3', 'AttackFront4', 'WalkLeft1', 'AttackLeft1', 'AttackLeft2', 'WalkLeft2', 'WalkRight1', 'AttackRight1', 'AttackRight2', 'WalkRight2'] },
     { name: 'tile', image: './gallery-icons/castle/tile.png', height: 16, width: 16, frames: ['Grass1', 'Grass2', 'Path1', 'Path2', 'Path3', 'DarkGrass1', 'DarkGrass2', 'Path4', 'Path5', 'Path6', 'Grass3', 'DarkGrass3', 'Path7', 'Path8', 'Path9'] },
     { name: 'tree', image: './gallery-icons/castle/tree.png', height: 32, width: 32, frames: ['Pine', 'Oak'] },
-    { name: 'treeSmallPine', image: './gallery-icons/castle/treeSmallPine.png', height: 32, width: 16, frames: [''] },
+    // { name: 'treeSmallPine', image: './gallery-icons/castle/treeSmallPine.png', height: 32, width: 16, frames: [''] },
     { name: 'duck', image: './gallery-icons/duck/duck.png', height: 16, width: 16, frames: ['1'] },
     // { name: 'log1', image: './gallery-icons/duck/log1.png', frames: [] },
     // { name: 'log2', image: './gallery-icons/duck/log2.png', frames: [] },
@@ -83,6 +83,7 @@ SpriteDictionary['Items'] = [
     ...getSpritesFromGallery('smallFood'),
 ];
 SpriteDictionary['Spawners'] = [
+    getSpritesFromGallery('heroWalk')[0],
     getSpritesFromGallery('space')[0],
     getSpritesFromGallery('skelly')[0],
 ];
