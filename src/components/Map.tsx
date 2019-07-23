@@ -6,7 +6,8 @@ import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
 
 export interface MapProps {
-    tool: MapTools
+    tool: MapTools,
+    map: MapData,
 }
 
 export class Map extends React.Component<MapProps, {}> {
@@ -37,7 +38,7 @@ export class Map extends React.Component<MapProps, {}> {
     }
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
-        if (ref) this.workspace = new MapCanvas(ref);
+        if (ref) this.workspace = new MapCanvas(ref, this.props.map);
     };
 
     handleResize = () => {
@@ -46,7 +47,6 @@ export class Map extends React.Component<MapProps, {}> {
 }
 
 export class MapCanvas implements GestureTarget {
-    protected map: MapData;
     protected tool: MapTools;
 
     protected zoomMultiplier = 10;
@@ -60,9 +60,8 @@ export class MapCanvas implements GestureTarget {
 
     protected tileset: TileSet;
 
-    constructor(protected canvas: HTMLCanvasElement) {
+    constructor(protected canvas: HTMLCanvasElement, protected map: MapData) {
         this.context = canvas.getContext("2d");
-        this.map = new MapData();
 
         this.resize();
         bindGestureEvents(canvas, this);
