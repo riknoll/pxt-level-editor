@@ -34,7 +34,7 @@ export class App extends React.Component<AppProps, AppState> {
 
         this.deserialize = this.deserialize.bind(this);
         this.serialize = this.serialize.bind(this);
-        
+
         this.map = new MapData();
         props.client.on('read', this.deserialize);
         props.client.on('hidden', this.serialize);
@@ -67,7 +67,7 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator />
+                    <Navigator map={this.map}/>
                     <Toolbox />
                 </div>
                 <div className="main">
