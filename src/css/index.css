@@ -30,7 +30,5 @@
 .app > div > div {
     display: flex;
     margin: 0.2em;
-    justify-content: center;
-    align-items: center;
     font-family: "Roboto Mono", monospace;
 }

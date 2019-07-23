@@ -8,6 +8,7 @@ import { pxt, PXTClient } from '../lib/pxtextensions';
 
 import { Map } from './components/Map';
 import { Navigator } from './components/Navigator';
+import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 
 import { EmitterFactory } from "./exporter/factory";
@@ -69,7 +70,9 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator map={this.map}/>
+                    <Navigator map={this.map}>
+                    <Navigator />
+                    <EditingTools />
                     <Toolbox />
                 </div>
                 <div className="main">
