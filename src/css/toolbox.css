@@ -3,6 +3,6 @@
 
     /* temporary values for display */ 
     margin: 0.2em;
-    border: 4px dashed #f1c40f;
     display: inline !important;
+    border: 1px solid #ccc;
 }

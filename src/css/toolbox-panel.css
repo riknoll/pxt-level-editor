@@ -1,5 +1,5 @@
 .toolbox-panel {
-  border: 1px solid #aaa;
+  border: 1px solid #ccc;
   background-color: #eee;
   color: #7f8c8d;
   cursor: pointer;
@@ -10,24 +10,33 @@
   transition: 0.4s;
 }
 
+.toolbox-panel h3 {
+  margin: 0;
+  padding: 0.5em;
+}
+
 .toolbox-panel > .panel-title {
   cursor: pointer;
-  border-bottom: 1px solid #aaa;
-  padding: 10px;
+  border-bottom: 1px solid #ccc;
   background-color: #20bf6b;
   color: white;
   margin: 0px;
 }
 
-.panel-contents {
-  padding: 10px;
-}
-
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .toolbox-panel {
-  background-color: #ccc;
+.active,
+.toolbox-panel {
+  background-color: transparent;
 }
 
 .panel-icon {
   float: right;
+}
+
+/* Style the accordion panel. Note: hidden by default */
+.panel {
+  padding: 0 18px;
+  background-color: transparent;
+  display: none;
+  overflow: hidden;
 }
