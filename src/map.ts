@@ -156,6 +156,7 @@ export class MapData {
     protected nw: MapQuadrant;
 
     protected layers: MapObjectLayer[];
+    protected bounds: MapRect;
 
     constructor() {
         this.ne = new MapQuadrant();
@@ -173,6 +174,25 @@ export class MapData {
 
     setTile(column: number, row: number, data: number) {
         this.getQuadrant(column, row).setTile(column, row, data);
+
+        if (this.bounds == null) {
+            this.bounds = {
+                top: row,
+                left: column,
+                bottom: row,
+                right: column,
+                width: 1,
+                height: 1,
+            };
+        }
+        else {
+            this.bounds.top = Math.min(this.bounds.top, row);
+            this.bounds.bottom = Math.max(this.bounds.bottom, row);
+            this.bounds.left = Math.min(this.bounds.left, column);
+            this.bounds.right = Math.max(this.bounds.right, column);
+            this.bounds.width = this.bounds.right - this.bounds.left - 1;
+            this.bounds.height = this.bounds.bottom - this.bounds.top - 1;
+        }
 
         if (this.changeListener) this.changeListener();
     }
@@ -212,6 +232,10 @@ export class MapData {
         else {
             return this.ne;
         }
+    }
+
+    getBounds() {
+        return this.bounds;
     }
 }
 
