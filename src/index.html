@@ -8,8 +8,9 @@
 
     <title><%= htmlWebpackPlugin.options.title %></title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
-
     <script src="https://kit.fontawesome.com/3f816d9c8f.js"></script>
+    <link rel="stylesheet" type="text/css" href="icon.css" />
+    <link rel="stylesheet" type="text/css" href="spriteeditor.css" />
 </head>
 
 <body>
@@ -18,6 +19,7 @@
     <script src="<%= htmlWebpackPlugin.options.reactPath %>/umd/react.<%= htmlWebpackPlugin.options.react %>.js" crossorigin></script>
     <script src="<%= htmlWebpackPlugin.options.reactDomPath %>/umd/react-dom.<%= htmlWebpackPlugin.options.react %>.js" crossorigin></script>
 
+    <script type="text/javascript" src="js/SpriteEditor.js"></script>
     <script type="text/javascript" src="<%= htmlWebpackPlugin.files.chunks.app.entry %>"></script>
 
 </body>
