@@ -6,7 +6,10 @@
     padding: .25em;
     margin: .15em;
     display:inline-block;
-    
+}
+
+.editButton.selected {
+    color: #FF0000;
 }
 
 

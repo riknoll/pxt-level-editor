@@ -13,6 +13,7 @@ export function isTouchEnabled(): boolean {
 export enum MapTools {
     Pan,
     Stamp,
+    Object,
     Erase
 }
 
