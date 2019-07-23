@@ -1,23 +1,16 @@
 import * as React from 'react';
 import { loadImageAsync, ClientCoordinates } from '../../util';
 import { TileSet } from '../../tileset';
-
-interface SpriteSheetProps {
-    src: string;
-    index: number;
-    size?: number;
-    finalSize: number;
-    alt?: string;
-}
+import { Sprite } from '../SpriteStore';
 
 interface SpriteSheetState {
     coords?: ClientCoordinates;
 }
 
-export default class SpriteSheet extends React.Component<SpriteSheetProps, SpriteSheetState> {
+export default class SpriteSheet extends React.Component<Sprite, SpriteSheetState> {
     private tileSet: TileSet;
 
-    constructor(props: SpriteSheetProps) {
+    constructor(props: Sprite) {
         super(props);
         this.state = {};
 
