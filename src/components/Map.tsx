@@ -178,7 +178,7 @@ export class MapCanvas implements GestureTarget {
 
     zoomIn(isZoomIn: boolean){
 
-        var currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
+        let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
         this.zoomMultiplier += currentZoomAmount;
 
         if(isZoomIn){
