@@ -149,7 +149,7 @@ export enum MapObjectLayers {
 }
 
 export class MapData {
-    protected changeListener: () => void;
+    protected changeListeners: (() => void)[];
     protected ne: MapQuadrant;
     protected se: MapQuadrant;
     protected sw: MapQuadrant;
@@ -165,6 +165,7 @@ export class MapData {
         this.nw = new MapQuadrant();
 
         this.layers = [];
+        this.changeListeners = [];
 
         this.layers[MapObjectLayers.Decoration] = new MapObjectLayer();
         this.layers[MapObjectLayers.Item] = new MapObjectLayer();
@@ -194,15 +195,15 @@ export class MapData {
             this.bounds.height = this.bounds.bottom - this.bounds.top - 1;
         }
 
-        if (this.changeListener) this.changeListener();
+        if (this.changeListeners) this.changeListeners.forEach(e => e());
     }
 
     getTile(column: number, row: number) {
         return this.getQuadrant(column, row).getTile(column, row);
     }
 
-    onChange(cb: () => void) {
-        this.changeListener = cb;
+    addChangeListener(cb: () => void) {
+        this.changeListeners.push(cb);
     }
 
     addObjectToLayer(layer: MapObjectLayers, obj: MapObject) {
