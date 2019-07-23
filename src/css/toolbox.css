@@ -1,5 +1,5 @@
 .toolbox {
   border: 1px solid #ccc;
-  overflow: scroll;
+  overflow-y: scroll;
   height: 100%;
 }
