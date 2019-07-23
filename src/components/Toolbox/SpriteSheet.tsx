@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { loadImageAsync, ClientCoordinates } from '../../util';
 import { TileSet } from '../../tileset';
-import { Sprite } from '../SpriteStore';
+import { Sprite, SpriteDictionary } from '../SpriteStore';
 
 interface SpriteSheetState {
     coords?: ClientCoordinates;
@@ -16,10 +16,12 @@ export default class SpriteSheet extends React.Component<Sprite, SpriteSheetStat
 
         this.loadTileSet = this.loadTileSet.bind(this);
         this.loadTileSet();
+
+        console.log(SpriteDictionary);
     }
 
     private loadTileSet() {
-        const { src, size, index } = this.props;
+        const { image: src, height: size, index } = this.props;
 
         loadImageAsync(src)
             .then((el) => {
@@ -28,7 +30,7 @@ export default class SpriteSheet extends React.Component<Sprite, SpriteSheetStat
     }
 
     public render() {
-        const { src, alt, index, size, finalSize } = this.props;
+        const { image: src, name: alt, index, height: size, finalSize } = this.props;
         const { coords } = this.state;
 
         return (
