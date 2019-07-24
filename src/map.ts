@@ -326,14 +326,14 @@ export class MapData implements ReadonlyMapData {
 
         m.layers = this.layers.map(l => l.clone());
 
-        m.bounds = {
+        m.bounds = this.bounds ? {
             left: this.bounds.left,
             top: this.bounds.top,
             right: this.bounds.right,
             bottom: this.bounds.bottom,
             width: this.bounds.width,
             height: this.bounds.height
-        };
+        } : undefined;
 
         return m;
     }
