@@ -26,6 +26,7 @@ export interface AppState {
     tileSetLoaded: boolean;
     target: string;
     tool: MapTools;
+    selectedTiles?: MapRect;
     visibleRect: MapRect;
 }
 
@@ -33,6 +34,7 @@ export class App extends React.Component<AppProps, AppState> {
 
     protected map: MapLog;
     protected tileSet: TileSet;
+
     constructor(props: AppProps) {
         super(props);
 
@@ -83,6 +85,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ tileSelected: tile });
     }
 
+    private onTileSelectionChange = (selection: MapRect) => {
+        this.setState({selectedTiles: selection});
+    }
+
     protected setVisibleRect(rect: MapRect) {
         this.setState({ visibleRect: rect });
     }
@@ -94,10 +100,22 @@ export class App extends React.Component<AppProps, AppState> {
                 <div className="sidebar">
                     <Navigator map={this.map} tileSet={this.tileSet} viewport={this.state.visibleRect} />
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
-                    <Toolbox onChange={this.onTileChange} />
+                    <Toolbox
+                        tileset={this.tileSet}
+                        onChange={this.onTileChange}
+                        onTileSelectionChange={this.onTileSelectionChange}
+                    />
                 </div>
                 <div className="main">
-                    <Map tileSelected={this.state.tileSelected} tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet} onRectChange={this.setVisibleRect.bind(this)} />
+                    <Map
+                        tileSelected={this.state.tileSelected}
+                        tool={this.state.tool}
+                        map={this.map}
+                        activeLayer={MapObjectLayers.Area}
+                        tileSet={this.tileSet}
+                        selectedTiles={this.state.selectedTiles}
+                        onRectChange={this.setVisibleRect.bind(this)}
+                    />
                 </div>
             </div>
         );

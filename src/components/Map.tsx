@@ -6,9 +6,11 @@ import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
 
 import '../css/map.css';
+import { OperationLog } from '../opLog';
 
 export interface MapProps {
     tileSelected: Tile;
+    selectedTiles: MapRect;
     tool: MapTools;
     map: MapLog;
     activeLayer: MapObjectLayers;
@@ -59,10 +61,12 @@ export class Map extends React.Component<MapProps, MapState> {
 
     componentDidUpdate() {
         this.workspace.updateTool(this.props.tool);
+        this.workspace.setSelectedTiles(this.props.selectedTiles);
     }
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
-        if (ref) this.workspace = new MapCanvas(ref, this.props.map, this.props.tileSet);
+        if (ref) this.workspace = new MapCanvas(
+            ref, this.props.map, this.props.tileSet, this.props.selectedTiles);
     };
 
     handleResize = () => {
@@ -107,7 +111,12 @@ export class MapCanvas implements GestureTarget {
 
     protected onRectChange: (rect: MapRect) => void;
 
-    constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected tileSet: TileSet) {
+    constructor(
+            protected canvas: HTMLCanvasElement,
+            protected log: MapLog,
+            protected tileSet: TileSet,
+            protected selectedTiles: MapRect,
+    ) {
         this.context = canvas.getContext("2d");
         this.log.addChangeListener(() => this.redraw())
 
@@ -124,6 +133,10 @@ export class MapCanvas implements GestureTarget {
     setTileSet(tiles: TileSet) {
         // TODO(dz): handle undo/redo?
         this.tileSet = tiles;
+    }
+
+    setSelectedTiles(tiles: MapRect) {
+        this.selectedTiles = tiles;
     }
 
     setOnRectChange(cb: (rect: MapRect) => void) {
@@ -215,7 +228,18 @@ export class MapCanvas implements GestureTarget {
 
     static applyOperation(state: MapData, op: MapOperation): MapData {
         if (op.kind === "settile") {
-            state.setTile(op.row, op.col, op.data);
+            for (let row = 0; row < op.selectedTiles.height; row++) {
+                for (let col = 0; col < op.selectedTiles.width; col++) {
+                    state.setTile(
+                        op.col + col,
+                        op.row + row,
+                        op.tileSet.coordToIndex(
+                            op.selectedTiles.top + row,
+                            op.selectedTiles.left + col,
+                        )
+                    );
+                }
+            }
         } else if (op.kind === "setobj") {
             state.addObjectToLayer(op.layer, op.obj)
         } else if (op.kind === "multitile") {
@@ -250,7 +274,7 @@ export class MapCanvas implements GestureTarget {
         let mapUpdate = false
         switch (this.tool) {
             case MapTools.Stamp:
-                data = 1
+                data = this.selectedTiles;
                 mapUpdate = true
                 break;
             case MapTools.Erase:
@@ -262,10 +286,12 @@ export class MapCanvas implements GestureTarget {
         if (mapUpdate) {
             let op: SetTileOp = {
                 kind: "settile",
-                row: this.canvasToMap(canvasCoords.clientX - this.offsetX),
-                col: this.canvasToMap(canvasCoords.clientY - this.offsetY),
-                data,
+                row: this.canvasToMap(canvasCoords.clientY - this.offsetY),
+                col: this.canvasToMap(canvasCoords.clientX - this.offsetX),
+                tileSet: this.tileSet,
+                selectedTiles: data,
             }
+            console.log(op);
             this.triggerOperation(op)
         }
     }
@@ -327,10 +353,9 @@ export class MapCanvas implements GestureTarget {
                 }
                 this.triggerOperation(op)
             }
-            this.bitmask = null;
         }
 
-        this.dragLast = undefined;
+        this.bitmask = null;
     }
 
     onMouseEnter(evt: PointerEvent) {

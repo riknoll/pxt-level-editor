@@ -4,18 +4,23 @@ import { Tile } from './toolboxTypes';
 import { SpriteCategory } from '../SpriteStore';
 
 import '../../css/toolbox.css';
+import { TileSet } from '../../tileset';
+import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
+import { MapRect } from '../../map';
 
 interface State {
     selectedTile?: Tile;
 }
 
 interface Props {
+    tileset: TileSet,
     onChange: (tile: Tile) => void;
+    onTileSelectionChange: (selection: MapRect) => void,
 }
 
 export class Toolbox extends React.Component<Props, State> {
 
-    constructor(props: any) {
+    constructor(props: Props) {
         super(props);
 
         this.state = {};
@@ -44,6 +49,10 @@ export class Toolbox extends React.Component<Props, State> {
                     {this.renderPanel("Items")}
                     {this.renderPanel("Spawners")}
                     {this.renderPanel("Areas")}
+                    <ToolboxTerrainPanel
+                        onChange={this.props.onTileSelectionChange}
+                        tileset={this.props.tileset}
+                    />
                 </div>
             </div>
         );

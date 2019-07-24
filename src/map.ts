@@ -1,5 +1,6 @@
 import { OperationLog } from "./opLog";
 import { Bitmask } from "./util";
+import { TileSet } from "./tileset";
 
 export interface MapRect {
     left: number;
@@ -162,7 +163,9 @@ export interface SetTileOp {
     kind: "settile",
     row: number,
     col: number,
-    data: number
+    data?: number,
+    tileSet?: TileSet,
+    selectedTiles?: MapRect,
 }
 export interface SetMultiTileOp {
     kind: "multitile",

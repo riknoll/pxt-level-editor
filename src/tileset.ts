@@ -30,7 +30,7 @@ export class TileSet {
         return this.colors[int];
     }
 
-    //computing avg color - takes in HTML Image Element 
+    //computing avg color - takes in HTML Image Element
     computeAvgColor(ctx:CanvasRenderingContext2D, x: number, y: number):String{
         let imageColor = ctx.getImageData(y*this.tileSize, x*this.tileSize, this.tileSize, this.tileSize);
         let r = 0;
@@ -64,5 +64,9 @@ export class TileSet {
             clientX: col * (this.tileSize),
             clientY: row * (this.tileSize)
         };
+    }
+
+    coordToIndex(row: number, col: number) {
+        return col + row * this.columns;
     }
 }
