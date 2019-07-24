@@ -8,3 +8,13 @@
     /* temporary values for display */
     border: 4px dashed #3498db;
 }
+
+.mask {
+    position: absolute;
+}
+
+.viewport {
+    position: absolute;
+    border: 2px solid red;
+    box-sizing: border-box;
+}

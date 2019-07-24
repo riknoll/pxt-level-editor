@@ -8,7 +8,7 @@ import { Navigator } from './components/Navigator';
 import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
-import { MapData, MapObjectLayers, MapLog, ReadonlyMapData, MapRect } from './map';
+import { MapData, MapRect, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
 import { MapTools, loadImageAsync } from './util';
 import { TileSet, TILE_SIZE } from './tileset';
 import { Tile } from './components/Toolbox/toolboxTypes';
@@ -27,6 +27,7 @@ export interface AppState {
     target: string;
     tool: MapTools;
     selectedTiles?: MapRect;
+    visibleRect: MapRect;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -41,6 +42,7 @@ export class App extends React.Component<AppProps, AppState> {
             target: props.target,
             tool: MapTools.Stamp,
             tileSetLoaded: false,
+            visibleRect: null
         };
 
         this.deserialize = this.deserialize.bind(this);
@@ -87,12 +89,16 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({selectedTiles: selection});
     }
 
+    protected setVisibleRect(rect: MapRect) {
+        this.setState({ visibleRect: rect });
+    }
+
     render() {
         const { target } = this.state;
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator map={this.map} tileSet={this.tileSet} />
+                    <Navigator map={this.map} tileSet={this.tileSet} viewport={this.state.visibleRect} />
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
                     <Toolbox
                         tileset={this.tileSet}
@@ -101,7 +107,15 @@ export class App extends React.Component<AppProps, AppState> {
                     />
                 </div>
                 <div className="main">
-                    <Map tileSelected={this.state.tileSelected} tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet} selectedTiles={this.state.selectedTiles} />
+                    <Map 
+                        tileSelected={this.state.tileSelected}
+                        tool={this.state.tool}
+                        map={this.map}
+                        activeLayer={MapObjectLayers.Area}
+                        tileSet={this.tileSet} 
+                        selectedTiles={this.state.selectedTiles} />
+                        onRectChange={this.setVisibleRect.bind(this)} 
+                    />
                 </div>
             </div>
         );
