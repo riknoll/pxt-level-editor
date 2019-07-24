@@ -6,6 +6,7 @@ import { Sprite } from '../SpriteStore';
 interface SpriteSheetProps {
     Sprite: Sprite,
     finalSize?: number;
+    selected: boolean;
 }
 
 interface SpriteSheetState {
@@ -42,6 +43,8 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
                     alt={name || `tile-${index}`}
                     src={image}
                     style={{
+                        border: this.props.selected ? "solid 1px #333" : "",
+                        boxSizing: "border-box",
                         width: width,
                         height: height,
                         objectFit: 'none',
