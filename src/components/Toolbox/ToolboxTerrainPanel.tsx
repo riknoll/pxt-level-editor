@@ -129,14 +129,23 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
         let tilePos = this.getTilePos(
             this.coordGlobalToLocal(coord, this.canvas));
 
-        this.selectedArea.right = Math.max(
-            this.selectionStart.col, tilePos.col);
-        this.selectedArea.bottom = Math.max(
-            this.selectionStart.row, tilePos.row);
-        this.selectedArea.left = Math.min(
-            this.selectionStart.col, tilePos.col);
-        this.selectedArea.top = Math.min(
-            this.selectionStart.row, tilePos.row);
+        this.selectedArea.right = Math.min(
+            Math.max(this.selectionStart.col, tilePos.col),
+            this.props.tileset.columns - 1
+        );
+        this.selectedArea.bottom = Math.min(
+            Math.max(this.selectionStart.row, tilePos.row),
+            this.props.tileset.rows - 1
+        );
+        this.selectedArea.left = Math.max(
+            Math.min(this.selectionStart.col, tilePos.col),
+            0
+        );
+        this.selectedArea.top = Math.max(
+            Math.min(this.selectionStart.row, tilePos.row),
+            0
+        );
+
         this.selectedArea.width =
             this.selectedArea.right - this.selectedArea.left + 1;
         this.selectedArea.height =
