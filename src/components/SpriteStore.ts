@@ -1,13 +1,11 @@
-interface Dictionary<T> {
-    [K: string]: T;
-}
+import { Dictionary } from './Toolbox/toolboxTypes';
 
 export interface Sprite {
     image: string;
     index: number;
     height?: number;
     width?: number;
-    name?: string;
+    name: string;
 }
 
 interface GalleryStore {
@@ -37,6 +35,7 @@ const getSpritesFromGallery = function (name: string): Sprite[] {
                     width: spriteGallery.width,
                     index: index,
                     image: spriteGallery.image,
+                    name: sprite,
                 }
             });
         }
@@ -76,6 +75,8 @@ const gallery: GalleryStore[] = [
     { name: 'car', image: './gallery-icons/vehicle/car.png', height: 16, width: 16, frames: ['RedLeft', 'RedRight', 'RedBack', 'RedFront', 'BlueLeft', 'BlueRight', 'BlueBack', 'BlueFront', 'PinkLeft', 'PinkRight', 'PinkBack', 'PinkFront'] },
     { name: 'road', image: './gallery-icons/vehicle/road.png', height: 16, width: 16, frames: ['Turn1', 'Turn2', 'Turn4', 'Intersection1', 'Intersection2', 'Vertical', 'Turn3', 'Horizontal', 'Intersection3', 'Intersection4'] },
 ];
+
+export type SpriteCategory = 'Areas' | 'Interactables' | 'Items' | 'Spawners' | 'Terrains';
 
 export const SpriteDictionary: Dictionary<Sprite[]> = {};
 SpriteDictionary['Items'] = [
