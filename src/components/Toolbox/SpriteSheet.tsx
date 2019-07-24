@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { loadImageAsync, ClientCoordinates } from '../../util';
 import { TileSet } from '../../tileset';
+import { Sprite } from '../SpriteStore';
 
 interface SpriteSheetProps {
-    src: string;
-    index: number;
-    size?: number;
-    finalSize: number;
-    alt?: string;
+    Sprite: Sprite,
+    finalSize?: number;
 }
 
 interface SpriteSheetState {
@@ -26,26 +24,26 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
     }
 
     private loadTileSet() {
-        const { src, size, index } = this.props;
+        const { image, height, index } = this.props.Sprite;
 
-        loadImageAsync(src)
+        loadImageAsync(image)
             .then((el) => {
-                this.setState({ coords: new TileSet(el, size).indexToCoord(index) });
+                this.setState({ coords: new TileSet(el, height).indexToCoord(index) });
             });
     }
 
     public render() {
-        const { src, alt, index, size, finalSize } = this.props;
+        const { image, name, index, height, width } = this.props.Sprite;
         const { coords } = this.state;
 
         return (
-            <div style={{ overflow: 'hidden', transform: `scale(${(finalSize / size)})`, transformOrigin: `0, 0`, }}>
+            <div style={{ overflow: 'visible', transform: `scale(${(this.props.finalSize / width)})`, transformOrigin: `0 0`, maxHeight: 0, }}>
                 <img
-                    alt={alt || `tile-${index}`}
-                    src={src}
+                    alt={name || `tile-${index}`}
+                    src={image}
                     style={{
-                        width: size,
-                        height: size,
+                        width: width,
+                        height: height,
                         objectFit: 'none',
                         objectPosition: coords && `-${coords.clientX}px -${coords.clientY}px`,
                     }}

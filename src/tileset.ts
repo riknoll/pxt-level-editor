@@ -27,7 +27,6 @@ export class TileSet {
 
     //index to color
     getColor(int: number):String{
-        
         return this.colors[int];
     }
 

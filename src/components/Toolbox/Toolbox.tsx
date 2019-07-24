@@ -1,28 +1,24 @@
 import * as React from 'react';
-import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
-import { ToolboxItemPanel } from './ToolboxItemPanel';
-import { ToolboxSpawnersPanel } from './ToolboxSpawnersPanel';
-import { ToolboxInteractablesPanel } from './ToolboxInteractablesPanel';
-import { ToolboxAreasPanel } from './ToolboxAreasPanel';
+import { ToolboxGenericPanel } from './ToolboxGenericPanel';
+import { Tile } from './toolboxTypes';
 
 import '../../css/toolbox.css';
 
-export class Toolbox extends React.Component<{}, {}> {
+export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }, {}> {
 
-    constructor(props: {}) {
+    constructor(props: any) {
         super(props);
     }
 
     render() {
         return (
-            <div className="toolbox">
+            <div className="toolbox" id="toolbox">
                 <div style={{ display: "block", width: "100%", height: "100%" }}>
-                    <h2>Toolbox</h2>
-                    <ToolboxTerrainPanel />
-                    <ToolboxItemPanel />
-                    <ToolboxSpawnersPanel />
-                    <ToolboxInteractablesPanel />
-                    <ToolboxAreasPanel />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Terrains"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Interactables"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Items"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Spawners"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Areas"} />
                 </div>
             </div>
         );
