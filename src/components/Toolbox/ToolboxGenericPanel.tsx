@@ -1,14 +1,14 @@
 import * as React from 'react';
-import SpriteSheet from './SpriteSheet';
 import { Tile } from './toolboxTypes';
 import { ToolboxPanel } from './ToolboxPanel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
+import { Sprite, SpriteDictionary, SpriteCategory } from '../SpriteStore';
 
 import '../../css/toolbox.css';
-import { Sprite, SpriteDictionary } from '../SpriteStore';
 
 interface Props {
-    SpriteType: 'Areas' | 'Interactables' | 'Items' | 'Spawners' | 'Terrains';
+    onChange: (tile: Tile) => void;
+    SpriteType: SpriteCategory;
 }
 
 interface State {
@@ -22,8 +22,8 @@ export class ToolboxGenericPanel extends React.Component<Props, State> {
         super(props);
 
         const sprites = SpriteDictionary[this.props.SpriteType];
-        const tiles: Tile[] = sprites.map((sprite) => {
-            return { image: <SpriteSheet Sprite={sprite} finalSize={48} /> };
+        const tiles: Tile[] = sprites.map((sprite: Sprite) => {
+            return { sprite, category: props.SpriteType } as Tile;
         })
         this.state = {
             sprites,
@@ -34,7 +34,7 @@ export class ToolboxGenericPanel extends React.Component<Props, State> {
     render() {
         return (
             <ToolboxPanel title={this.props.SpriteType}>
-                <ToolboxPanelGrid tiles={this.state.tiles}></ToolboxPanelGrid>
+                <ToolboxPanelGrid onChange={this.props.onChange} tiles={this.state.tiles} />
             </ToolboxPanel>
         );
     }
