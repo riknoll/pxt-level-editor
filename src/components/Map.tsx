@@ -262,11 +262,9 @@ export class MapCanvas implements GestureTarget {
         switch (this.tool) {
             case MapTools.Stamp:
                 data = 1
-                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
                 break;
             case MapTools.Erase:
                 data = null
-                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), null);
                 break;
         }
         coord = this.clientToCanvas(coord);
