@@ -1,7 +1,7 @@
 /// <reference path="../../../dist/js/spriteEditor.d.ts" />
 
-
 import * as React from 'react';
+
 interface ISpriteEditorProps {
     onChange: (v: string) => void;
 }
@@ -23,7 +23,7 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
       renderSpriteEditor() {
           const state = pxtsprite.imageLiteralToBitmap('',  DEFAULT_SPRITE_STATE);
 
-          const contentDiv = this.refs['spriteEditorPopup'] as HTMLDivElement;
+          const contentDiv = this.refs['spriteEditorContainer'] as HTMLDivElement;
 
           let spriteEditor = new pxtsprite.SpriteEditor(state, null, false);
           spriteEditor.render(contentDiv);
@@ -39,7 +39,7 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
           contentDiv.style.height = (spriteEditor.outerHeight() + 3) + "px";
           contentDiv.style.width = (spriteEditor.outerWidth() + 3) + "px";
           contentDiv.style.overflow = "hidden";
-          contentDiv.className = 'sprite-editor-dropdown-bg sprite-editor-dropdown';
+          contentDiv.className = 'sprite-editor-container sprite-editor-dropdown-bg sprite-editor-dropdown';
           spriteEditor.addKeyListeners();
           spriteEditor.onClose(() => {
               const newSpriteState = pxtsprite
@@ -60,14 +60,15 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
       render() {
           const {open} = this.state;
           return (
-              <div>
-                  <button
-                      title={("Add your sprite")}
-                      onClick={this.openSpriteEditor}
-                  >{("+")}</button>
-                  {open && <div ref="spriteEditorPopup"></div>}
+              <div className='toolbox-panel-grid-tile'>
+                    <div
+                        role='button'
+                        className={"addSpriteButton fas fa-plus"}
+                        onClick={this.openSpriteEditor} id={'Add sprite'}
+                    ></div>
+                    {open && <div ref="spriteEditorContainer"></div>}
               </div >
-              
+
           );
       }
   }

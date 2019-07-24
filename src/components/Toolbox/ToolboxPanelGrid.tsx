@@ -39,8 +39,8 @@ export class ToolboxPanelGrid extends React.Component<Props, {}> {
     render() {
         return (
             <div className="toolbar-panel-grid">
-                {this.renderTiles()}
                 <SpriteEditorButton onChange={this.spriteEditorOnChange} />
+                {this.renderTiles()}
             </div>
         );
     }

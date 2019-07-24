@@ -1,8 +1,28 @@
 .toolbox {
-    flex: 1;
+  border: 1px solid #ccc;
+  overflow-y: scroll;
+  height: 100%;
+}
 
-    /* temporary values for display */ 
-    margin: 0.2em;
-    display: inline !important;
-    border: 1px solid #ccc;
+.addSpriteButton {
+  font-size: 34px;
+  height: 48px;
+  width: 48px;
+  border: 1px black solid;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.addSpriteButton:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.sprite-editor-container.sprite-editor-dropdown-bg.sprite-editor-dropdown {
+  top: 10px;
+  left: 100px;
+  position: fixed;
+  z-index: 9999;
 }
