@@ -12,7 +12,8 @@ export interface MapProps {
     tool: MapTools;
     map: MapLog;
     activeLayer: MapObjectLayers;
-    tileSet: TileSet
+    tileSet: TileSet;
+    onRectChange: (rect: MapRect) => void;
 }
 
 export interface MapState {
@@ -49,6 +50,8 @@ export class Map extends React.Component<MapProps, MapState> {
     componentDidMount() {
         window.addEventListener("resize", this.handleResize);
         window.addEventListener("keyup", this.handleKeyup);
+
+        this.workspace.setOnRectChange(this.props.onRectChange);
     }
 
     componentWillUnmount() {
@@ -109,6 +112,7 @@ export class MapCanvas implements GestureTarget {
     protected dragLast: ClientCoordinates;
 
     protected bitmask: Bitmask;
+    protected onRectChange: (rect: MapRect) => void;
 
     constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected tileSet: TileSet) {
         this.context = canvas.getContext("2d");
@@ -127,6 +131,10 @@ export class MapCanvas implements GestureTarget {
     setTileSet(tiles: TileSet) {
         // TODO(dz): handle undo/redo?
         this.tileSet = tiles;
+    }
+
+    setOnRectChange(cb: (rect: MapRect) => void) {
+        this.onRectChange = cb;
     }
 
     centerOnTile(x: number, y: number) {
@@ -391,8 +399,8 @@ export class MapCanvas implements GestureTarget {
         }
     }
 
-    protected visibleRect(): MapRect {
-        return {
+    visibleRect(): MapRect {
+        let rect = {
             left: this.canvasToMap(-this.offsetX) - 1,
             top: this.canvasToMap(-this.offsetY) - 1,
             right: this.canvasToMap(-this.offsetX + this.cachedBounds.width) + 1,
@@ -400,6 +408,9 @@ export class MapCanvas implements GestureTarget {
             width: this.canvasToFullMap(this.cachedBounds.width) + 1,
             height: this.canvasToFullMap(this.cachedBounds.height) + 1
         }
+
+        this.onRectChange(rect);
+        return rect;
     }
 
     protected drawObjectLayers(bounds: MapRect) {
