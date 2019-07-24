@@ -94,7 +94,7 @@ export class MapCanvas implements GestureTarget {
         this.context = canvas.getContext("2d");
         this.log = new OperationLog();
 
-        this.setMap(new MapData())
+        this.setMap(map);
 
         this.resize();
         bindGestureEvents(canvas, this);
