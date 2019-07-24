@@ -78,6 +78,8 @@ export class Map extends React.Component<MapProps, MapState> {
     handleCoordinates() {
         if (this.workspace) {
             const newCoords = this.workspace.getCanvasCoordinates();
+            // Checks if mouse is moving to or from a tile or if the mouse is moving within a tile, if it is moving between tiles or entering or leaving the grid, then the map coordinates are updated
+            // If either of the coordinates are null, but not both, OR if the coordinates are both set at different values, then update the state
             if (((!this.state.canvasCoordinates || !newCoords) && this.state.canvasCoordinates != newCoords) ||
                 (this.state.canvasCoordinates && newCoords && (this.state.canvasCoordinates.column != newCoords.column || this.state.canvasCoordinates.row != newCoords.row))) {
                 this.setState({
