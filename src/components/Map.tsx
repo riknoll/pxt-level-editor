@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
-import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp } from '../map';
+import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp, SetMultiTileOp } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
 
@@ -203,6 +203,14 @@ export class MapCanvas implements GestureTarget {
             state.setTile(op.row, op.col, op.data);
         } else if (op.kind === "setobj") {
             state.addObjectToLayer(op.layer, op.obj)
+        } else if (op.kind === "multitile") {
+            for (let c = 0; c < op.bitmask.width; c++) {
+                for (let r = 0; r < op.bitmask.height; r++) {
+                    if (op.bitmask.get(c, r) === 1) {
+                        state.setTile(c + op.offsetX, r + op.offsetY, op.data);
+                    }
+                }
+            }
         } else {
             let _: never = op
         }
@@ -282,33 +290,27 @@ export class MapCanvas implements GestureTarget {
 
         // Applies the bitmask based on the current tool
         if (this.bitmask) {
-            for (let c = 0; c < this.bitmask.width; c++) {
-                for (let r = 0; r < this.bitmask.height; r++) {
-                    if (this.bitmask.get(c, r) === 1) {
-                        // TODO(dz): add a multi-tile op
-                        let data: number | null;
-                        let mapUpdate = false
-                        switch (this.tool) {
-                            case MapTools.Stamp:
-                                data = 1
-                                mapUpdate = true
-                                break;
-                            case MapTools.Erase:
-                                data = null
-                                mapUpdate = true
-                                break;
-                        }
-                        if (mapUpdate) {
-                            let op: SetTileOp = {
-                                kind: "settile",
-                                row: c + this.canvasToMap(-this.offsetX),
-                                col: r + this.canvasToMap(-this.offsetY),
-                                data: data
-                            }
-                            this.log.do(op)
-                        }
-                    }
+            let data: number | null;
+            let mapUpdate = false
+            switch (this.tool) {
+                case MapTools.Stamp:
+                    data = 1
+                    mapUpdate = true
+                    break;
+                case MapTools.Erase:
+                    data = null
+                    mapUpdate = true
+                    break;
+            }
+            if (mapUpdate) {
+                let op: SetMultiTileOp = {
+                    kind: "multitile",
+                    bitmask: this.bitmask,
+                    offsetX: this.canvasToMap(-this.offsetX),
+                    offsetY: this.canvasToMap(-this.offsetY),
+                    data: data
                 }
+                this.triggerOperation(op)
             }
             this.bitmask = null;
         }
