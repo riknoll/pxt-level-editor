@@ -86,7 +86,7 @@ export class App extends React.Component<AppProps, AppState> {
                 <div className="sidebar">
                     <Navigator map={this.map} tileSet={this.tileSet} />
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
-                    <Toolbox onChange={this.onTileChange} />
+                    <Toolbox onChange={this.onTileChange} tileset={this.tileSet}/>
                 </div>
                 <div className="main">
                     <Map tileSelected={this.state.tileSelected} tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet} />

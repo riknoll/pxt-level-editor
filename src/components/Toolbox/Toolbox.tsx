@@ -3,10 +3,17 @@ import { ToolboxGenericPanel } from './ToolboxGenericPanel';
 import { Tile } from './toolboxTypes';
 
 import '../../css/toolbox.css';
+import { TileSet } from '../../tileset';
+import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
 
-export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }, {}> {
+interface ToolboxProps {
+    tileset: TileSet,
+    onChange: (tile: Tile) => void,
+}
 
-    constructor(props: any) {
+export class Toolbox extends React.Component<ToolboxProps, {}> {
+
+    constructor(props: ToolboxProps) {
         super(props);
     }
 
@@ -19,6 +26,7 @@ export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Items"} />
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Spawners"} />
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Areas"} />
+                    <ToolboxTerrainPanel tileset={this.props.tileset}/>
                 </div>
             </div>
         );
