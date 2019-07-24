@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
-import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp, SetMultiTileOp } from '../map';
+import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp, SetMultiTileOp, MapLocation } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
 
@@ -19,10 +19,7 @@ export interface MapProps {
 }
 
 export interface MapState {
-    canvasCoordinates: {
-        mouseX: number,
-        mouseY: number
-    };
+    canvasCoordinates: MapLocation;
 }
 
 export class Map extends React.Component<MapProps, MapState> {
@@ -33,14 +30,14 @@ export class Map extends React.Component<MapProps, MapState> {
         this.state = {
             canvasCoordinates: null
         }
-        addEventListener(pointerEvents.move, this.handleCoordinates.bind(this));
+        document.addEventListener(pointerEvents.move, this.handleCoordinates.bind(this));
     }
 
     render() {
         return (
             <div className="map">
                 <canvas ref={this.handleCanvasRef} />
-                { (this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.mouseX}, {this.state.canvasCoordinates.mouseY}</div> }
+                { (this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.column}, {this.state.canvasCoordinates.row}</div> }
                 <div className="zoom">
                     <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
                     <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
@@ -80,9 +77,15 @@ export class Map extends React.Component<MapProps, MapState> {
 
     handleCoordinates() {
         if (this.workspace) {
-            this.setState({
-                canvasCoordinates: this.workspace.getCanvasCoordinates()
-            });
+            const newCoords = this.workspace.getCanvasCoordinates();
+            // Checks if mouse is moving to or from a tile or if the mouse is moving within a tile, if it is moving between tiles or entering or leaving the grid, then the map coordinates are updated
+            // If either of the coordinates are null, but not both, OR if the coordinates are both set at different values, then update the state
+            if (((!this.state.canvasCoordinates || !newCoords) && this.state.canvasCoordinates != newCoords) ||
+                (this.state.canvasCoordinates && newCoords && (this.state.canvasCoordinates.column != newCoords.column || this.state.canvasCoordinates.row != newCoords.row))) {
+                this.setState({
+                    canvasCoordinates: newCoords
+                });
+            }
         }
     }
 
@@ -391,12 +394,9 @@ export class MapCanvas implements GestureTarget {
         this.redraw();
     }
 
-    getCanvasCoordinates() {
+    getCanvasCoordinates(): MapLocation {
         if (this.mouseX == null && this.mouseY == null) return null;
-        return {
-            mouseX: this.mouseX,
-            mouseY: this.mouseY
-        };
+        return new MapLocation(this.mouseX, this.mouseY);
     }
 
     zoomIn(isZoomIn: boolean) {
