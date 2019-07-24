@@ -1,13 +1,11 @@
-interface Dictionary<T> {
-    [K: string]: T;
-}
+import { Dictionary } from './Toolbox/toolboxTypes';
 
 export interface Sprite {
-    src: string;
+    image: string;
     index: number;
-    size?: number;
-    alt?: string;
-    finalSize?: number;
+    height?: number;
+    width?: number;
+    name: string;
 }
 
 interface GalleryStore {
@@ -16,6 +14,32 @@ interface GalleryStore {
     height?: number,
     width?: number,
     frames?: string[],
+}
+
+const getSpritesFromGallery = function (name: string): Sprite[] {
+    const spriteGallery = gallery.find((galleryStore) => galleryStore.name === name);
+    if (spriteGallery) {
+        if (!spriteGallery.frames || !spriteGallery.frames.length) {
+            return [{
+                name,
+                height: spriteGallery.height,
+                width: spriteGallery.width,
+                index: 0,
+                image: spriteGallery.image,
+            }];
+        } else {
+            return spriteGallery.frames.map((sprite, index) => {
+                return {
+                    sprite,
+                    height: spriteGallery.height,
+                    width: spriteGallery.width,
+                    index: index,
+                    image: spriteGallery.image,
+                    name: sprite,
+                }
+            });
+        }
+    }
 }
 
 const gallery: GalleryStore[] = [
@@ -34,7 +58,7 @@ const gallery: GalleryStore[] = [
     { name: 'skelly', image: './gallery-icons/castle/skelly.png', height: 24, width: 24, frames: ['Front', 'WalkFront1', 'WalkFront2', 'WalkFront3', 'AttackFront1', 'AttackFront2', 'AttackFront3', 'AttackFront4', 'WalkLeft1', 'AttackLeft1', 'AttackLeft2', 'WalkLeft2', 'WalkRight1', 'AttackRight1', 'AttackRight2', 'WalkRight2'] },
     { name: 'tile', image: './gallery-icons/castle/tile.png', height: 16, width: 16, frames: ['Grass1', 'Grass2', 'Path1', 'Path2', 'Path3', 'DarkGrass1', 'DarkGrass2', 'Path4', 'Path5', 'Path6', 'Grass3', 'DarkGrass3', 'Path7', 'Path8', 'Path9'] },
     { name: 'tree', image: './gallery-icons/castle/tree.png', height: 32, width: 32, frames: ['Pine', 'Oak'] },
-    { name: 'treeSmallPine', image: './gallery-icons/castle/treeSmallPine.png', height: 32, width: 16, frames: [''] },
+    // { name: 'treeSmallPine', image: './gallery-icons/castle/treeSmallPine.png', height: 32, width: 16, frames: [''] },
     { name: 'duck', image: './gallery-icons/duck/duck.png', height: 16, width: 16, frames: ['1'] },
     // { name: 'log1', image: './gallery-icons/duck/log1.png', frames: [] },
     // { name: 'log2', image: './gallery-icons/duck/log2.png', frames: [] },
@@ -50,4 +74,27 @@ const gallery: GalleryStore[] = [
     { name: 'space', image: './gallery-icons/space/space.png', height: 16, width: 16, frames: ['SmallAsteroid0', 'SmallAsteroid1', 'SmallAsteroid2', 'SmallAsteroid3', 'Asteroid0', 'Asteroid1', 'SmallAsteroid4', 'SmallAsteroid5', 'RedShip', 'Asteroid2', 'Asteroid3', 'Asteroid4', 'OrangeShip', 'PinkShip', 'BlueShip', 'GreenShip'] },
     { name: 'car', image: './gallery-icons/vehicle/car.png', height: 16, width: 16, frames: ['RedLeft', 'RedRight', 'RedBack', 'RedFront', 'BlueLeft', 'BlueRight', 'BlueBack', 'BlueFront', 'PinkLeft', 'PinkRight', 'PinkBack', 'PinkFront'] },
     { name: 'road', image: './gallery-icons/vehicle/road.png', height: 16, width: 16, frames: ['Turn1', 'Turn2', 'Turn4', 'Intersection1', 'Intersection2', 'Vertical', 'Turn3', 'Horizontal', 'Intersection3', 'Intersection4'] },
+];
+
+export type SpriteCategory = 'Areas' | 'Interactables' | 'Items' | 'Spawners' | 'Terrains';
+
+export const SpriteDictionary: Dictionary<Sprite[]> = {};
+SpriteDictionary['Items'] = [
+    ...getSpritesFromGallery('bigFood'),
+    ...getSpritesFromGallery('smallFood'),
+];
+SpriteDictionary['Spawners'] = [
+    getSpritesFromGallery('heroWalk')[0],
+    getSpritesFromGallery('space')[0],
+    getSpritesFromGallery('skelly')[0],
+];
+SpriteDictionary['Interactables'] = [
+    ...getSpritesFromGallery('car'),
+    ...getSpritesFromGallery('house'),
+];
+SpriteDictionary['Terrains'] = [
+    ...getSpritesFromGallery('tile'),
+];
+SpriteDictionary['Areas'] = [
+    ...getSpritesFromGallery('road'),
 ];
