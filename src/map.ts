@@ -52,6 +52,14 @@ export class MapObject extends MapLocation implements MapRect {
     get bottom() {
         return this.row + this.height - 1;
     }
+
+    clone() {
+        const m = new MapObject(this.column, this.row);
+        m.width = this.width;
+        m.height = this.height;
+        (m as any).id = this.id;
+        return m;
+    }
 }
 
 export class MapArea extends MapObject {
@@ -70,6 +78,13 @@ export class MapArea extends MapObject {
     setDimensions(width: number, height: number) {
         if (width > 0) this.width = width | 0;
         if (height > 0) this.height = height | 0;
+    }
+
+    clone() {
+        const base = super.clone() as unknown as MapArea;
+        base.primaryColor = this.primaryColor;
+        base.outlineColor = this.outlineColor;
+        return base;
     }
 }
 
@@ -97,6 +112,19 @@ export class MapQuadrant {
         }
 
         return undefined;
+    }
+
+    clone() {
+        const m = new MapQuadrant();
+        m.data = [];
+
+        for (let col = 0; col < this.data.length; col++) {
+            if (this.data[col]) {
+                m.data[col] = this.data[col].slice();
+            }
+        }
+
+        return m;
     }
 }
 
@@ -142,6 +170,29 @@ export class MapObjectLayer {
     getObjects(): ReadonlyArray<MapObject> {
         return this.objects;
     }
+
+    getObjectOnTile(col: number, row: number) {
+        const test: MapRect = {
+            left: col,
+            right: col,
+            top: row,
+            bottom: row,
+            width: 1,
+            height: 1
+        };
+
+        for (const obj of this.objects) {
+            if (overlaps(obj, test)) return obj;
+        }
+
+        return undefined;
+    }
+
+    clone() {
+        const m = new MapObjectLayer();
+        m.objects = this.objects.map(o => o.clone());
+        return m;
+    }
 }
 
 export enum MapObjectLayers {
@@ -157,6 +208,7 @@ export interface ReadonlyMapData {
     getLayer(layer: MapObjectLayers): MapObjectLayer;
     getLayers(): ReadonlyArray<MapObjectLayer>;
     getBounds(): MapRect;
+    clone(): MapData;
 }
 
 export interface SetTileOp {
@@ -266,6 +318,27 @@ export class MapData implements ReadonlyMapData {
 
     getBounds(): MapRect {
         return this.bounds;
+    }
+
+    clone(): MapData {
+        const m = new MapData();
+        m.ne = this.ne.clone();
+        m.se = this.se.clone();
+        m.sw = this.sw.clone();
+        m.nw = this.nw.clone();
+
+        m.layers = this.layers.map(l => l.clone());
+
+        m.bounds = this.bounds ? {
+            left: this.bounds.left,
+            top: this.bounds.top,
+            right: this.bounds.right,
+            bottom: this.bounds.bottom,
+            width: this.bounds.width,
+            height: this.bounds.height
+        } : undefined;
+
+        return m;
     }
 }
 
