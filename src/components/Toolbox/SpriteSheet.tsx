@@ -37,7 +37,7 @@ export default class SpriteSheet extends React.Component<SpriteSheetProps, Sprit
         const { coords } = this.state;
 
         return (
-            <div style={{ overflow: 'hidden', transform: `scale(${(this.props.finalSize / width)})`, transformOrigin: `0, 0`, }}>
+            <div style={{ overflow: 'visible', transform: `scale(${(this.props.finalSize / width)})`, transformOrigin: `0 0`, maxHeight: 0, }}>
                 <img
                     alt={name || `tile-${index}`}
                     src={image}
