@@ -207,8 +207,6 @@ export class MapCanvas implements GestureTarget {
 
     static applyOperation(state: MapData, op: Operation): MapData {
         if (op.kind === "settile") {
-            console.log(op);
-
             for (let row = 0; row < op.selectedTiles.height; row++) {
                 for (let col = 0; col < op.selectedTiles.width; col++) {
                     state.setTile(
