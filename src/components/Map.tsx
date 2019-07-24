@@ -15,17 +15,24 @@ export interface MapProps {
     tileSet: TileSet
 }
 
-export class Map extends React.Component<MapProps, {}> {
+export interface MapState {
+    canvasCoordinates: Array<number>;
+}
+
+export class Map extends React.Component<MapProps, MapState> {
     protected workspace: MapCanvas;
 
     constructor(props: MapProps) {
         super(props);
+        this.state = {canvasCoordinates:[0,0]}
+        addEventListener(pointerEvents.move,this.handleCoordinates.bind(this));
     }
 
     render() {
         return (
             <div className="map">
                 <canvas ref={this.handleCanvasRef} />
+                <div className="coordinate">{this.state.canvasCoordinates[0]},{this.state.canvasCoordinates[1]}</div>
                 <div className="zoom">
                     <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
                     <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
@@ -59,6 +66,10 @@ export class Map extends React.Component<MapProps, {}> {
         window.requestAnimationFrame(() => this.workspace.resize());
     }
 
+    handleCoordinates(){
+        if (this.workspace)
+        this.setState({canvasCoordinates: this.workspace.getCanvasCoordinates()})
+    }
     handleKeyup = (e: KeyboardEvent) => {
         // TODO: add visual undo/redo buttons
         if (e.code == "KeyZ" && (e.ctrlKey || e.metaKey)) {
@@ -89,6 +100,8 @@ export class MapCanvas implements GestureTarget {
     protected dragLast: ClientCoordinates;
 
     protected bitmask: Bitmask;
+    protected canvasCoordinates: Array<number> = [0,0];
+
 
     constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected tileSet: TileSet) {
         this.context = canvas.getContext("2d");
@@ -324,6 +337,7 @@ export class MapCanvas implements GestureTarget {
 
         this.mouseX = this.canvasToMap(canvasCoords.clientX - this.offsetX);
         this.mouseY = this.canvasToMap(canvasCoords.clientY - this.offsetY);
+        this.canvasCoordinates = [this.mouseX,this.mouseY];
 
         this.redraw();
     }
@@ -333,6 +347,10 @@ export class MapCanvas implements GestureTarget {
         this.mouseY = null;
 
         this.redraw();
+    }
+
+    getCanvasCoordinates(): Array<number> {
+        return this.canvasCoordinates;
     }
 
     zoomIn(isZoomIn: boolean) {
