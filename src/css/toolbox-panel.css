@@ -16,6 +16,7 @@
 }
 
 .toolbox-panel > .panel-title {
+  display: flex; flex-flow: row; justify-content: space-between;
   cursor: pointer;
   border-bottom: 1px solid #ccc;
   background-color: #20bf6b;
@@ -34,12 +35,4 @@
 
 .panel-icon {
   float: right;
-}
-
-/* Style the accordion panel. Note: hidden by default */
-.panel {
-  padding: 0 18px;
-  background-color: transparent;
-  display: none;
-  overflow: hidden;
 }
