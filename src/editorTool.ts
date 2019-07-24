@@ -67,8 +67,7 @@ export class StampTool extends BaseTool {
             row: location.row,
             col: location.column,
             selectedTiles: this.host.getSelectedTiles(),
-            tileSet: this.host.getTileSet(),
-            data: this.getColor()
+            tileSet: this.host.getTileSet()
         });
     }
 
@@ -80,9 +79,10 @@ export class StampTool extends BaseTool {
         this.action = {
             kind: "multitile",
             bitmask: new Bitmask(editArea.width, editArea.height),
-            offsetX: editArea.left,
-            offsetY: editArea.top,
-            data: this.getColor()
+            col: editArea.left,
+            row: editArea.top,
+            selectedTiles: this.host.getSelectedTiles(),
+            tileSet: this.host.getTileSet()
         };
 
         this.setTile(location.column, location.row);
@@ -106,7 +106,7 @@ export class StampTool extends BaseTool {
     }
 
     protected setTile(col: number, row: number) {
-        this.action.bitmask.set(col - this.action.offsetX, row - this.action.offsetY);
+        this.action.bitmask.set(col - this.action.col, row - this.action.row);
         this.host.stageAction(this.action);
     }
 

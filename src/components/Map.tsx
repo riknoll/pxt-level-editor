@@ -233,25 +233,14 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
 
     static applyOperation(state: MapData, op: MapOperation): MapData {
         if (op.kind === "settile") {
-            for (let row = 0; row < op.selectedTiles.height; row++) {
-                for (let col = 0; col < op.selectedTiles.width; col++) {
-                    state.setTile(
-                        op.col + col,
-                        op.row + row,
-                        op.tileSet.coordToIndex(
-                            op.selectedTiles.top + row,
-                            op.selectedTiles.left + col,
-                        )
-                    );
-                }
-            }
+            state.setTileGroup(op.col, op.row, op.selectedTiles, op.tileSet);
         } else if (op.kind === "setobj") {
             state.addObjectToLayer(op.layer, op.obj)
         } else if (op.kind === "multitile") {
             for (let c = 0; c < op.bitmask.width; c++) {
                 for (let r = 0; r < op.bitmask.height; r++) {
                     if (op.bitmask.get(c, r) === 1) {
-                        state.setTile(c + op.offsetX, r + op.offsetY, op.data);
+                        state.setTileGroup(op.col + c, op.row + r, op.selectedTiles, op.tileSet);
                     }
                 }
             }
