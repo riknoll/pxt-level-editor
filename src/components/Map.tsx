@@ -212,23 +212,28 @@ export class MapCanvas implements GestureTarget {
 
     onClick(coord: ClientCoordinates) {
         let data = null
+        let mapUpdate = false
         switch (this.tool) {
             case MapTools.Stamp:
                 data = 1
+                mapUpdate = true
                 break;
             case MapTools.Erase:
                 data = null
+                mapUpdate = true
                 break;
         }
         coord = this.clientToCanvas(coord);
 
-        let op: SetTileOp = {
-            kind: "settile",
-            row: this.canvasToMap(coord.clientX - this.offsetX),
-            col: this.canvasToMap(coord.clientY - this.offsetY),
-            data,
+        if (mapUpdate) {
+            let op: SetTileOp = {
+                kind: "settile",
+                row: this.canvasToMap(coord.clientX - this.offsetX),
+                col: this.canvasToMap(coord.clientY - this.offsetY),
+                data,
+            }
+            this.triggerOperation(op)
         }
-        this.triggerOperation(op)
     }
 
     onDragStart(coord: ClientCoordinates) {
