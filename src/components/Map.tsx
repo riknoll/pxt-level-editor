@@ -1,12 +1,15 @@
 import * as React from 'react';
-import '../css/map.css';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
 import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
 import { OperationLog, MapOperation, SetTileOp, Operation } from '../opLog';
+import { Tile } from './Toolbox/toolboxTypes';
+
+import '../css/map.css';
 
 export interface MapProps {
+    tileSelected: Tile;
     tool: MapTools;
     map: MapData;
     activeLayer: MapObjectLayers;

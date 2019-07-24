@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { ToolboxGenericPanel } from './ToolboxGenericPanel';
+import { Tile } from './toolboxTypes';
 
 import '../../css/toolbox.css';
 
-export class Toolbox extends React.Component<{}, {}> {
+export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }, {}> {
 
-    constructor(props: {}) {
+    constructor(props: any) {
         super(props);
     }
 
@@ -13,11 +14,11 @@ export class Toolbox extends React.Component<{}, {}> {
         return (
             <div className="toolbox">
                 <div style={{ display: "block", width: "100%", height: "100%" }}>
-                    <ToolboxGenericPanel SpriteType={"Terrains"} />
-                    <ToolboxGenericPanel SpriteType={"Interactables"} />
-                    <ToolboxGenericPanel SpriteType={"Items"} />
-                    <ToolboxGenericPanel SpriteType={"Spawners"} />
-                    <ToolboxGenericPanel SpriteType={"Areas"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Terrains"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Interactables"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Items"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Spawners"} />
+                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Areas"} />
                 </div>
             </div>
         );
