@@ -2,7 +2,7 @@ import * as React from 'react';
 import '../css/map.css';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
-import { MapTools } from '../util';
+import { MapTools, pointerEvents, clientCoord } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
 
 export interface MapProps {
@@ -67,6 +67,8 @@ export class MapCanvas implements GestureTarget {
 
     protected offsetX = 0;
     protected offsetY = 0;
+    protected mouseX: number = null;
+    protected mouseY: number = null;
 
     protected context: CanvasRenderingContext2D;
     protected cachedBounds: ClientRect;
@@ -80,6 +82,8 @@ export class MapCanvas implements GestureTarget {
 
         this.resize();
         bindGestureEvents(canvas, this);
+        canvas.addEventListener(pointerEvents.move, this.onMouseMove.bind(this));
+        canvas.addEventListener(pointerEvents.leave, this.onMouseLeave.bind(this));
 
         this.map.addChangeListener(() => this.redraw());
         this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
@@ -120,6 +124,13 @@ export class MapCanvas implements GestureTarget {
                         }
                     } else {
                         this.drawTile(left, top, this.map.getTile(c, r));
+                    }
+
+                    if (this.mouseX === c && this.mouseY === r) {
+                        this.context.fillStyle = "#5a5a5a"
+                        this.context.globalAlpha = 0.5;
+                        this.context.fillRect(left, top, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+                        this.context.globalAlpha = 1;
                     }
                 }
             }
@@ -167,14 +178,14 @@ export class MapCanvas implements GestureTarget {
     }
 
     onClick(coord: ClientCoordinates) {
-        coord = this.clientToCanvas(coord);
+        const canvasCoords = this.clientToCanvas(coord);
 
         switch (this.tool) {
             case MapTools.Stamp:
-                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
+                this.map.setTile(this.canvasToMap(canvasCoords.clientX - this.offsetX), this.canvasToMap(canvasCoords.clientY - this.offsetY), 1);
                 break;
             case MapTools.Erase:
-                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), null);
+                this.map.setTile(this.canvasToMap(canvasCoords.clientX - this.offsetX), this.canvasToMap(canvasCoords.clientY - this.offsetY), null);
                 break;
         }
     }
@@ -230,6 +241,29 @@ export class MapCanvas implements GestureTarget {
         }
 
         this.dragLast = undefined;
+    }
+
+    onMouseEnter(evt: PointerEvent) {
+        this.onMouseMove(evt);
+
+        this.redraw();
+    }
+
+    onMouseMove(evt: PointerEvent) {
+        const coord = clientCoord(evt);
+        const canvasCoords = this.clientToCanvas(coord);
+        
+        this.mouseX = this.canvasToMap(canvasCoords.clientX - this.offsetX);
+        this.mouseY = this.canvasToMap(canvasCoords.clientY - this.offsetY);
+        
+        this.redraw();
+    }
+
+    onMouseLeave(evt: PointerEvent) {
+        this.mouseX = null;
+        this.mouseY = null;
+
+        this.redraw();
     }
 
     zoomIn(isZoomIn: boolean){
