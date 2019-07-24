@@ -9,6 +9,7 @@ import { MapRect } from '../../map';
 
 interface TerrainPanelProps {
     tileset: TileSet,
+    onChange: (selection: MapRect) => void,
 }
 
 export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> implements GestureTarget {
@@ -31,6 +32,8 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             width: 1,
             height: 1,
         };
+        this.props.onChange(this.selectedArea);
+
         this.scale = 2;
     }
 
@@ -59,11 +62,12 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
 
     redraw() {
         this.canvas.width = this.props.tileset.src.width * this.scale;
-        this.canvas.height = this.props.tileset.src.width * this.scale;
+        this.canvas.height = this.props.tileset.src.height * this.scale;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         let tileset = this.props.tileset.src;
+        this.ctx.imageSmoothingEnabled = false;
         this.ctx.drawImage(
             tileset, 0, 0, tileset.width, tileset.height, 0, 0,
             tileset.width * this.scale, tileset.height * this.scale
@@ -108,6 +112,8 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             height: 1,
         };
 
+        this.props.onChange(this.selectedArea);
+
         this.redraw();
     };
 
@@ -135,6 +141,8 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             this.selectedArea.right - this.selectedArea.left + 1;
         this.selectedArea.height =
             this.selectedArea.bottom - this.selectedArea.top + 1;
+
+        this.props.onChange(this.selectedArea);
 
         this.redraw();
     };

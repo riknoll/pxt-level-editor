@@ -8,7 +8,7 @@ import { Navigator } from './components/Navigator';
 import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
-import { MapData, MapObjectLayers } from './map';
+import { MapData, MapObjectLayers, MapRect } from './map';
 import { MapTools, loadImageAsync } from './util';
 import { TileSet, TILE_SIZE } from './tileset';
 import { Tile } from './components/Toolbox/toolboxTypes';
@@ -25,19 +25,21 @@ export interface AppState {
     tileSetLoaded: boolean;
     target: string;
     tool: MapTools;
+    selectedTiles?: MapRect;
 }
 
 export class App extends React.Component<AppProps, AppState> {
 
     protected map: MapData;
     protected tileSet: TileSet;
+
     constructor(props: AppProps) {
         super(props);
 
         this.state = {
             target: props.target,
             tool: MapTools.Stamp,
-            tileSetLoaded: false
+            tileSetLoaded: false,
         };
 
         this.deserialize = this.deserialize.bind(this);
@@ -79,6 +81,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ tileSelected: tile });
     }
 
+    private onTileSelectionChange = (selection: MapRect) => {
+        this.setState({selectedTiles: selection});
+    }
+
     render() {
         const { target } = this.state;
         return (
@@ -86,10 +92,14 @@ export class App extends React.Component<AppProps, AppState> {
                 <div className="sidebar">
                     <Navigator map={this.map} tileSet={this.tileSet} />
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
-                    <Toolbox onChange={this.onTileChange} tileset={this.tileSet}/>
+                    <Toolbox
+                        tileset={this.tileSet}
+                        onChange={this.onTileChange}
+                        onTileSelectionChange={this.onTileSelectionChange}
+                    />
                 </div>
                 <div className="main">
-                    <Map tileSelected={this.state.tileSelected} tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet} />
+                    <Map tileSelected={this.state.tileSelected} tool={this.state.tool} map={this.map} activeLayer={MapObjectLayers.Area} tileSet={this.tileSet} selectedTiles={this.state.selectedTiles} />
                 </div>
             </div>
         );

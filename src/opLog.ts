@@ -1,4 +1,5 @@
-import { MapObjectLayers, MapObject } from './map';
+import { MapObjectLayers, MapObject, MapRect } from './map';
+import { TileSet } from './tileset';
 
 export type Operation = MapOperation | Nop
 export type MapOperation = SetTileOp | SetObjectOp
@@ -7,7 +8,8 @@ export interface SetTileOp {
     kind: "settile",
     row: number,
     col: number,
-    data: number
+    tileSet: TileSet,
+    selectedTiles: MapRect,
 }
 export interface SetObjectOp {
     kind: "setobj",
