@@ -109,7 +109,7 @@ export class MapCanvas implements GestureTarget {
         this.context = canvas.getContext("2d");
         this.log = new OperationLog();
 
-        this.setMap(new MapData())
+        this.setMap(map);
 
         this.resize();
         bindGestureEvents(canvas, this);
@@ -118,6 +118,7 @@ export class MapCanvas implements GestureTarget {
 
         this.map.addChangeListener(() => this.redraw());
         this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
+
 
         this.triggerOperation({
             kind: "setobj",
@@ -257,6 +258,7 @@ export class MapCanvas implements GestureTarget {
 
     onClick(coord: ClientCoordinates) {
         coord = this.clientToCanvas(coord);
+
         let data = null
         
         switch (this.tool) {
@@ -267,7 +269,6 @@ export class MapCanvas implements GestureTarget {
                 data = null
                 break;
         }
-        coord = this.clientToCanvas(coord);
 
         let op: SetTileOp = {
             kind: "settile",
@@ -296,7 +297,9 @@ export class MapCanvas implements GestureTarget {
             switch (this.tool) {
                 case MapTools.Stamp:
                 case MapTools.Erase:
-                    this.bitmask.set(this.canvasToMap(canvasCoords.clientX - this.offsetX) + this.canvasToFullMap(this.offsetX), this.canvasToMap(canvasCoords.clientY - this.offsetY) + this.canvasToFullMap(this.offsetY));
+                    const c = this.canvasToMap(canvasCoords.clientX - this.offsetX) + this.canvasToFullMap(this.offsetX);
+                    const r = this.canvasToMap(canvasCoords.clientY - this.offsetY) + this.canvasToFullMap(this.offsetY);
+                    if (c >= 0 && c < this.bitmask.width && r >= 0 && r < this.bitmask.height) this.bitmask.set(c, r);
                     break;
             }
         }
@@ -311,8 +314,8 @@ export class MapCanvas implements GestureTarget {
 
         // Applies the bitmask based on the current tool
         if (this.bitmask) {
-            for (let c = 0; c <= this.bitmask.width; c++) {
-                for (let r = 0; r <= this.bitmask.height; r++) {
+            for (let c = 0; c < this.bitmask.width; c++) {
+                for (let r = 0; r < this.bitmask.height; r++) {
                     if (this.bitmask.get(c, r) === 1) {
                         switch (this.tool) {
                             case MapTools.Stamp:
@@ -360,7 +363,10 @@ export class MapCanvas implements GestureTarget {
     }
 
     zoomIn(isZoomIn: boolean) {
+        this.redraw();
+    }
 
+    zoomIn(isZoomIn: boolean) {
         let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
         this.zoomMultiplier += currentZoomAmount;
 

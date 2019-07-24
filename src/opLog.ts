@@ -1,30 +1,11 @@
-import { MapObjectLayers, MapObject } from './map';
+export class OperationLog<State extends ReadonlyState, ReadonlyState, Operation> {
+    private log: Operation[] = []
+    private cursor: number = -1
+    private currState: State;
+    private changeListeners: ((newState?: State) => void)[] = [];
 
-export type Operation = MapOperation | Nop
-export type MapOperation = SetTileOp | SetObjectOp
-
-export interface SetTileOp {
-    kind: "settile",
-    row: number,
-    col: number,
-    data: number
-}
-export interface SetObjectOp {
-    kind: "setobj",
-    obj: MapObject,
-    layer: MapObjectLayers
-}
-
-export interface Nop {
-    kind: "nop"
-}
-export const NOP: Nop = { kind: "nop" }
-
-export class OperationLog {
-    log: Operation[] = [NOP]
-    cursor: number = 0
-
-    constructor() {
+    constructor(private newState: () => State, private applyOperation: (old: State, op: Operation) => State) {
+        this.currState = newState()
     }
 
     private truncate() {
@@ -36,10 +17,23 @@ export class OperationLog {
         return this.log.length - 1
     }
     private currentOp(): Operation | null {
-        if (this.cursor < this.log.length)
+        if (0 <= this.cursor && this.cursor < this.log.length)
             return this.log[this.cursor]
         else
             return null
+    }
+
+    private onChange() {
+        if (this.changeListeners)
+            this.changeListeners.forEach(e => e(this.currState));
+    }
+
+    addChangeListener(cb: () => void) {
+        this.changeListeners.push(cb);
+    }
+
+    currentState(): ReadonlyState {
+        return this.currState
     }
 
     do(op: Operation) {
@@ -49,23 +43,34 @@ export class OperationLog {
         }
         this.log.push(op)
         this.cursor = this.lastIdx()
+
+        this.currState = this.applyOperation(this.currState, op)
+
+        this.onChange()
     }
 
-    undo(): Operation | null {
-        if (this.cursor > 0)
+    undo(): void {
+        if (this.cursor >= 0)
             this.cursor--
 
-        return this.currentOp()
+        // TODO(dz): incremental undo
+        let newState = this.computeState(this.applyOperation, this.newState());
+        this.currState = newState
+
+        this.onChange()
     }
 
-    redo(): Operation | null {
+    redo(): void {
         if (this.cursor < this.lastIdx())
             this.cursor++
 
-        return this.currentOp()
+        let op = this.currentOp()
+        this.currState = this.applyOperation(this.currState, op)
+
+        this.onChange()
     }
 
-    computeState<State>(reduceFn: (prevState: State, nextOp: Operation) => State, defState: State): State {
+    private computeState(reduceFn: (prevState: State, nextOp: Operation) => State, defState: State): State {
         return this.log.slice(0, this.cursor + 1).reduce(reduceFn, defState)
     }
 }

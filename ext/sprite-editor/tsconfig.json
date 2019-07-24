@@ -1,16 +1,19 @@
 {
     "compilerOptions": {
       "allowSyntheticDefaultImports": true,
+      "module": "amd",
       "noImplicitAny": true,
       "outDir": "./dist/",
       "preserveConstEnums": true,
       "removeComments": true,
       "sourceMap": true,
       "target": "es2015",
-      "types": []
+      "types": [],
+      "typeRoots": ["../../node_modules","../../node_modules/@types"],
+      "moduleResolution" : "Node"
     },
     "include": [
       "./src/**/**/*",
-      "./lib/*"
+      "../../lib/*"
     ]
   }

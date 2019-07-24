@@ -3,17 +3,18 @@
 import * as React from 'react';
 
 import { pxt, PXTClient } from '../lib/pxtextensions';
-import { Map } from './components/Map';
+import { Map, MapCanvas } from './components/Map';
 import { Navigator } from './components/Navigator';
 import { EditingTools } from './components/EditingTools';
 import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
-import { MapData, MapObjectLayers } from './map';
+import { MapData, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
 import { MapTools, loadImageAsync } from './util';
 import { TileSet, TILE_SIZE } from './tileset';
 import { Tile } from './components/Toolbox/toolboxTypes';
 
 import './css/index.css'
+import { OperationLog } from './opLog';
 
 export interface AppProps {
     client: PXTClient;
@@ -29,7 +30,7 @@ export interface AppState {
 
 export class App extends React.Component<AppProps, AppState> {
 
-    protected map: MapData;
+    protected map: MapLog;
     protected tileSet: TileSet;
     constructor(props: AppProps) {
         super(props);
@@ -49,7 +50,8 @@ export class App extends React.Component<AppProps, AppState> {
                 this.setState({ tileSetLoaded: true })
             });
 
-        this.map = new MapData();
+        this.map = new OperationLog(() => new MapData(), MapCanvas.applyOperation);
+
         props.client.on('read', this.deserialize);
         props.client.on('hidden', this.serialize);
     }
