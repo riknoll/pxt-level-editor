@@ -1,11 +1,11 @@
 import * as React from 'react';
 import '../css/navigator.css';
 import { GestureTarget, ClientCoordinates, bindGestureEvents } from '../util';
-import { MapData } from '../map';
+import { MapData, MapLog } from '../map';
 import { TileSet } from '../tileset';
 
 interface NavigatorProps {
-    map: MapData
+    map: MapLog,
     tileSet: TileSet
 }
 
@@ -19,7 +19,7 @@ export class Navigator extends React.Component<NavigatorProps, {}> {
     render() {
         return (
             <div className="navigator">
-                <canvas width="1" height="1" ref={this.handleCanvasRef}/>
+                <canvas width="1" height="1" ref={this.handleCanvasRef} />
             </div>
         );
     }
@@ -49,23 +49,27 @@ export class Navigator extends React.Component<NavigatorProps, {}> {
 export class NavigatorCanvas implements GestureTarget {
     protected context: CanvasRenderingContext2D;
 
-    constructor(protected canvas: HTMLCanvasElement, protected map: MapData, protected tileSet: TileSet) {
+    constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected tileSet: TileSet) {
         this.context = canvas.getContext("2d");
 
         bindGestureEvents(canvas, this);
-        this.map.addChangeListener(() => this.redraw());
+        this.log.addChangeListener(() => this.redraw());
     }
 
-    setTileSet(tiles:TileSet){
-        this.tileSet=tiles;
+    map() {
+        return this.log.currentState()
+    }
+
+    setTileSet(tiles: TileSet) {
+        this.tileSet = tiles;
         this.redraw();
     }
 
     redraw() {
         window.requestAnimationFrame(() => {
-            let mapBounds = this.map.getBounds();
+            let mapBounds = this.map().getBounds();
 
-            if(!mapBounds) return;
+            if (!mapBounds) return;
 
             let mapWidth = mapBounds.right - mapBounds.left + 1;
             let mapHeight = mapBounds.bottom - mapBounds.top + 1;
@@ -82,19 +86,19 @@ export class NavigatorCanvas implements GestureTarget {
 
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-            
+
 
             for (let x = 0; x < mapWidth; x++) {
                 for (let y = 0; y < mapHeight; y++) {
-                    let tile_index = this.map.getTile(
+                    let tile_index = this.map().getTile(
                         mapBounds.left + x, mapBounds.top + y);
 
                     if (!tile_index) {
                         continue
                     }
-                    
+
                     let rgb = this.tileSet.getColor(tile_index).split(' ');
-                    
+
                     let r = parseInt(rgb[0]); // Random colors
                     let g = parseInt(rgb[1]);
                     let b = parseInt(rgb[2]);
@@ -107,8 +111,8 @@ export class NavigatorCanvas implements GestureTarget {
         });
     }
 
-    onClick(coord: ClientCoordinates) {};
-    onDragStart(coord: ClientCoordinates) {};
-    onDragMove(coord: ClientCoordinates) {};
-    onDragEnd(coord: ClientCoordinates) {};
+    onClick(coord: ClientCoordinates) { };
+    onDragStart(coord: ClientCoordinates) { };
+    onDragMove(coord: ClientCoordinates) { };
+    onDragEnd(coord: ClientCoordinates) { };
 }
