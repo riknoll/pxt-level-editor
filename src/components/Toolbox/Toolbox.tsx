@@ -10,8 +10,6 @@ export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }
         super(props);
     }
 
-    scrollToBottom
-
     render() {
         return (
             <div className="toolbox" id="toolbox">
