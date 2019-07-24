@@ -1,8 +1,13 @@
+
+
+
 export class OperationLog<State extends ReadonlyState, ReadonlyState, Operation> {
     private log: Operation[] = []
     private cursor: number = -1
     private currState: State;
     private changeListeners: ((newState?: State) => void)[] = [];
+
+    private snapshots: { cursor: number, state: State }[] // TODO: ringbuffer
 
     constructor(private newState: () => State, private applyOperation: (old: State, op: Operation) => State) {
         this.currState = newState()
