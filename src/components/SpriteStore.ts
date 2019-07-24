@@ -1,7 +1,7 @@
 import { Dictionary } from './Toolbox/toolboxTypes';
 
 export interface Sprite {
-    image: string;
+    image: any;
     index: number;
     height?: number;
     width?: number;
@@ -41,7 +41,6 @@ const getSpritesFromGallery = function (name: string): Sprite[] {
         }
     }
 }
-
 const gallery: GalleryStore[] = [
     { name: 'bigFood', image: './gallery-icons/bigFood/big.png', height: 32, width: 32, frames: ['Burger', 'Drumstick', 'Ham', 'Pizza', 'Taco', 'Cake', 'Donut', 'IceCream'] },
     // { name: 'plate', image: './gallery-icons/bigFood/plate.png', frames: [] },
