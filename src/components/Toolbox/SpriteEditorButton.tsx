@@ -20,18 +20,6 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
           this.openSpriteEditor = this.openSpriteEditor.bind(this);
       }
 
-      stripImageLiteralTags(imageLiteral: string) {
-            const imgTag = `img\``;
-            const endQuote = `\``;
-            if (imageLiteral.includes(imgTag)) {
-                return imageLiteral
-                    .replace(imgTag, '')
-                    .replace(endQuote, '')
-            }
-
-            return imageLiteral;
-      }
-
       renderSpriteEditor() {
           const state = pxtsprite.imageLiteralToBitmap('',  DEFAULT_SPRITE_STATE);
 

@@ -1,13 +1,19 @@
 import * as React from 'react';
-import '../css/map.css';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
 import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
+import { OperationLog, MapOperation, SetTileOp, Operation } from '../opLog';
+import { Tile } from './Toolbox/toolboxTypes';
+
+import '../css/map.css';
 
 export interface MapProps {
-    tool: MapTools,
-    map: MapData,
+    tileSelected: Tile;
+    tool: MapTools;
+    map: MapData;
+    activeLayer: MapObjectLayers;
+    tileSet: TileSet
 }
 
 export class Map extends React.Component<MapProps, {}> {
@@ -31,10 +37,15 @@ export class Map extends React.Component<MapProps, {}> {
 
     componentDidMount() {
         window.addEventListener("resize", this.handleResize);
+        window.addEventListener("keyup", this.handleKeyup);
     }
 
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);
+    }
+
+    componentWillReceiveProps(props: MapProps) {
+        this.workspace.setTileSet(props.tileSet);
     }
 
     componentDidUpdate() {
@@ -42,16 +53,27 @@ export class Map extends React.Component<MapProps, {}> {
     }
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
-        if (ref) this.workspace = new MapCanvas(ref, this.props.map);
+        if (ref) this.workspace = new MapCanvas(ref, this.props.map, this.props.tileSet);
     };
 
     handleResize = () => {
         window.requestAnimationFrame(() => this.workspace.resize());
     }
+
+    handleKeyup = (e: KeyboardEvent) => {
+        // TODO: add visual undo/redo buttons
+        if (e.code == "KeyZ" && (e.ctrlKey || e.metaKey)) {
+            this.workspace.undo()
+        } else if (e.code == "KeyR" && e.ctrlKey) {
+            this.workspace.redo()
+        }
+    }
 }
 
 export class MapCanvas implements GestureTarget {
     protected tool: MapTools;
+    protected log: OperationLog;
+    protected activeLayer: MapObjectLayers;
 
     protected zoomMultiplier = 10;
     protected minMultiplier = 1;
@@ -66,24 +88,32 @@ export class MapCanvas implements GestureTarget {
     protected isDragging: boolean = false;
     protected dragLast: ClientCoordinates;
 
-    protected tileset: TileSet;
     protected bitmask: Bitmask;
 
-    constructor(protected canvas: HTMLCanvasElement, protected map: MapData) {
+    constructor(protected canvas: HTMLCanvasElement, protected map: MapData, protected tileSet: TileSet) {
         this.context = canvas.getContext("2d");
+        this.log = new OperationLog();
+
+        this.setMap(new MapData())
 
         this.resize();
         bindGestureEvents(canvas, this);
 
-        this.map.onChange(() => this.redraw());
+        this.triggerOperation({
+            kind: "setobj",
+            obj: new MapObject(1, 1),
+            layer: MapObjectLayers.Decoration
+        })
+    }
 
-        this.map.addObjectToLayer(MapObjectLayers.Decoration, new MapObject(1, 1));
+    setTileSet(tiles: TileSet) {
+        // TODO(dz): handle undo/redo?
+        this.tileSet = tiles;
+    }
 
-        loadImageAsync("./tile.png")
-            .then(el => {
-                this.tileset = new TileSet(el);
-                this.redraw();
-            });
+    private setMap(data: MapData) {
+        this.map = data
+        this.map.addChangeListener(() => this.redraw());
     }
 
     centerOnTile(x: number, y: number) {
@@ -121,7 +151,9 @@ export class MapCanvas implements GestureTarget {
             }
 
             this.drawObjectLayers(bounds);
-            this.drawGridlines(bounds);
+            this.drawGridlines(bounds, "#dedede", 1, (pos: number) => true); // Draws light grey gridlines every tile
+            this.drawGridlines(bounds, "#9e9e9e", 2, (pos: number) => pos % 5 === 0); // Draws dark grey gridlines every 5 tiles
+            this.drawGridlines(bounds, "#000", 3, (pos: number) => pos === 0); // Draws black gridlines at the origin
         })
     }
 
@@ -156,17 +188,65 @@ export class MapCanvas implements GestureTarget {
         }
     }
 
-    onClick(coord: ClientCoordinates) {
-        coord = this.clientToCanvas(coord);
+    private triggerOperation(op: MapOperation) {
+        this.log.do(op)
+        MapCanvas.applyOperation(this.map, op)
+    }
 
+    static applyOperation(state: MapData, op: Operation): MapData {
+        if (op.kind === "settile") {
+            state.setTile(op.row, op.col, 1);
+        } else if (op.kind === "setobj") {
+            state.addObjectToLayer(op.layer, op.obj)
+        } else {
+            // ignore non-map operations
+        }
+        return state
+    }
+
+    private computeState(): MapData {
+        return this.log.computeState((p, n) => MapCanvas.applyOperation(p, n), new MapData())
+    }
+
+    private rebuildState() {
+        this.setMap(this.computeState())
+        this.redraw()
+    }
+
+    undo() {
+        // TODO: incremental undo
+        let op = this.log.undo()
+        this.rebuildState()
+    }
+
+    redo() {
+        let op = this.log.redo()
+        MapCanvas.applyOperation(this.map, op)
+    }
+
+    updateActiveLayer(layer: MapObjectLayers) {
+        this.activeLayer = layer;
+    }
+
+    onClick(coord: ClientCoordinates) {
+        let data = null
         switch (this.tool) {
             case MapTools.Stamp:
-                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), 1);
+                data = 1
                 break;
             case MapTools.Erase:
-                this.map.setTile(this.canvasToMap(coord.clientX - this.offsetX), this.canvasToMap(coord.clientY - this.offsetY), null);
+                data = null
                 break;
         }
+        coord = this.clientToCanvas(coord);
+
+        let op: SetTileOp = {
+            kind: "settile",
+            row: this.canvasToMap(coord.clientX - this.offsetX),
+            col: this.canvasToMap(coord.clientY - this.offsetY),
+            data,
+        }
+        this.triggerOperation(op)
     }
 
     onDragStart(coord: ClientCoordinates) {
@@ -201,9 +281,9 @@ export class MapCanvas implements GestureTarget {
         const bounds = this.visibleRect();
 
         // Applies the bitmask based on the current tool
-        if (this.bitmask !== null) {
+        if (this.bitmask) {
             for (let c = 0; c <= this.bitmask.width; c++) {
-                for (let r = 0; r <= this.bitmask.height; r ++) {
+                for (let r = 0; r <= this.bitmask.height; r++) {
                     if (this.bitmask.get(c, r) === 1) {
                         switch (this.tool) {
                             case MapTools.Stamp:
@@ -222,7 +302,7 @@ export class MapCanvas implements GestureTarget {
         this.dragLast = undefined;
     }
 
-    zoomIn(isZoomIn: boolean){
+    zoomIn(isZoomIn: boolean) {
 
         let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
         this.zoomMultiplier += currentZoomAmount;
@@ -232,15 +312,15 @@ export class MapCanvas implements GestureTarget {
         } else {
             this.zoomMultiplier = Math.max(this.minMultiplier, this.zoomMultiplier);
         }
-        
+
         this.redraw();
     }
 
     protected drawTile(x: number, y: number, data: number) {
-        if (this.tileset && data != null) {
+        if (this.tileSet && data != null) {
             this.context.imageSmoothingEnabled = false;
-            const coord = this.tileset.indexToCoord(data);
-            this.context.drawImage(this.tileset.src, coord.clientX, coord.clientY, TILE_SIZE, TILE_SIZE, x, y, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier)
+            const coord = this.tileSet.indexToCoord(data);
+            this.context.drawImage(this.tileSet.src, coord.clientX, coord.clientY, TILE_SIZE, TILE_SIZE, x, y, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier)
         }
         else {
             this.context.fillStyle = data ? "red" : "white";
@@ -299,18 +379,23 @@ export class MapCanvas implements GestureTarget {
         this.context.strokeRect(x, y, width, height);
     }
 
-    protected drawGridlines(bounds: MapRect) {
-        this.context.strokeStyle = "#dedede"
+    protected drawGridlines(bounds: MapRect, color: string, width: number, condition: (pos: number) => boolean) {
+        this.context.strokeStyle = color;
+        this.context.lineWidth = width;
         this.context.beginPath();
 
         for (let c = bounds.left; c <= bounds.right; c++) {
-            this.context.moveTo(this.offsetX + this.mapToCanvas(c), 0)
-            this.context.lineTo(this.offsetX + this.mapToCanvas(c), this.cachedBounds.height)
+            if (condition(c)) {
+                this.context.moveTo(this.offsetX + this.mapToCanvas(c), 0)
+                this.context.lineTo(this.offsetX + this.mapToCanvas(c), this.cachedBounds.height)
+            }
         }
 
         for (let r = bounds.top; r <= bounds.bottom; r++) {
-            this.context.moveTo(0, this.offsetY + this.mapToCanvas(r))
-            this.context.lineTo(this.cachedBounds.width, this.offsetY + this.mapToCanvas(r))
+            if (condition(r)) {
+                this.context.moveTo(0, this.offsetY + this.mapToCanvas(r))
+                this.context.lineTo(this.cachedBounds.width, this.offsetY + this.mapToCanvas(r))
+            }
         }
 
         this.context.stroke();
