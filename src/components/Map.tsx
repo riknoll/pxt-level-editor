@@ -408,6 +408,8 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     protected drawTile(x: number, y: number, data: number) {
+        if (data === -1) return;
+
         if (this.tileSet && data != null) {
             this.context.imageSmoothingEnabled = false;
             const coord = this.tileSet.indexToCoord(data);

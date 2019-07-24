@@ -144,7 +144,7 @@ export class NavigatorCanvas implements GestureTarget {
                     let tile_index = this.map().getTile(
                         mapBounds.left + x, mapBounds.top + y);
 
-                    if (!tile_index) {
+                    if (tile_index == null || tile_index === -1) {
                         continue
                     }
 

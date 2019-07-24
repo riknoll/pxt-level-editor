@@ -66,7 +66,7 @@ export class StampTool extends BaseTool {
             kind: "settile",
             row: location.row,
             col: location.column,
-            selectedTiles: this.host.getSelectedTiles(),
+            selectedTiles: this.getSelectedTiles(),
             tileSet: this.host.getTileSet()
         });
     }
@@ -81,7 +81,7 @@ export class StampTool extends BaseTool {
             bitmask: new Bitmask(editArea.width, editArea.height),
             col: editArea.left,
             row: editArea.top,
-            selectedTiles: this.host.getSelectedTiles(),
+            selectedTiles: this.getSelectedTiles(),
             tileSet: this.host.getTileSet()
         };
 
@@ -110,14 +110,14 @@ export class StampTool extends BaseTool {
         this.host.stageAction(this.action);
     }
 
-    protected getColor(): number {
-        return 1;
+    protected getSelectedTiles(): MapRect {
+        return this.host.getSelectedTiles();
     }
 }
 
 export class EraseTool extends StampTool {
-    protected getColor(): number {
-        return 0;
+    protected getSelectedTiles(): MapRect {
+        return null;
     }
 }
 

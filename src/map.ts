@@ -283,6 +283,11 @@ export class MapData implements ReadonlyMapData {
     }
 
     setTileGroup(column: number, row: number, selectedTiles: MapRect, tileSet: TileSet) {
+        if (!selectedTiles) {
+            this.setTile(column, row, -1);
+            return;
+        }
+
         for (let r = 0; r < selectedTiles.height; r++) {
             for (let c = 0; c < selectedTiles.width; c++) {
                 this.setTile(
