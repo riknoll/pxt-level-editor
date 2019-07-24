@@ -1,3 +1,11 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var pxtsprite;
 (function (pxtsprite) {
     const hexChars = [".", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
@@ -1006,13 +1014,42 @@ var pxtsprite;
                 this.gesture = new GestureState();
                 this.bindEvents(this.paintLayer);
                 this.bindEvents(this.overlayLayer);
+                document.addEventListener(utils.pointerEvents.move, this.hoverHandler);
             }
         }
         bindEvents(surface) {
+            utils.pointerEvents.down.forEach(evId => {
+                surface.addEventListener(evId, (ev) => {
+                    this.startDrag();
+                    const [col, row] = this.clientEventToCell(ev);
+                    this.gesture.handle(InputEvent.Down, col, row);
+                });
+            });
         }
         startDrag() {
+            document.removeEventListener(utils.pointerEvents.move, this.hoverHandler);
+            document.addEventListener(utils.pointerEvents.move, this.moveHandler);
+            document.addEventListener(utils.pointerEvents.up, this.upHandler);
+            if (utils.isTouchEnabled() && !utils.hasPointerEvents()) {
+                document.addEventListener("touchend", this.upHandler);
+                document.addEventListener("touchcancel", this.leaveHandler);
+            }
+            else {
+                document.addEventListener(utils.pointerEvents.leave, this.leaveHandler);
+            }
         }
         endDrag() {
+            document.addEventListener(utils.pointerEvents.move, this.hoverHandler);
+            document.removeEventListener(utils.pointerEvents.move, this.moveHandler);
+            document.removeEventListener(utils.pointerEvents.up, this.upHandler);
+            document.removeEventListener(utils.pointerEvents.leave, this.leaveHandler);
+            if (utils.isTouchEnabled() && !utils.hasPointerEvents()) {
+                document.removeEventListener("touchend", this.upHandler);
+                document.removeEventListener("touchcancel", this.leaveHandler);
+            }
+            else {
+                document.removeEventListener(utils.pointerEvents.leave, this.leaveHandler);
+            }
         }
         layoutCanvas(canvas, top, left, width, height) {
             canvas.style.position = "absolute";
@@ -3086,4 +3123,426 @@ var events;
     }
     events.click = click;
 })(events || (events = {}));
+var utils;
+(function (utils) {
+    utils.DRAG_RADIUS = 3;
+    function hasPointerEvents() {
+        return typeof window != "undefined" && !!window.PointerEvent;
+    }
+    utils.hasPointerEvents = hasPointerEvents;
+    function isTouchEnabled() {
+        return typeof window !== "undefined" &&
+            ('ontouchstart' in window
+                || (navigator && navigator.maxTouchPoints > 0));
+    }
+    utils.isTouchEnabled = isTouchEnabled;
+    let MapTools;
+    (function (MapTools) {
+        MapTools[MapTools["Pan"] = 0] = "Pan";
+        MapTools[MapTools["Stamp"] = 1] = "Stamp";
+        MapTools[MapTools["Erase"] = 2] = "Erase";
+    })(MapTools = utils.MapTools || (utils.MapTools = {}));
+    class Bitmask {
+        constructor(width, height) {
+            this.width = width;
+            this.height = height;
+            this.mask = new Uint8Array(Math.ceil(width * height / 8));
+        }
+        set(col, row) {
+            const cellIndex = col + this.width * row;
+            const index = cellIndex >> 3;
+            const offset = cellIndex & 7;
+            this.mask[index] |= (1 << offset);
+        }
+        get(col, row) {
+            const cellIndex = col + this.width * row;
+            const index = cellIndex >> 3;
+            const offset = cellIndex & 7;
+            return (this.mask[index] >> offset) & 1;
+        }
+    }
+    utils.Bitmask = Bitmask;
+    utils.pointerEvents = (() => {
+        if (hasPointerEvents()) {
+            return {
+                up: "pointerup",
+                down: ["pointerdown"],
+                move: "pointermove",
+                enter: "pointerenter",
+                leave: "pointerleave"
+            };
+        }
+        else if (isTouchEnabled()) {
+            return {
+                up: "mouseup",
+                down: ["mousedown", "touchstart"],
+                move: "touchmove",
+                enter: "touchenter",
+                leave: "touchend"
+            };
+        }
+        else {
+            return {
+                up: "mouseup",
+                down: ["mousedown"],
+                move: "mousemove",
+                enter: "mouseenter",
+                leave: "mouseleave"
+            };
+        }
+    })();
+    function clientCoord(ev) {
+        if (ev.touches) {
+            const te = ev;
+            if (te.touches.length) {
+                return te.touches[0];
+            }
+            return te.changedTouches[0];
+        }
+        return ev;
+    }
+    utils.clientCoord = clientCoord;
+    function loadImageAsync(src) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                const el = document.createElement("img");
+                el.onload = () => resolve(el);
+                el.onerror = () => reject();
+                el.src = src;
+            });
+        });
+    }
+    utils.loadImageAsync = loadImageAsync;
+    class GestureState {
+        constructor(target, coord) {
+            this.target = target;
+            this.startX = coord.clientX;
+            this.startY = coord.clientY;
+            this.currentX = coord.clientX;
+            this.currentY = coord.clientY;
+        }
+        update(coord) {
+            this.currentX = coord.clientX;
+            this.currentY = coord.clientY;
+            if (!this.isDrag && this.distance() > utils.DRAG_RADIUS) {
+                this.isDrag = true;
+                this.target.onDragStart(coord);
+            }
+            else if (this.isDrag) {
+                this.target.onDragMove(coord);
+            }
+        }
+        end(coord) {
+            if (coord) {
+                this.update(coord);
+            }
+            coord = coord || { clientX: this.currentX, clientY: this.currentY };
+            if (this.isDrag) {
+                this.target.onDragEnd(coord);
+            }
+            else {
+                this.target.onClick(coord);
+            }
+        }
+        distance() {
+            return Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2));
+        }
+    }
+    utils.GestureState = GestureState;
+    function bindGestureEvents(el, target) {
+        let state;
+        let upHandler = (ev) => {
+            endGesture(ev);
+            ev.stopPropagation();
+            ev.preventDefault();
+        };
+        let leaveHandler = (ev) => {
+            endGesture(ev);
+            ev.stopPropagation();
+            ev.preventDefault();
+        };
+        let moveHandler = (ev) => {
+            if (state)
+                state.update(clientCoord(ev));
+            ev.stopPropagation();
+            ev.preventDefault();
+        };
+        let startGesture = (ev) => {
+            if (state)
+                state.end();
+            state = new GestureState(target, clientCoord(ev));
+            document.addEventListener(utils.pointerEvents.move, moveHandler);
+            document.addEventListener(utils.pointerEvents.up, upHandler);
+            if (isTouchEnabled() && !hasPointerEvents()) {
+                document.addEventListener("touchend", upHandler);
+                document.addEventListener("touchcancel", leaveHandler);
+            }
+            else {
+                document.addEventListener(utils.pointerEvents.leave, leaveHandler);
+            }
+        };
+        let endGesture = (ev) => {
+            if (state)
+                state.end(clientCoord(ev));
+            state = undefined;
+            document.removeEventListener(utils.pointerEvents.move, moveHandler);
+            document.removeEventListener(utils.pointerEvents.up, upHandler);
+            document.removeEventListener(utils.pointerEvents.leave, leaveHandler);
+            if (isTouchEnabled() && !hasPointerEvents()) {
+                document.removeEventListener("touchend", upHandler);
+                document.removeEventListener("touchcancel", leaveHandler);
+            }
+            else {
+                document.removeEventListener(utils.pointerEvents.leave, leaveHandler);
+            }
+        };
+        utils.pointerEvents.down.forEach(evId => {
+            el.addEventListener(evId, startGesture);
+        });
+    }
+    utils.bindGestureEvents = bindGestureEvents;
+})(utils || (utils = {}));
+define("lib/pxtextensions", ["require", "exports", "eventemitter3"], function (require, exports, EventEmitter) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var pxt;
+    (function (pxt) {
+        var extensions;
+        (function (extensions) {
+            function inIframe() {
+                try {
+                    return window && window.self !== window.top;
+                }
+                catch (e) {
+                    return true;
+                }
+            }
+            extensions.inIframe = inIframe;
+            function setup(client) {
+                window.addEventListener("message", (ev) => {
+                    let resp = ev.data;
+                    if (!resp)
+                        return;
+                    if (resp.type === "pxtpkgext")
+                        handleMessage(client, resp);
+                }, false);
+            }
+            extensions.setup = setup;
+            function handleMessage(client, msg) {
+                if (!msg.id) {
+                    const target = msg.target;
+                    switch (msg.event) {
+                        case "extinit":
+                            client.emit('init', msg.target);
+                            break;
+                        case "extloaded":
+                            client.emit('loaded', target);
+                            break;
+                        case "extshown":
+                            client.emit('shown', target);
+                            break;
+                        case "exthidden":
+                            client.emit('hidden', target);
+                            break;
+                        default:
+                            console.log("Unhandled event", msg);
+                    }
+                    console.log("received event: ", msg);
+                    return;
+                }
+                const action = idToType[msg.id];
+                console.log("received action: " + action, msg);
+                switch (action) {
+                    case "extinit":
+                        client.emit('init', msg.resp);
+                        break;
+                    case "extusercode":
+                        client.emit('readuser', msg.resp);
+                        break;
+                    case "extreadcode":
+                        client.emit('read', msg.resp);
+                        break;
+                    case "extwritecode":
+                        client.emit('written', msg.resp);
+                        break;
+                }
+            }
+            function init() {
+                console.log("initializing");
+                if (!inIframe())
+                    return;
+                const msg = mkRequest('extinit');
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.init = init;
+            function read(client) {
+                console.log('requesting read code');
+                if (!inIframe()) {
+                    const resp = {
+                        code: window.localStorage['code'],
+                        json: window.localStorage['json']
+                    };
+                    if (client)
+                        client.emit('read', resp);
+                    return;
+                }
+                const msg = mkRequest('extreadcode');
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.read = read;
+            function readUser() {
+                console.log('requesting read user code');
+                if (!inIframe())
+                    return;
+                const msg = mkRequest('extusercode');
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.readUser = readUser;
+            function write(code, json) {
+                console.log('writing code:', code, json);
+                if (!inIframe()) {
+                    window.localStorage['code'] = code;
+                    window.localStorage['json'] = json;
+                    return;
+                }
+                const msg = mkRequest('extwritecode');
+                msg.body = {
+                    code: code,
+                    json: json
+                };
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.write = write;
+            function queryPermission() {
+                if (!inIframe())
+                    return;
+                const msg = mkRequest('extquerypermission');
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.queryPermission = queryPermission;
+            function requestPermission(serial) {
+                if (!inIframe())
+                    return;
+                const msg = mkRequest('extrequestpermission');
+                msg.body = {
+                    serial: serial
+                };
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.requestPermission = requestPermission;
+            function dataStream(serial) {
+                if (!inIframe())
+                    return;
+                const msg = mkRequest('extdatastream');
+                msg.body = {
+                    serial: serial
+                };
+                window.parent.postMessage(msg, "*");
+            }
+            extensions.dataStream = dataStream;
+            let idToType = {};
+            function mkRequest(action) {
+                let id = Math.random().toString();
+                idToType[id] = action;
+                return {
+                    type: "pxtpkgext",
+                    action: action,
+                    extId: getExtensionId(),
+                    response: true,
+                    id: id
+                };
+            }
+            function getExtensionId() {
+                return inIframe() ? window.location.hash.substr(1) : undefined;
+            }
+            extensions.getExtensionId = getExtensionId;
+        })(extensions = pxt.extensions || (pxt.extensions = {}));
+    })(pxt = exports.pxt || (exports.pxt = {}));
+    (function (pxt) {
+        var extensions;
+        (function (extensions) {
+            var ui;
+            (function (ui) {
+                function isTouchEnabled() {
+                    return typeof window !== "undefined" &&
+                        ('ontouchstart' in window
+                            || (navigator && navigator.maxTouchPoints > 0));
+                }
+                ui.isTouchEnabled = isTouchEnabled;
+                function hasPointerEvents() {
+                    return typeof window != "undefined" && !!window.PointerEvent;
+                }
+                ui.hasPointerEvents = hasPointerEvents;
+                ui.pointerEvents = hasPointerEvents() ? {
+                    up: "pointerup",
+                    down: ["pointerdown"],
+                    move: "pointermove",
+                    enter: "pointerenter",
+                    leave: "pointerleave"
+                } : isTouchEnabled() ?
+                    {
+                        up: "mouseup",
+                        down: ["mousedown", "touchstart"],
+                        move: "touchmove",
+                        enter: "touchenter",
+                        leave: "touchend"
+                    } :
+                    {
+                        up: "mouseup",
+                        down: ["mousedown"],
+                        move: "mousemove",
+                        enter: "mouseenter",
+                        leave: "mouseleave"
+                    };
+                function getClientXYFromEvent(ev) {
+                    let clientX;
+                    let clientY;
+                    if (ev.changedTouches && ev.changedTouches.length == 1) {
+                        clientX = ev.changedTouches[0].clientX;
+                        clientY = ev.changedTouches[0].clientY;
+                    }
+                    else {
+                        clientX = ev.clientX;
+                        clientY = ev.clientY;
+                    }
+                    return {
+                        clientX,
+                        clientY
+                    };
+                }
+                ui.getClientXYFromEvent = getClientXYFromEvent;
+                function useTouchEvents() {
+                    return !hasPointerEvents() && isTouchEnabled();
+                }
+                ui.useTouchEvents = useTouchEvents;
+                function usePointerEvents() {
+                    return hasPointerEvents();
+                }
+                ui.usePointerEvents = usePointerEvents;
+                function useMouseEvents() {
+                    return !hasPointerEvents() && !isTouchEnabled();
+                }
+                ui.useMouseEvents = useMouseEvents;
+            })(ui = extensions.ui || (extensions.ui = {}));
+        })(extensions = pxt.extensions || (pxt.extensions = {}));
+    })(pxt = exports.pxt || (exports.pxt = {}));
+    class PXTClient {
+        constructor() {
+            this.eventEmitter = new EventEmitter();
+        }
+        on(eventName, listener) {
+            this.eventEmitter.on(eventName, listener);
+        }
+        removeEventListener(eventName, listener) {
+            this.eventEmitter.removeListener(eventName, listener);
+        }
+        emit(eventName, payload, error = false) {
+            this.eventEmitter.emit(eventName, payload, error);
+        }
+        getEventEmitter() {
+            return this.eventEmitter;
+        }
+    }
+    exports.PXTClient = PXTClient;
+});
 //# sourceMappingURL=spriteEditor.js.map
