@@ -274,21 +274,26 @@ export class MapCanvas implements GestureTarget {
                     if (this.bitmask.get(c, r) === 1) {
                         // TODO(dz): add a multi-tile op
                         let data: number | null;
+                        let mapUpdate = false
                         switch (this.tool) {
                             case MapTools.Stamp:
                                 data = 1
+                                mapUpdate = true
                                 break;
                             case MapTools.Erase:
                                 data = null
+                                mapUpdate = true
                                 break;
                         }
-                        let op: SetTileOp = {
-                            kind: "settile",
-                            row: c + this.canvasToMap(-this.offsetX),
-                            col: r + this.canvasToMap(-this.offsetY),
-                            data: 1
+                        if (mapUpdate) {
+                            let op: SetTileOp = {
+                                kind: "settile",
+                                row: c + this.canvasToMap(-this.offsetX),
+                                col: r + this.canvasToMap(-this.offsetY),
+                                data: data
+                            }
+                            this.log.do(op)
                         }
-                        this.log.do(op)
                     }
                 }
             }
