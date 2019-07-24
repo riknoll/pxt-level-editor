@@ -4,6 +4,7 @@ import * as React from 'react';
 
 interface ISpriteEditorProps {
     onChange: (v: string) => void;
+    value: string;
 }
 
 interface ISpriteEditorState {
@@ -16,12 +17,25 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
           this.state = {
             open: false,
           };
-
           this.openSpriteEditor = this.openSpriteEditor.bind(this);
       }
 
+      stripImageLiteralTags(imageLiteral: string) {
+        const imgTag = `img\``;
+        const endQuote = `\``;
+        if (imageLiteral.includes(imgTag)) {
+            return imageLiteral
+                .replace(imgTag, '')
+                .replace(endQuote, '')
+        }
+
+        return imageLiteral;
+      }
+
       renderSpriteEditor() {
-          const state = pxtsprite.imageLiteralToBitmap('',  DEFAULT_SPRITE_STATE);
+          const { value } = this.props;
+          const stateSprite = value && this.stripImageLiteralTags(value)
+          const state = pxtsprite.imageLiteralToBitmap('',  stateSprite || DEFAULT_SPRITE_STATE);
 
           const contentDiv = this.refs['spriteEditorContainer'] as HTMLDivElement;
 
@@ -73,7 +87,7 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
       }
   }
 
-const DEFAULT_SPRITE_STATE = `
+ const DEFAULT_SPRITE_STATE = `
 . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . .
