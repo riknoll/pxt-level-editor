@@ -98,12 +98,6 @@ export class MapCanvas implements GestureTarget {
         bindGestureEvents(canvas, this);
         canvas.addEventListener(pointerEvents.move, this.onMouseMove.bind(this));
         canvas.addEventListener(pointerEvents.leave, this.onMouseLeave.bind(this));
-
-        this.triggerOperation({
-            kind: "setobj",
-            obj: new MapObject(1, 1),
-            layer: MapObjectLayers.Decoration
-        })
     }
 
     map(): ReadonlyMapData {
