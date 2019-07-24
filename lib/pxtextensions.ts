@@ -1,4 +1,3 @@
-
 import * as EventEmitter from 'eventemitter3';
 
 export namespace pxt.extensions {
