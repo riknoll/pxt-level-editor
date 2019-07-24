@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
-import { MapTools } from '../util';
+import { MapTools, pointerEvents, clientCoord } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers } from '../map';
 import { OperationLog, MapOperation, SetTileOp, Operation } from '../opLog';
 import { Tile } from './Toolbox/toolboxTypes';
@@ -82,6 +82,8 @@ export class MapCanvas implements GestureTarget {
 
     protected offsetX = 0;
     protected offsetY = 0;
+    protected mouseX: number = null;
+    protected mouseY: number = null;
 
     protected context: CanvasRenderingContext2D;
     protected cachedBounds: ClientRect;
@@ -98,6 +100,8 @@ export class MapCanvas implements GestureTarget {
 
         this.resize();
         bindGestureEvents(canvas, this);
+        canvas.addEventListener(pointerEvents.move, this.onMouseMove.bind(this));
+        canvas.addEventListener(pointerEvents.leave, this.onMouseLeave.bind(this));
 
         this.triggerOperation({
             kind: "setobj",
@@ -146,6 +150,13 @@ export class MapCanvas implements GestureTarget {
                         }
                     } else {
                         this.drawTile(left, top, this.map.getTile(c, r));
+                    }
+
+                    if (this.mouseX === c && this.mouseY === r) {
+                        this.context.fillStyle = "#5a5a5a"
+                        this.context.globalAlpha = 0.5;
+                        this.context.fillRect(left, top, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+                        this.context.globalAlpha = 1;
                     }
                 }
             }
@@ -229,6 +240,7 @@ export class MapCanvas implements GestureTarget {
     }
 
     onClick(coord: ClientCoordinates) {
+        const canvasCoords = this.clientToCanvas(coord);
         let data = null
         switch (this.tool) {
             case MapTools.Stamp:
@@ -238,12 +250,11 @@ export class MapCanvas implements GestureTarget {
                 data = null
                 break;
         }
-        coord = this.clientToCanvas(coord);
 
         let op: SetTileOp = {
             kind: "settile",
-            row: this.canvasToMap(coord.clientX - this.offsetX),
-            col: this.canvasToMap(coord.clientY - this.offsetY),
+            row: this.canvasToMap(canvasCoords.clientX - this.offsetX),
+            col: this.canvasToMap(canvasCoords.clientY - this.offsetY),
             data,
         }
         this.triggerOperation(op)
@@ -304,8 +315,30 @@ export class MapCanvas implements GestureTarget {
         this.dragLast = undefined;
     }
 
-    zoomIn(isZoomIn: boolean) {
+    onMouseEnter(evt: PointerEvent) {
+        this.onMouseMove(evt);
 
+        this.redraw();
+    }
+
+    onMouseMove(evt: PointerEvent) {
+        const coord = clientCoord(evt);
+        const canvasCoords = this.clientToCanvas(coord);
+        
+        this.mouseX = this.canvasToMap(canvasCoords.clientX - this.offsetX);
+        this.mouseY = this.canvasToMap(canvasCoords.clientY - this.offsetY);
+        
+        this.redraw();
+    }
+
+    onMouseLeave(evt: PointerEvent) {
+        this.mouseX = null;
+        this.mouseY = null;
+
+        this.redraw();
+    }
+
+    zoomIn(isZoomIn: boolean) {
         let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
         this.zoomMultiplier += currentZoomAmount;
 
