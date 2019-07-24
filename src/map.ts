@@ -1,4 +1,5 @@
 import { OperationLog } from "./opLog";
+import { Bitmask } from "./util";
 
 export interface MapRect {
     left: number;
@@ -163,13 +164,20 @@ export interface SetTileOp {
     col: number,
     data: number
 }
+export interface SetMultiTileOp {
+    kind: "multitile",
+    bitmask: Bitmask,
+    offsetX: number,
+    offsetY: number,
+    data: number
+}
 export interface SetObjectOp {
     kind: "setobj",
     obj: MapObject,
     layer: MapObjectLayers
 }
 
-export type MapOperation = SetTileOp | SetObjectOp
+export type MapOperation = SetTileOp | SetMultiTileOp | SetObjectOp
 
 export type MapLog = OperationLog<MapData, ReadonlyMapData, MapOperation>
 
