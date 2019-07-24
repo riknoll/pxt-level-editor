@@ -10,9 +10,11 @@ export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }
         super(props);
     }
 
+    scrollToBottom
+
     render() {
         return (
-            <div className="toolbox">
+            <div className="toolbox" id="toolbox">
                 <div style={{ display: "block", width: "100%", height: "100%" }}>
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Terrains"} />
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Interactables"} />
