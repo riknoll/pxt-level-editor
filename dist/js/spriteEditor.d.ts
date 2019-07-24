@@ -679,3 +679,102 @@ declare namespace events {
     function move(el: SVGElement, handler: () => void): void;
     function click(el: SVGElement, handler: () => void): void;
 }
+declare namespace utils {
+    const DRAG_RADIUS = 3;
+    function hasPointerEvents(): boolean;
+    function isTouchEnabled(): boolean;
+    enum MapTools {
+        Pan = 0,
+        Stamp = 1,
+        Erase = 2
+    }
+    class Bitmask {
+        width: number;
+        height: number;
+        protected mask: Uint8Array;
+        constructor(width: number, height: number);
+        set(col: number, row: number): void;
+        get(col: number, row: number): number;
+    }
+    interface IPointerEvents {
+        up: string;
+        down: string[];
+        move: string;
+        enter: string;
+        leave: string;
+    }
+    const pointerEvents: IPointerEvents;
+    interface ClientCoordinates {
+        clientX: number;
+        clientY: number;
+    }
+    function clientCoord(ev: PointerEvent | MouseEvent | TouchEvent): ClientCoordinates;
+    function loadImageAsync(src: string): Promise<HTMLImageElement>;
+    interface GestureTarget {
+        onClick(coord: ClientCoordinates): void;
+        onDragStart(coord: ClientCoordinates): void;
+        onDragMove(coord: ClientCoordinates): void;
+        onDragEnd(coord: ClientCoordinates): void;
+    }
+    class GestureState {
+        protected target: GestureTarget;
+        startX: number;
+        startY: number;
+        currentX: number;
+        currentY: number;
+        isDrag: boolean;
+        constructor(target: GestureTarget, coord: ClientCoordinates);
+        update(coord: ClientCoordinates): void;
+        end(coord?: ClientCoordinates): void;
+        distance(): number;
+    }
+    function bindGestureEvents(el: HTMLElement, target: GestureTarget): void;
+}
+declare module "lib/pxtextensions" {
+    import * as EventEmitter from 'eventemitter3';
+    export namespace pxt.extensions {
+        interface ReadResponse {
+            asm?: string;
+            code?: string;
+            json?: string;
+            jres?: string;
+        }
+        function inIframe(): boolean;
+        function setup(client: PXTClient): void;
+        function init(): void;
+        function read(client?: PXTClient): void;
+        function readUser(): void;
+        function write(code: string, json?: string): void;
+        function queryPermission(): void;
+        function requestPermission(serial: boolean): void;
+        function dataStream(serial: boolean): void;
+        function getExtensionId(): string;
+    }
+    export namespace pxt.extensions.ui {
+        function isTouchEnabled(): boolean;
+        function hasPointerEvents(): boolean;
+        interface IPointerEvents {
+            up: string;
+            down: string[];
+            move: string;
+            enter: string;
+            leave: string;
+        }
+        const pointerEvents: IPointerEvents;
+        function getClientXYFromEvent(ev: MouseEvent | PointerEvent | TouchEvent): {
+            clientX: number;
+            clientY: number;
+        };
+        function useTouchEvents(): boolean;
+        function usePointerEvents(): boolean;
+        function useMouseEvents(): boolean;
+    }
+    export class PXTClient {
+        private eventEmitter;
+        constructor();
+        on(eventName: string, listener: EventEmitter.ListenerFn): void;
+        removeEventListener(eventName: string, listener: EventEmitter.ListenerFn): void;
+        emit(eventName: string, payload: Object, error?: boolean): void;
+        getEventEmitter(): EventEmitter<string | symbol>;
+    }
+}

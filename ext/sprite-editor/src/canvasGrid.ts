@@ -391,21 +391,20 @@ namespace pxtsprite {
                 this.bindEvents(this.paintLayer);
                 this.bindEvents(this.overlayLayer);
 
-            //TODO:    document.addEventListener(pxt.BrowserUtils.pointerEvents.move, this.hoverHandler);
+                document.addEventListener(utils.pointerEvents.move, this.hoverHandler);
             }
-            
+
         }
 
         private bindEvents(surface: HTMLElement) {
-            /*TODO
-            pxt.BrowserUtils.pointerEvents.down.forEach(evId => {
+            utils.pointerEvents.down.forEach(evId => {
                 surface.addEventListener(evId, (ev: MouseEvent) => {
                     this.startDrag();
                     const [col, row] = this.clientEventToCell(ev);
                     this.gesture.handle(InputEvent.Down, col, row);
                 });
             })
-            */
+            
 
             // surface.addEventListener("click", (ev: MouseEvent) => {
             //     const [col, row] = this.clientEventToCell(ev);
@@ -458,36 +457,35 @@ namespace pxtsprite {
         }
 
         private startDrag() {
-            /* TODO
-            document.removeEventListener(pxt.BrowserUtils.pointerEvents.move, this.hoverHandler);
-            document.addEventListener(pxt.BrowserUtils.pointerEvents.move, this.moveHandler);
-            document.addEventListener(pxt.BrowserUtils.pointerEvents.up, this.upHandler);
+            document.removeEventListener(utils.pointerEvents.move, this.hoverHandler);
+            document.addEventListener(utils.pointerEvents.move, this.moveHandler);
+            document.addEventListener(utils.pointerEvents.up, this.upHandler);
 
-            if (pxt.BrowserUtils.isTouchEnabled() && !pxt.BrowserUtils.hasPointerEvents()) {
+            if (utils.isTouchEnabled() && !utils.hasPointerEvents()) {
                 document.addEventListener("touchend", this.upHandler);
                 document.addEventListener("touchcancel", this.leaveHandler);
             }
             else {
-                document.addEventListener(pxt.BrowserUtils.pointerEvents.leave, this.leaveHandler);
+                document.addEventListener(utils.pointerEvents.leave, this.leaveHandler);
             }
-            */
+            
         }
 
         private endDrag() {
-            /*TODO
-            document.addEventListener(pxt.BrowserUtils.pointerEvents.move, this.hoverHandler);
-            document.removeEventListener(pxt.BrowserUtils.pointerEvents.move, this.moveHandler);
-            document.removeEventListener(pxt.BrowserUtils.pointerEvents.up, this.upHandler);
-            document.removeEventListener(pxt.BrowserUtils.pointerEvents.leave, this.leaveHandler);
+            
+            document.addEventListener(utils.pointerEvents.move, this.hoverHandler);
+            document.removeEventListener(utils.pointerEvents.move, this.moveHandler);
+            document.removeEventListener(utils.pointerEvents.up, this.upHandler);
+            document.removeEventListener(utils.pointerEvents.leave, this.leaveHandler);
 
-            if (pxt.BrowserUtils.isTouchEnabled() && !pxt.BrowserUtils.hasPointerEvents()) {
+            if (utils.isTouchEnabled() && !utils.hasPointerEvents()) {
                 document.removeEventListener("touchend", this.upHandler);
                 document.removeEventListener("touchcancel", this.leaveHandler);
             }
             else {
-                document.removeEventListener(pxt.BrowserUtils.pointerEvents.leave, this.leaveHandler);
+                document.removeEventListener(utils.pointerEvents.leave, this.leaveHandler);
             }
-            */
+            
         }
 
 
