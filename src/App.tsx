@@ -107,14 +107,14 @@ export class App extends React.Component<AppProps, AppState> {
                     />
                 </div>
                 <div className="main">
-                    <Map 
+                    <Map
                         tileSelected={this.state.tileSelected}
                         tool={this.state.tool}
                         map={this.map}
                         activeLayer={MapObjectLayers.Area}
-                        tileSet={this.tileSet} 
-                        selectedTiles={this.state.selectedTiles} />
-                        onRectChange={this.setVisibleRect.bind(this)} 
+                        tileSet={this.tileSet}
+                        selectedTiles={this.state.selectedTiles}
+                        onRectChange={this.setVisibleRect.bind(this)}
                     />
                 </div>
             </div>
