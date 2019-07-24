@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
 import { TILE_SIZE, TileSet } from '../tileset';
-import { MapTools } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp } from '../map';
+import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
 
 import '../css/map.css';
@@ -80,6 +80,8 @@ export class MapCanvas implements GestureTarget {
 
     protected offsetX = 0;
     protected offsetY = 0;
+    protected mouseX: number = null;
+    protected mouseY: number = null;
 
     protected context: CanvasRenderingContext2D;
     protected cachedBounds: ClientRect;
@@ -94,6 +96,8 @@ export class MapCanvas implements GestureTarget {
 
         this.resize();
         bindGestureEvents(canvas, this);
+        canvas.addEventListener(pointerEvents.move, this.onMouseMove.bind(this));
+        canvas.addEventListener(pointerEvents.leave, this.onMouseLeave.bind(this));
 
         this.triggerOperation({
             kind: "setobj",
@@ -142,6 +146,13 @@ export class MapCanvas implements GestureTarget {
                     } else {
                         this.drawTile(left, top, this.map().getTile(c, r));
                     }
+
+                    if (this.mouseX === c && this.mouseY === r) {
+                        this.context.fillStyle = "#5a5a5a"
+                        this.context.globalAlpha = 0.5;
+                        this.context.fillRect(left, top, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+                        this.context.globalAlpha = 1;
+                    }
                 }
             }
 
@@ -189,7 +200,7 @@ export class MapCanvas implements GestureTarget {
 
     static applyOperation(state: MapData, op: MapOperation): MapData {
         if (op.kind === "settile") {
-            state.setTile(op.row, op.col, 1);
+            state.setTile(op.row, op.col, op.data);
         } else if (op.kind === "setobj") {
             state.addObjectToLayer(op.layer, op.obj)
         } else {
@@ -211,6 +222,7 @@ export class MapCanvas implements GestureTarget {
     }
 
     onClick(coord: ClientCoordinates) {
+        const canvasCoords = this.clientToCanvas(coord);
         let data = null
         let mapUpdate = false
         switch (this.tool) {
@@ -223,13 +235,12 @@ export class MapCanvas implements GestureTarget {
                 mapUpdate = true
                 break;
         }
-        coord = this.clientToCanvas(coord);
 
         if (mapUpdate) {
             let op: SetTileOp = {
                 kind: "settile",
-                row: this.canvasToMap(coord.clientX - this.offsetX),
-                col: this.canvasToMap(coord.clientY - this.offsetY),
+                row: this.canvasToMap(canvasCoords.clientX - this.offsetX),
+                col: this.canvasToMap(canvasCoords.clientY - this.offsetY),
                 data,
             }
             this.triggerOperation(op)
@@ -254,7 +265,9 @@ export class MapCanvas implements GestureTarget {
             switch (this.tool) {
                 case MapTools.Stamp:
                 case MapTools.Erase:
-                    this.bitmask.set(this.canvasToMap(canvasCoords.clientX - this.offsetX) + this.canvasToFullMap(this.offsetX), this.canvasToMap(canvasCoords.clientY - this.offsetY) + this.canvasToFullMap(this.offsetY));
+                    const c = this.canvasToMap(canvasCoords.clientX - this.offsetX) + this.canvasToFullMap(this.offsetX);
+                    const r = this.canvasToMap(canvasCoords.clientY - this.offsetY) + this.canvasToFullMap(this.offsetY);
+                    if (c >= 0 && c < this.bitmask.width && r >= 0 && r < this.bitmask.height) this.bitmask.set(c, r);
                     break;
             }
         }
@@ -269,8 +282,8 @@ export class MapCanvas implements GestureTarget {
 
         // Applies the bitmask based on the current tool
         if (this.bitmask) {
-            for (let c = 0; c <= this.bitmask.width; c++) {
-                for (let r = 0; r <= this.bitmask.height; r++) {
+            for (let c = 0; c < this.bitmask.width; c++) {
+                for (let r = 0; r < this.bitmask.height; r++) {
                     if (this.bitmask.get(c, r) === 1) {
                         // TODO(dz): add a multi-tile op
                         let data: number | null;
@@ -303,8 +316,30 @@ export class MapCanvas implements GestureTarget {
         this.dragLast = undefined;
     }
 
-    zoomIn(isZoomIn: boolean) {
+    onMouseEnter(evt: PointerEvent) {
+        this.onMouseMove(evt);
 
+        this.redraw();
+    }
+
+    onMouseMove(evt: PointerEvent) {
+        const coord = clientCoord(evt);
+        const canvasCoords = this.clientToCanvas(coord);
+
+        this.mouseX = this.canvasToMap(canvasCoords.clientX - this.offsetX);
+        this.mouseY = this.canvasToMap(canvasCoords.clientY - this.offsetY);
+
+        this.redraw();
+    }
+
+    onMouseLeave(evt: PointerEvent) {
+        this.mouseX = null;
+        this.mouseY = null;
+
+        this.redraw();
+    }
+
+    zoomIn(isZoomIn: boolean) {
         let currentZoomAmount = isZoomIn ? this.amountToZoom : -1 * this.amountToZoom;
         this.zoomMultiplier += currentZoomAmount;
 
