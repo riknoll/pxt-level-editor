@@ -341,11 +341,14 @@ export class MapCanvas implements GestureTarget {
     onMouseMove(evt: PointerEvent) {
         const coord = clientCoord(evt);
         const canvasCoords = this.clientToCanvas(coord);
+        const c = this.canvasToMap(canvasCoords.clientX - this.offsetX);
+        const r = this.canvasToMap(canvasCoords.clientY - this.offsetY);
 
-        this.mouseX = this.canvasToMap(canvasCoords.clientX - this.offsetX);
-        this.mouseY = this.canvasToMap(canvasCoords.clientY - this.offsetY);
-
-        this.redraw();
+        if (c !== this.mouseX || r !== this.mouseY) {
+            this.mouseX = c;
+            this.mouseY = r;
+            this.redraw();
+        }
     }
 
     onMouseLeave(evt: PointerEvent) {
