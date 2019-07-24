@@ -35,7 +35,7 @@ const getSpritesFromGallery = function (name: string): Sprite[] {
                     width: spriteGallery.width,
                     index: index,
                     image: spriteGallery.image,
-                    name: sprite,
+                    name: `${name}-${sprite}`,
                 }
             });
         }

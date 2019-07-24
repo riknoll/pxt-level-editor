@@ -1,31 +1,45 @@
 import * as React from 'react';
 import '../css/navigator.css';
 import { GestureTarget, ClientCoordinates, bindGestureEvents } from '../util';
-import { MapData } from '../map';
+import { MapRect, MapLog } from '../map';
 import { TileSet } from '../tileset';
 
 interface NavigatorProps {
-    map: MapData
+    map: MapLog,
     tileSet: TileSet
+    viewport: MapRect
 }
 
-export class Navigator extends React.Component<NavigatorProps, {}> {
+interface NavigatorState {
+    width: number,
+    height: number,
+    scale: number
+}
+
+export class Navigator extends React.Component<NavigatorProps, NavigatorState> {
     protected workspace: NavigatorCanvas;
+    protected canvasRef: HTMLCanvasElement;
 
     constructor(props: NavigatorProps) {
         super(props);
+
+        this.state = { width: 0, height: 0, scale: 1 }
     }
 
     render() {
         return (
             <div className="navigator">
-                <canvas width="1" height="1" ref={this.handleCanvasRef}/>
+                <div className="mask" style={this.setMaskStyle()}>
+                    {this.state.width > 0 && <div className="viewport" style={this.setViewportStyle()}></div>}
+                </div>
+                <canvas width={this.state.width} height={this.state.height} ref={(el) => {this.canvasRef = el;}}/>
             </div>
         );
     }
 
     componentDidMount() {
         window.addEventListener("resize", this.handleResize);
+        this.setWorkspace();
     }
 
     componentWillUnmount() {
@@ -33,39 +47,82 @@ export class Navigator extends React.Component<NavigatorProps, {}> {
     }
 
     componentWillReceiveProps(props: NavigatorProps) {
-        this.workspace.setTileSet(props.tileSet);
+        if (!this.workspace) return;
+        if (props.tileSet != this.props.tileSet) this.workspace.setTileSet(props.tileSet);
     }
 
-    handleResize = () => {
+    protected setMaskStyle() {
+        return {
+            width: this.state.width + "px",
+            height: this.state.height + "px"
+        }
+    }
+
+    protected setViewportStyle() {
+        if (!this.props.viewport) return;
+
+        let viewport = this.props.viewport;
+        let s = this.state.scale;
+
+        let top = Math.max(0, viewport.top);
+        let left = Math.max(0, viewport.left);
+        let width = Math.min(viewport.width - (left - viewport.left), this.state.width/s - left);
+        let height = Math.min(viewport.height -  (top - viewport.top), this.state.height/s - top);
+
+        return {
+            top: top * s + "px",
+            left: left * s + "px",
+            width: width * s + "px",
+            height: height * s + "px"
+        }
+    }
+
+    protected setCanvasSize(w: number, h: number, s: number) {
+        this.setState({ width: w, height: h, scale: s });
+    }
+
+    protected handleResize = () => {
+        if (!this.workspace) return;
         this.workspace.redraw();
     };
 
-    handleCanvasRef = (ref: HTMLCanvasElement) => {
-        if (ref) this.workspace = new NavigatorCanvas(ref, this.props.map, this.props.tileSet);
+    protected setWorkspace() {
+        if (this.canvasRef) {
+            this.workspace = new NavigatorCanvas(this.canvasRef, this.props.map, this.props.tileSet);
+            this.workspace.setResizeCallabck(this.setCanvasSize.bind(this));
+        }
     }
 }
 
-
 export class NavigatorCanvas implements GestureTarget {
     protected context: CanvasRenderingContext2D;
+    protected setCanvasSize: (w: number, h: number, s: number) => void;
 
-    constructor(protected canvas: HTMLCanvasElement, protected map: MapData, protected tileSet: TileSet) {
+    constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected tileSet: TileSet) {
         this.context = canvas.getContext("2d");
 
         bindGestureEvents(canvas, this);
-        this.map.addChangeListener(() => this.redraw());
+        this.log.addChangeListener(() => this.redraw());
     }
 
-    setTileSet(tiles:TileSet){
-        this.tileSet=tiles;
+    map() {
+        return this.log.currentState()
+    }
+
+    setTileSet(tiles: TileSet) {
+        this.tileSet = tiles;
         this.redraw();
+    }
+
+    setResizeCallabck(cb: any) {
+        this.setCanvasSize = cb;
     }
 
     redraw() {
         window.requestAnimationFrame(() => {
-            let mapBounds = this.map.getBounds();
+            let mapBounds = this.map().getBounds();
 
-            if(!mapBounds) return;
+            if (!mapBounds) return;
 
             let mapWidth = mapBounds.right - mapBounds.left + 1;
             let mapHeight = mapBounds.bottom - mapBounds.top + 1;
@@ -77,24 +134,22 @@ export class NavigatorCanvas implements GestureTarget {
                 16  // Minimum tile size
             );
 
-            this.canvas.width = mapWidth * scale;
-            this.canvas.height = mapHeight * scale;
+            let w = mapWidth * scale;
+            let h = mapHeight * scale;
+            this.setCanvasSize(w, h, scale);
 
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            
 
             for (let x = 0; x < mapWidth; x++) {
                 for (let y = 0; y < mapHeight; y++) {
-                    let tile_index = this.map.getTile(
+                    let tile_index = this.map().getTile(
                         mapBounds.left + x, mapBounds.top + y);
 
                     if (!tile_index) {
                         continue
                     }
-                    
+
                     let rgb = this.tileSet.getColor(tile_index).split(' ');
-                    
+
                     let r = parseInt(rgb[0]); // Random colors
                     let g = parseInt(rgb[1]);
                     let b = parseInt(rgb[2]);
@@ -107,8 +162,8 @@ export class NavigatorCanvas implements GestureTarget {
         });
     }
 
-    onClick(coord: ClientCoordinates) {};
-    onDragStart(coord: ClientCoordinates) {};
-    onDragMove(coord: ClientCoordinates) {};
-    onDragEnd(coord: ClientCoordinates) {};
+    onClick(coord: ClientCoordinates) { };
+    onDragStart(coord: ClientCoordinates) { };
+    onDragMove(coord: ClientCoordinates) { };
+    onDragEnd(coord: ClientCoordinates) { };
 }

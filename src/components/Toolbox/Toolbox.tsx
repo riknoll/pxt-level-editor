@@ -1,24 +1,49 @@
 import * as React from 'react';
 import { ToolboxGenericPanel } from './ToolboxGenericPanel';
 import { Tile } from './toolboxTypes';
+import { SpriteCategory } from '../SpriteStore';
 
 import '../../css/toolbox.css';
 
-export class Toolbox extends React.Component<{ onChange: (tile: Tile) => void; }, {}> {
+interface State {
+    selectedTile?: Tile;
+}
+
+interface Props {
+    onChange: (tile: Tile) => void;
+}
+
+export class Toolbox extends React.Component<Props, State> {
 
     constructor(props: any) {
         super(props);
+
+        this.state = {};
+    }
+
+    onChange = (tile: Tile) => {
+        this.setState({ selectedTile: tile });
+        this.props.onChange(tile);
+    }
+
+    renderPanel(category: SpriteCategory) {
+        return (
+            <ToolboxGenericPanel
+                onChange={this.onChange}
+                selectedTile={this.state.selectedTile}
+                SpriteType={category}
+            />);
     }
 
     render() {
         return (
             <div className="toolbox" id="toolbox">
-                <div style={{ display: "block", width: "100%", height: "100%" }}>
-                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Terrains"} />
-                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Interactables"} />
-                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Items"} />
-                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Spawners"} />
-                    <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Areas"} />
+                <div>
+                    {this.renderPanel("Terrains")}
+                    {this.renderPanel("Interactables")}
+                    {this.renderPanel("Items")}
+                    {this.renderPanel("Spawners")}
+                    {this.renderPanel("Areas")}
                 </div>
             </div>
         );

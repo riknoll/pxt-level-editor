@@ -7,6 +7,7 @@ import '../../css/toolbox-panel-grid.css';
 
 interface Props {
     onChange: (tile: Tile) => void;
+    selectedTile?: Tile;
     tiles: Tile[];
     onTileAdd: (spriteEditorValue : string) => void;
 }
@@ -34,8 +35,14 @@ export class ToolboxPanelGrid extends React.Component<Props, State> {
     }
 
     renderTile(tile: Tile) {
-        return <div role="button" onClick={this.spriteClicked(tile)} className="toolbox-panel-grid-tile" key={tile.sprite.name}>
-            <SpriteSheet Sprite={tile.sprite} finalSize={48} />
+        return <div role="button"
+            onClick={this.spriteClicked(tile)}
+            className="toolbox-panel-grid-tile"
+            key={tile.sprite.name}>
+            <SpriteSheet
+                selected={this.props.selectedTile && this.props.selectedTile.sprite.name === tile.sprite.name}
+                Sprite={tile.sprite}
+                finalSize={48} />
         </div>;
     }
 

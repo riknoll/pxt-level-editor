@@ -21,9 +21,9 @@ export class ToolboxPanel extends React.Component<Props, { expanded: boolean }> 
     }
 
     renderPanel() {
-        return this.state.expanded
-            ? <div className="panel-contents">{this.props.children}</div>
-            : null;
+        return <div className="panel-contents" style={{ display: this.state.expanded ? undefined : "none" }}>
+            {this.props.children}
+        </div>;
     }
 
     render() {
