@@ -21,8 +21,8 @@ export class Toolbox extends React.Component<ToolboxProps, {}> {
 
     render() {
         return (
-            <div className="toolbox">
-                <div style={{ display: "block", width: "100%", height: "100%" }}>
+            <div className="toolbox" id="toolbox">
+                <div>
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Terrains"} />
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Interactables"} />
                     <ToolboxGenericPanel onChange={this.props.onChange} SpriteType={"Items"} />

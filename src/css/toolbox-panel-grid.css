@@ -1,13 +1,29 @@
 .toolbar-panel-grid {
   margin: 10px 0px 10px 5px;
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
 }
 
 .toolbox-panel-grid-tile {
   /* border: 1px solid #aaa; */
   cursor: pointer;
-  display: inline-block;
+  display: flex;
+  flex: 1;
   height: 48px;
   margin: 4px;
   text-align: center;
   width: 48px;
+  min-width: 48px;
+}
+
+.toolbox-panel-grid-tile img {
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
 }

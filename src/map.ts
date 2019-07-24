@@ -1,3 +1,7 @@
+import { OperationLog } from "./opLog";
+import { Bitmask } from "./util";
+import { TileSet } from "./tileset";
+
 export interface MapRect {
     left: number;
     top: number;
@@ -148,8 +152,39 @@ export enum MapObjectLayers {
     Area = 4
 }
 
-export class MapData {
-    protected changeListeners: (() => void)[];
+export interface ReadonlyMapData {
+    getTile(column: number, row: number): number;
+    getLayer(layer: MapObjectLayers): MapObjectLayer;
+    getLayers(): ReadonlyArray<MapObjectLayer>;
+    getBounds(): MapRect;
+}
+
+export interface SetTileOp {
+    kind: "settile",
+    row: number,
+    col: number,
+    data?: number,
+    tileSet?: TileSet,
+    selectedTiles?: MapRect,
+}
+export interface SetMultiTileOp {
+    kind: "multitile",
+    bitmask: Bitmask,
+    offsetX: number,
+    offsetY: number,
+    data: number
+}
+export interface SetObjectOp {
+    kind: "setobj",
+    obj: MapObject,
+    layer: MapObjectLayers
+}
+
+export type MapOperation = SetTileOp | SetMultiTileOp | SetObjectOp
+
+export type MapLog = OperationLog<MapData, ReadonlyMapData, MapOperation>
+
+export class MapData implements ReadonlyMapData {
     protected ne: MapQuadrant;
     protected se: MapQuadrant;
     protected sw: MapQuadrant;
@@ -165,7 +200,6 @@ export class MapData {
         this.nw = new MapQuadrant();
 
         this.layers = [];
-        this.changeListeners = [];
 
         this.layers[MapObjectLayers.Decoration] = new MapObjectLayer();
         this.layers[MapObjectLayers.Item] = new MapObjectLayer();
@@ -195,24 +229,19 @@ export class MapData {
             this.bounds.height = this.bounds.bottom - this.bounds.top - 1;
         }
 
-        if (this.changeListeners) this.changeListeners.forEach(e => e());
     }
 
-    getTile(column: number, row: number) {
+    getTile(column: number, row: number): number {
         return this.getQuadrant(column, row).getTile(column, row);
     }
 
-    addChangeListener(cb: () => void) {
-        this.changeListeners.push(cb);
-    }
-
-    addObjectToLayer(layer: MapObjectLayers, obj: MapObject) {
+    addObjectToLayer(layer: MapObjectLayers, obj: MapObject): void {
         if (this.layers[layer]) {
             this.layers[layer].addObject(obj);
         }
     }
 
-    getLayer(layer: MapObjectLayers) {
+    getLayer(layer: MapObjectLayers): MapObjectLayer {
         return this.layers[layer];
     }
 
@@ -235,7 +264,7 @@ export class MapData {
         }
     }
 
-    getBounds() {
+    getBounds(): MapRect {
         return this.bounds;
     }
 }
