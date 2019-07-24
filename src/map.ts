@@ -215,16 +215,16 @@ export interface SetTileOp {
     kind: "settile",
     row: number,
     col: number,
-    data?: number,
-    tileSet?: TileSet,
-    selectedTiles?: MapRect,
+    tileSet: TileSet,
+    selectedTiles: MapRect,
 }
 export interface SetMultiTileOp {
     kind: "multitile",
     bitmask: Bitmask,
-    offsetX: number,
-    offsetY: number,
-    data: number
+    row: number,
+    col: number,
+    tileSet: TileSet,
+    selectedTiles: MapRect,
 }
 export interface SetObjectOp {
     kind: "setobj",
@@ -280,7 +280,26 @@ export class MapData implements ReadonlyMapData {
             this.bounds.width = this.bounds.right - this.bounds.left - 1;
             this.bounds.height = this.bounds.bottom - this.bounds.top - 1;
         }
+    }
 
+    setTileGroup(column: number, row: number, selectedTiles: MapRect, tileSet: TileSet) {
+        if (!selectedTiles) {
+            this.setTile(column, row, -1);
+            return;
+        }
+
+        for (let r = 0; r < selectedTiles.height; r++) {
+            for (let c = 0; c < selectedTiles.width; c++) {
+                this.setTile(
+                    column + c,
+                    row + r,
+                    tileSet.coordToIndex(
+                        selectedTiles.top + r,
+                        selectedTiles.left + c,
+                    )
+                );
+            }
+        }
     }
 
     getTile(column: number, row: number): number {
