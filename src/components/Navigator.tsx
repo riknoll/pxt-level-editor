@@ -148,14 +148,12 @@ export class NavigatorCanvas implements GestureTarget {
                         continue
                     }
 
-                    let rgb = this.tileSet.getColor(tile_index).split(' ');
-
-                    let r = parseInt(rgb[0]); // Random colors
-                    let g = parseInt(rgb[1]);
-                    let b = parseInt(rgb[2]);
+                    let tileColor = this.tileSet.getColor(tile_index);
 
                     this.context.fillStyle = "rgba("
-                        + r + "," + g + "," + b + ", 255)";
+                        + tileColor.r + ","
+                        + tileColor.g + ","
+                        + tileColor.b + ", 255)";
                     this.context.fillRect(x * scale, y * scale, scale, scale);
                 }
             }
