@@ -28,7 +28,11 @@ class RingBuffer<T> {
 
 }
 
-export class OperationLog<State extends ReadonlyState, ReadonlyState, Operation> {
+export interface Clonable<T> {
+    clone(): T
+}
+
+export class OperationLog<State extends ReadonlyState & Clonable<State>, ReadonlyState, Operation> {
     private log: Operation[] = []
     private cursor: number = -1
     private currState: State;
@@ -102,15 +106,16 @@ export class OperationLog<State extends ReadonlyState, ReadonlyState, Operation>
 
         // incremental undo by working from the last snapshot
         // TODO(dz): if there aren't any snapshots, rebuild them
-        let start = this.lastSnapshot()
-        if (start)
-            start = start.clone()
-        if (!start)
-            start = { idx: 0, state: this.newState() }
+        let lastSnap = this.lastSnapshot()
+        let startState;
+        if (lastSnap.state)
+            startState = lastSnap.state.clone()
+        if (!lastSnap)
+            lastSnap = { idx: 0, state: this.newState() }
 
         let newState = this.log
-            .slice(start.idx, this.cursor + 1)
-            .reduce(this.applyOperation, start.state)
+            .slice(lastSnap.idx, this.cursor + 1)
+            .reduce(this.applyOperation, lastSnap.state)
 
         this.currState = newState
 

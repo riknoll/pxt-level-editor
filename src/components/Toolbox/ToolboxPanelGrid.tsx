@@ -7,16 +7,24 @@ import '../../css/toolbox-panel-grid.css';
 
 interface Props {
     onChange: (tile: Tile) => void;
+    selectedTile?: Tile;
     tiles: Tile[];
+    onTileAdd: (spriteEditorValue : string) => void;
+}
+interface State {
+    spriteEditorValue : string; 
 }
 
-export class ToolboxPanelGrid extends React.Component<Props, {}> {
+export class ToolboxPanelGrid extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
+        this.state = { spriteEditorValue : DEFAULT_SPRITE_STATE};
     }
 
     spriteEditorOnChange = (v: string) => {
+        this.setState({spriteEditorValue : v})
+        this.props.onTileAdd(v);
         console.log(v);
     }
 
@@ -27,8 +35,14 @@ export class ToolboxPanelGrid extends React.Component<Props, {}> {
     }
 
     renderTile(tile: Tile) {
-        return <div role="button" onClick={this.spriteClicked(tile)} className="toolbox-panel-grid-tile" key={tile.sprite.name}>
-            <SpriteSheet Sprite={tile.sprite} finalSize={48} />
+        return <div role="button"
+            onClick={this.spriteClicked(tile)}
+            className="toolbox-panel-grid-tile"
+            key={tile.sprite.name}>
+            <SpriteSheet
+                selected={this.props.selectedTile && this.props.selectedTile.sprite.name === tile.sprite.name}
+                Sprite={tile.sprite}
+                finalSize={48} />
         </div>;
     }
 
@@ -39,9 +53,28 @@ export class ToolboxPanelGrid extends React.Component<Props, {}> {
     render() {
         return (
             <div className="toolbar-panel-grid">
-                <SpriteEditorButton onChange={this.spriteEditorOnChange} />
+                <SpriteEditorButton onChange={this.spriteEditorOnChange} value= {this.state.spriteEditorValue} />
                 {this.renderTiles()}
             </div>
         );
     }
 }
+
+const DEFAULT_SPRITE_STATE = `
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . .
+`;

@@ -8,6 +8,7 @@ import '../../css/toolbox.css';
 
 interface Props {
     onChange: (tile: Tile) => void;
+    selectedTile?: Tile;
     SpriteType: SpriteCategory;
 }
 
@@ -30,11 +31,28 @@ export class ToolboxGenericPanel extends React.Component<Props, State> {
             tiles,
         }
     }
+    private id = 0;
+
+    private onTileAdd = (v: string) => {
+        let newTile : Tile = {     
+            category: this.props.SpriteType,
+            name: "custom" + this.id,
+            image: pxtsprite.imageLiteralToBitmap(v),
+            sprite: { 
+                image: pxtsprite.imageLiteralToBitmap(v),
+                index: 0,
+                name: "custom" + this.id,
+            }
+            };
+        this.id++;
+        console.log(newTile);
+        this.setState({ tiles : [...this.state.tiles, newTile]});
+    }
 
     render() {
         return (
             <ToolboxPanel title={this.props.SpriteType}>
-                <ToolboxPanelGrid onChange={this.props.onChange} tiles={this.state.tiles} />
+                <ToolboxPanelGrid onChange={this.props.onChange} selectedTile={this.props.selectedTile} tiles={this.state.tiles} onTileAdd= { this.onTileAdd }/>
             </ToolboxPanel>
         );
     }
