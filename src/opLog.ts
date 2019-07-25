@@ -5,7 +5,7 @@ class RingBuffer<T> {
     constructor(public size: number) { }
 
     private wrap(idx: number, lim: number) {
-        while (idx >= lim)
+        while (lim && idx >= lim)
             idx -= lim
         return idx
     }
@@ -108,14 +108,16 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
         // TODO(dz): if there aren't any snapshots, rebuild them
         let lastSnap = this.lastSnapshot()
         let startState;
-        if (lastSnap.state)
+        if (lastSnap && lastSnap.state)
             startState = lastSnap.state.clone()
-        if (!lastSnap)
+        if (!lastSnap) {
             lastSnap = { idx: 0, state: this.newState() }
+            startState = lastSnap.state
+        }
 
         let newState = this.log
             .slice(lastSnap.idx, this.cursor + 1)
-            .reduce(this.applyOperation, lastSnap.state)
+            .reduce(this.applyOperation, startState)
 
         this.currState = newState
 
