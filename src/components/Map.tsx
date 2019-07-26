@@ -38,7 +38,7 @@ export class Map extends React.Component<MapProps, MapState> {
         return (
             <div className="map">
                 <canvas ref={this.handleCanvasRef} />
-                { (this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.column}, {this.state.canvasCoordinates.row}</div> }
+                {(this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.column}, {this.state.canvasCoordinates.row}</div>}
                 <div className="zoom">
                     <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
                     <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
@@ -125,10 +125,10 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     protected onRectChange: (rect: MapRect) => void;
 
     constructor(
-            protected canvas: HTMLCanvasElement,
-            protected log: MapLog,
-            protected tileSet: TileSet,
-            protected selectedTiles: MapRect,
+        protected canvas: HTMLCanvasElement,
+        protected log: MapLog,
+        protected tileSet: TileSet,
+        protected selectedTiles: MapRect,
     ) {
         this.context = canvas.getContext("2d");
         this.log.addChangeListener(() => this.redraw())
@@ -230,10 +230,6 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         this.clearCursor();
     }
 
-    private triggerOperation(op: MapOperation) {
-        this.log.do(op)
-    }
-
     static applyOperation(state: MapData, op: MapOperation): MapData {
         if (op.kind === "settile") {
             state.setTileGroup(op.col, op.row, op.selectedTiles, op.tileSet);
@@ -266,32 +262,6 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     onClick(coord: ClientCoordinates) {
-        const canvasCoords = this.clientToCanvas(coord);
-        let data = null
-        let mapUpdate = false
-        switch (this.tool) {
-            case MapTools.Stamp:
-                data = this.selectedTiles;
-                mapUpdate = true
-                break;
-            case MapTools.Erase:
-                data = null
-                mapUpdate = true
-                break;
-        }
-
-        if (mapUpdate) {
-            let op: SetTileOp = {
-                kind: "settile",
-                row: this.canvasToMap(canvasCoords.clientY - this.offsetY),
-                col: this.canvasToMap(canvasCoords.clientX - this.offsetX),
-                tileSet: this.tileSet,
-                selectedTiles: data,
-            }
-            console.log(op);
-            this.triggerOperation(op)
-        }
-
         if (this.editorTool) this.editorTool.onClick(this.clientToEditorLocation(coord));
     }
 
@@ -377,7 +347,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     visibleBounds(): MapRect {
-       return this.visibleRect();
+        return this.visibleRect();
     }
 
     pan(dx: number, dy: number) {
@@ -395,7 +365,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     commitAction(action: MapOperation): void {
-        this.triggerOperation(action);
+        this.log.do(action)
         this.stagedOp = undefined;
     }
 
@@ -520,7 +490,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         const canvasCoords = this.clientToCanvas(coord);
 
         return {
-            column : this.canvasToMap(canvasCoords.clientX - this.offsetX),
+            column: this.canvasToMap(canvasCoords.clientX - this.offsetX),
             row: this.canvasToMap(canvasCoords.clientY - this.offsetY),
             canvasX: canvasCoords.clientX,
             canvasY: canvasCoords.clientY

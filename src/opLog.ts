@@ -105,12 +105,12 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
             this.cursor--
 
         // incremental undo by working from the last snapshot
-        // TODO(dz): if there aren't any snapshots, rebuild them
         let lastSnap = this.lastSnapshot()
         let startState;
         if (lastSnap && lastSnap.state)
             startState = lastSnap.state.clone()
         if (!lastSnap) {
+            // TODO(dz): recreate snapshots
             lastSnap = { idx: 0, state: this.newState() }
             startState = lastSnap.state
         }
@@ -129,8 +129,10 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
             this.cursor++
 
         let op = this.currentOp()
-        this.currState = this.applyOperation(this.currState, op)
+        if (op) {
+            this.currState = this.applyOperation(this.currState, op)
 
-        this.onChange()
+            this.onChange()
+        }
     }
 }
