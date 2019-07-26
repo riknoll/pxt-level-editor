@@ -37,8 +37,9 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
     private cursor: number = -1
     private currState: State;
     private changeListeners: ((newState?: State) => void)[] = [];
-    private snapshots = new RingBuffer<{ idx: number | null, state: State }>(5);
+    private snapshots = new RingBuffer<{ idx: number | null, state: State }>(OperationLog.SNAPSHOT_NUM);
     private static SNAPSHOT_INTERVAL: number = 10;
+    private static SNAPSHOT_NUM: number = 5;
 
     constructor(private newState: () => State, private applyOperation: (old: State, op: Operation) => State) {
         this.currState = newState()
