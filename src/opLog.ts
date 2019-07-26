@@ -38,6 +38,7 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
     private currState: State;
     private changeListeners: ((newState?: State) => void)[] = [];
     private snapshots = new RingBuffer<{ idx: number | null, state: State }>(5);
+    private static SNAPSHOT_INTERVAL: number = 10;
 
     constructor(private newState: () => State, private applyOperation: (old: State, op: Operation) => State) {
         this.currState = newState()
@@ -76,6 +77,11 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
         return this.currState
     }
 
+    private saveSnapshot() {
+        let snap = { idx: this.cursor, state: this.currState.clone() }
+        this.snapshots.add(snap)
+    }
+
     do(op: Operation) {
         // if we're not at the end of the log, truncate the rest
         if (this.cursor < this.lastIdx()) {
@@ -85,7 +91,9 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
         this.cursor = this.lastIdx()
         this.currState = this.applyOperation(this.currState, op)
 
-        // TODO(dz): take snapshot
+        if (this.cursor && this.cursor % OperationLog.SNAPSHOT_INTERVAL === 0) {
+            this.saveSnapshot()
+        }
 
         this.onChange()
     }
@@ -100,24 +108,41 @@ export class OperationLog<State extends ReadonlyState & Clonable<State>, Readonl
         return c
     }
 
+    private validateIdx(idx: number) {
+        if (idx < 0 || idx > this.lastIdx())
+            throw Error(`Invalid operation log idx: ${idx}`)
+    }
+
+    private computeState(start: { idx: number, state?: State }, target: number): State {
+        this.validateIdx(start.idx)
+        this.validateIdx(target)
+        let startState = start.state ? start.state.clone() : this.newState()
+        return this.log
+            .slice(start.idx, target + 1)
+            .reduce(this.applyOperation, startState)
+    }
+
     undo(): void {
         if (this.cursor >= 0)
             this.cursor--
 
         // incremental undo by working from the last snapshot
-        let lastSnap = this.lastSnapshot()
-        let startState;
-        if (lastSnap && lastSnap.state)
-            startState = lastSnap.state.clone()
-        if (!lastSnap) {
-            // TODO(dz): recreate snapshots
-            lastSnap = { idx: 0, state: this.newState() }
-            startState = lastSnap.state
+        let lastSnap = this.lastSnapshot() || { idx: 0, state: null }
+
+        let distance = this.cursor - lastSnap.idx
+        if (distance > OperationLog.SNAPSHOT_INTERVAL * 2) {
+            // we don't have any near by snapshots, so generate an intermediate
+            // one so that the user doesn't have a super long undo each time they undo
+            let snapIdx = this.cursor - OperationLog.SNAPSHOT_INTERVAL
+            this.validateIdx(snapIdx)
+            let snapState = this.computeState(lastSnap, snapIdx)
+            let snap = { idx: snapIdx, state: snapState }
+            this.snapshots.add(snap)
+            lastSnap = snap
         }
 
-        let newState = this.log
-            .slice(lastSnap.idx, this.cursor + 1)
-            .reduce(this.applyOperation, startState)
+        // compute new state from the last snap
+        let newState = this.computeState(lastSnap, this.cursor)
 
         this.currState = newState
 
