@@ -102,6 +102,15 @@ export async function loadImageAsync(src: string) {
     })
 }
 
+export async function loadBitmapAsync(src: string) {
+    const el = await loadImageAsync(src);
+    const canvas = document.createElement("canvas") as HTMLCanvasElement;
+    canvas.width = el.width;
+    canvas.height = el.height;
+    canvas.getContext("2d").drawImage(el, 0, 0);
+    return canvas
+}
+
 export interface GestureTarget {
     onClick(coord: ClientCoordinates): void;
     onDragStart(coord: ClientCoordinates): void;
