@@ -3,23 +3,24 @@ import SpriteSheet from './SpriteSheet';
 import { Tile } from './toolboxTypes';
 import { ToolboxPanel } from './ToolboxPanel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
-import { TileSet } from '../../tileset';
 import { GestureTarget, ClientCoordinates, clientCoord, bindGestureEvents } from '../../util';
 import { MapRect } from '../../map';
+import { Project, ProjectSprite, isSpriteSheetReference } from '../../project';
 
 interface TerrainPanelProps {
-    tileset: TileSet,
-    onChange: (selection: MapRect) => void,
+    project: Project,
+    onChange: (selection: number[][]) => void,
 }
 
 export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> implements GestureTarget {
-    protected ctx: CanvasRenderingContext2D;
     protected canvas: HTMLCanvasElement;
     protected selectedTile: number;
     protected scale: number;
 
     protected selectionStart: {row: number, col: number};
     protected selectedArea: MapRect;
+    protected columns = 7;
+    protected rows: number;
 
     constructor(props: TerrainPanelProps) {
         super(props);
@@ -32,7 +33,7 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             width: 1,
             height: 1,
         };
-        this.props.onChange(this.selectedArea);
+        this.props.onChange(this.getTileSelection());
 
         this.scale = 2;
     }
@@ -47,7 +48,7 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
     }
 
     componentDidUpdate() {
-        if (this.props.tileset && this.ctx) {
+        if (this.props.project && this.canvas) {
             this.redraw();
         }
     }
@@ -55,33 +56,28 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
         if (ref) {
             this.canvas = ref;
-            this.ctx = ref.getContext("2d");
             bindGestureEvents(this.canvas, this);
         }
     }
 
     redraw() {
-        this.canvas.width = this.props.tileset.src.width * this.scale;
-        this.canvas.height = this.props.tileset.src.height * this.scale;
+        const proj = this.props.project;
+        this.rows = Math.ceil(proj.tiles.length / this.columns);
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvas.width = proj.tileSize * this.scale * this.columns;
+        this.canvas.height = proj.tileSize * this.scale * this.rows;
+        const ctx = this.canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = false;
 
-        let tileset = this.props.tileset.src;
-        this.ctx.imageSmoothingEnabled = false;
-        this.ctx.drawImage(
-            tileset, 0, 0, tileset.width, tileset.height, 0, 0,
-            tileset.width * this.scale, tileset.height * this.scale
-        );
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw selection square
-        let x = (this.selectedTile % this.props.tileset.columns)
-            * this.props.tileset.tileSize * this.scale;
-        let y = Math.floor(this.selectedTile / this.props.tileset.columns)
-            * this.props.tileset.tileSize * this.scale;
+        for (let i = 0; i < proj.tiles.length; i++) {
+            this.drawTile(proj.tiles[i], proj.tileSize, i);
+        }
 
-        this.ctx.strokeStyle = "red"
-        let tileSize = this.props.tileset.tileSize * this.scale
-        this.ctx.strokeRect(
+        ctx.strokeStyle = "red"
+        let tileSize = this.props.project.tileSize * this.scale
+        ctx.strokeRect(
             this.selectedArea.left * tileSize,
             this.selectedArea.top * tileSize,
             this.selectedArea.width * tileSize,
@@ -93,10 +89,25 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
         // Convert local coordinates, to position (row, col) in the tileset
         return {
             row: Math.floor(
-                coord.clientY / this.props.tileset.tileSize / this.scale),
+                coord.clientY / this.props.project.tileSize / this.scale),
             col: Math.floor(
-                coord.clientX / this.props.tileset.tileSize / this.scale),
+                coord.clientX / this.props.project.tileSize / this.scale),
         }
+    }
+
+    protected getTileSelection() {
+        const selection: number[][] = [];
+
+        for (let c = 0; c < this.selectedArea.width; c++) {
+            selection.push([]);
+            let index = this.selectedArea.top * this.columns + this.selectedArea.left + c;
+            for (let r = 0; r < this.selectedArea.height; r++) {
+                selection[c][r] = index;
+                index += this.columns;
+            }
+        }
+
+        return selection;
     }
 
     onClick(coord: ClientCoordinates) {
@@ -112,7 +123,7 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             height: 1,
         };
 
-        this.props.onChange(this.selectedArea);
+        this.props.onChange(this.getTileSelection());
 
         this.redraw();
     };
@@ -131,11 +142,11 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
 
         this.selectedArea.right = Math.min(
             Math.max(this.selectionStart.col, tilePos.col),
-            this.props.tileset.columns - 1
+            this.columns - 1
         );
         this.selectedArea.bottom = Math.min(
             Math.max(this.selectionStart.row, tilePos.row),
-            this.props.tileset.rows - 1
+            this.rows - 1
         );
         this.selectedArea.left = Math.max(
             Math.min(this.selectionStart.col, tilePos.col),
@@ -151,7 +162,7 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
         this.selectedArea.height =
             this.selectedArea.bottom - this.selectedArea.top + 1;
 
-        this.props.onChange(this.selectedArea);
+        this.props.onChange(this.getTileSelection());
 
         this.redraw();
     };
@@ -165,6 +176,31 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
         return {
             clientX: coord.clientX - rect.left,
             clientY: coord.clientY - rect.top,
+        }
+    }
+
+    protected drawTile(sprite: ProjectSprite, tileSize: number, index: number) {
+        const ctx = this.canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = false;
+
+        const x = (index % this.columns) * tileSize * this.scale;
+        const y = Math.floor(index / this.columns) * tileSize * this.scale;
+
+        if (isSpriteSheetReference(sprite)) {
+            ctx.drawImage(
+                sprite.sheet.loaded,
+                sprite.x,
+                sprite.y,
+                sprite.width,
+                sprite.height,
+                x,
+                y,
+                sprite.width * this.scale,
+                sprite.height * this.scale
+            );
+        }
+        else {
+            ctx.drawImage(sprite.loaded, x, y);
         }
     }
 }

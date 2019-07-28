@@ -7,15 +7,16 @@ import '../../css/toolbox.css';
 import { TileSet } from '../../tileset';
 import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
 import { MapRect } from '../../map';
+import { Project } from '../../project';
 
 interface State {
     selectedTile?: Tile;
 }
 
 interface Props {
-    tileset: TileSet,
+    project: Project,
     onChange: (tile: Tile) => void;
-    onTileSelectionChange: (selection: MapRect) => void,
+    onTileSelectionChange: (selection: number[][]) => void,
 }
 
 export class Toolbox extends React.Component<Props, State> {
@@ -51,7 +52,7 @@ export class Toolbox extends React.Component<Props, State> {
                     {this.renderPanel("Areas")}
                     <ToolboxTerrainPanel
                         onChange={this.props.onTileSelectionChange}
-                        tileset={this.props.tileset}
+                        project={this.props.project}
                     />
                 </div>
             </div>

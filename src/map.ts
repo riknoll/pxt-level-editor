@@ -200,7 +200,7 @@ export enum MapObjectLayers {
     Item = 1,
     Interactable = 2,
     Spawner = 3,
-    Area = 4
+    Area = 4,
 }
 
 export interface ReadonlyMapData {
@@ -215,16 +215,14 @@ export interface SetTileOp {
     kind: "settile",
     row: number,
     col: number,
-    tileSet: TileSet,
-    selectedTiles: MapRect,
+    selectedTiles: number[][],
 }
 export interface SetMultiTileOp {
     kind: "multitile",
     bitmask: Bitmask,
     row: number,
     col: number,
-    tileSet: TileSet,
-    selectedTiles: MapRect,
+    selectedTiles: number[][],
 }
 export interface SetObjectOp {
     kind: "setobj",
@@ -282,21 +280,21 @@ export class MapData implements ReadonlyMapData {
         }
     }
 
-    setTileGroup(column: number, row: number, selectedTiles: MapRect, tileSet: TileSet) {
-        if (!selectedTiles) {
+    setTileGroup(column: number, row: number, selectedTiles: number[][]) {
+        if (!selectedTiles || !selectedTiles.length) {
             this.setTile(column, row, -1);
             return;
         }
 
-        for (let r = 0; r < selectedTiles.height; r++) {
-            for (let c = 0; c < selectedTiles.width; c++) {
+        const width = selectedTiles.length;
+        const height = selectedTiles[0].length;
+
+        for (let r = 0; r < height; r++) {
+            for (let c = 0; c < width; c++) {
                 this.setTile(
                     column + c,
                     row + r,
-                    tileSet.coordToIndex(
-                        selectedTiles.top + r,
-                        selectedTiles.left + c,
-                    )
+                    selectedTiles[c][r]
                 );
             }
         }

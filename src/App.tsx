@@ -15,6 +15,7 @@ import { Tile } from './components/Toolbox/toolboxTypes';
 
 import './css/index.css'
 import { OperationLog } from './opLog';
+import { loadExampleAsync, Project } from './project';
 
 export interface AppProps {
     client: PXTClient;
@@ -26,14 +27,14 @@ export interface AppState {
     tileSetLoaded: boolean;
     target: string;
     tool: MapTools;
-    selectedTiles?: MapRect;
+    selectedTiles?: number[][];
     visibleRect: MapRect;
 }
 
 export class App extends React.Component<AppProps, AppState> {
 
     protected map: MapLog;
-    protected tileSet: TileSet;
+    protected project: Project;
 
     constructor(props: AppProps) {
         super(props);
@@ -48,9 +49,9 @@ export class App extends React.Component<AppProps, AppState> {
         this.deserialize = this.deserialize.bind(this);
         this.serialize = this.serialize.bind(this);
 
-        loadImageAsync("./tile.png")
-            .then(el => {
-                this.tileSet = new TileSet(el, TILE_SIZE);
+        loadExampleAsync("tile_dungeon")
+            .then(proj => {
+                this.project = proj;
                 this.setState({ tileSetLoaded: true })
             });
 
@@ -85,7 +86,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ tileSelected: tile });
     }
 
-    private onTileSelectionChange = (selection: MapRect) => {
+    private onTileSelectionChange = (selection: number[][]) => {
         this.setState({selectedTiles: selection});
     }
 
@@ -98,10 +99,10 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator map={this.map} tileSet={this.tileSet} viewport={this.state.visibleRect} />
+                    <Navigator map={this.map} project={this.project} viewport={this.state.visibleRect} />
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
                     <Toolbox
-                        tileset={this.tileSet}
+                        project={this.project}
                         onChange={this.onTileChange}
                         onTileSelectionChange={this.onTileSelectionChange}
                     />
@@ -112,7 +113,7 @@ export class App extends React.Component<AppProps, AppState> {
                         tool={this.state.tool}
                         map={this.map}
                         activeLayer={MapObjectLayers.Area}
-                        tileSet={this.tileSet}
+                        project={this.project}
                         selectedTiles={this.state.selectedTiles}
                         onRectChange={this.setVisibleRect.bind(this)}
                     />
