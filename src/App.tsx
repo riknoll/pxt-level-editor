@@ -10,8 +10,6 @@ import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
 import { MapData, MapRect, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
 import { MapTools, loadImageAsync } from './util';
-import { TileSet, TILE_SIZE } from './tileset';
-import { Tile } from './components/Toolbox/toolboxTypes';
 
 import './css/index.css'
 import { OperationLog } from './opLog';
@@ -23,16 +21,15 @@ export interface AppProps {
 }
 
 export interface AppState {
-    tileSelected?: Tile;
     tileSetLoaded: boolean;
     target: string;
     tool: MapTools;
+    selectedObjects: number[];
     selectedTiles?: number[][];
     visibleRect: MapRect;
 }
 
 export class App extends React.Component<AppProps, AppState> {
-
     protected map: MapLog;
     protected project: Project;
 
@@ -43,7 +40,8 @@ export class App extends React.Component<AppProps, AppState> {
             target: props.target,
             tool: MapTools.Stamp,
             tileSetLoaded: false,
-            visibleRect: null
+            visibleRect: null,
+            selectedObjects: []
         };
 
         this.deserialize = this.deserialize.bind(this);
@@ -82,8 +80,13 @@ export class App extends React.Component<AppProps, AppState> {
         pxt.extensions.write(code, JSON.stringify(json));
     }
 
-    private onTileChange = (tile: Tile) => {
-        this.setState({ tileSelected: tile });
+    private onObjectSelectionChange = (layer: MapObjectLayers, index: number) => {
+        const selectedObjects = this.state.selectedObjects.slice();
+        selectedObjects[layer] = index;
+
+        this.setState({
+            selectedObjects
+        });
     }
 
     private onTileSelectionChange = (selection: number[][]) => {
@@ -95,7 +98,10 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
-        const { target } = this.state;
+        if (!this.project) {
+            return <div className="app"></div>
+        }
+
         return (
             <div className="app">
                 <div className="sidebar">
@@ -103,13 +109,13 @@ export class App extends React.Component<AppProps, AppState> {
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
                     <Toolbox
                         project={this.project}
-                        onChange={this.onTileChange}
+                        selections={this.state.selectedObjects}
+                        onChange={this.onObjectSelectionChange}
                         onTileSelectionChange={this.onTileSelectionChange}
                     />
                 </div>
                 <div className="main">
                     <Map
-                        tileSelected={this.state.tileSelected}
                         tool={this.state.tool}
                         map={this.map}
                         activeLayer={MapObjectLayers.Area}

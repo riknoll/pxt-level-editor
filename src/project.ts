@@ -12,7 +12,7 @@ export class Project {
 
     constructor() {
         this.images = [];
-        this.templates = [];
+        this.templates = [[], [], [], [], [], [], []];
         this.tiles = [];
         this.tileColors = [];
 
@@ -53,12 +53,10 @@ export class Project {
         this.tileColors.push(this.computeAvgColor(sprite));
     }
 
-    //index to color
     getColor(index: number): string {
         return this.tileColors[index];
     }
 
-    //computing avg color - takes in HTML Image Element
     computeAvgColor(sprite: ProjectSprite): string {
         const ctx = this.canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
@@ -193,18 +191,22 @@ export async function loadExampleAsync(name: string) {
     }
 
     for (const sprite of meta.decorations) {
+        sprite.sheet = sheet;
         p.newTemplate(MapObjectLayers.Decoration, sprite);
     }
 
     for (const sprite of meta.collectibles) {
+        sprite.sheet = sheet;
         p.newTemplate(MapObjectLayers.Item, sprite);
     }
 
     for (const sprite of meta.interactables) {
+        sprite.sheet = sheet;
         p.newTemplate(MapObjectLayers.Interactable, sprite);
     }
 
     for (const sprite of meta.spawners) {
+        sprite.sheet = sheet;
         p.newTemplate(MapObjectLayers.Spawner, sprite);
     }
 

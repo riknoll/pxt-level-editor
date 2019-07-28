@@ -1,22 +1,21 @@
 import * as React from 'react';
-import { Tile } from './toolboxTypes';
 import { SpriteEditorButton } from './SpriteEditorButton';
 import SpriteSheet from './SpriteSheet';
 
 import '../../css/toolbox-panel-grid.css';
+import { ProjectSprite } from '../../project';
 
 interface Props {
-    onChange: (tile: Tile) => void;
-    selectedTile?: Tile;
-    tiles: Tile[];
+    onChange: (index: number) => void;
+    selectedIndex: number;
+    sprites: ProjectSprite[];
     onTileAdd: (spriteEditorValue : string) => void;
 }
 interface State {
-    spriteEditorValue : string; 
+    spriteEditorValue : string;
 }
 
 export class ToolboxPanelGrid extends React.Component<Props, State> {
-
     constructor(props: Props) {
         super(props);
         this.state = { spriteEditorValue : DEFAULT_SPRITE_STATE};
@@ -28,26 +27,26 @@ export class ToolboxPanelGrid extends React.Component<Props, State> {
         console.log(v);
     }
 
-    spriteClicked = (tile: Tile) => {
+    spriteClicked = (index: number) => {
         return () => {
-            this.props.onChange(tile);
+            this.props.onChange(index);
         }
     }
 
-    renderTile(tile: Tile) {
+    renderTile(sprite: ProjectSprite, index: number) {
         return <div role="button"
-            onClick={this.spriteClicked(tile)}
+            onClick={this.spriteClicked(index)}
             className="toolbox-panel-grid-tile"
-            key={tile.sprite.name}>
+            key={sprite.name}>
             <SpriteSheet
-                selected={this.props.selectedTile && this.props.selectedTile.sprite.name === tile.sprite.name}
-                Sprite={tile.sprite}
+                selected={this.props.selectedIndex === index}
+                sprite={sprite}
                 finalSize={48} />
         </div>;
     }
 
     renderTiles() {
-        return this.props.tiles && this.props.tiles.map((tile) => this.renderTile(tile));
+        return this.props.sprites.map((sprite, index) => this.renderTile(sprite, index));
     }
 
     render() {

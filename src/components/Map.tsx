@@ -1,17 +1,14 @@
 import * as React from 'react';
-import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
-import { TILE_SIZE, TileSet } from '../tileset';
-import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp, SetMultiTileOp, MapLocation } from '../map';
+import { ClientCoordinates, GestureTarget, bindGestureEvents } from '../util';
+import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
 import { EditorToolHost, EditorLocation, EditorTool, StampTool, PanTool, EraseTool } from '../editorTool';
 
 import '../css/map.css';
-import { OperationLog } from '../opLog';
 import { ProjectSprite, isSpriteSheetReference, Project } from '../project';
 
 export interface MapProps {
-    tileSelected: Tile;
     selectedTiles: number[][];
     tool: MapTools;
     map: MapLog;
@@ -182,7 +179,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
                     if (this.mouseX === c && this.mouseY === r) {
                         this.context.fillStyle = "#5a5a5a"
                         this.context.globalAlpha = 0.5;
-                        this.context.fillRect(left, top, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+                        this.context.fillRect(left, top, this.project.tileSize * this.zoomMultiplier, this.project.tileSize * this.zoomMultiplier);
                         this.context.globalAlpha = 1;
                     }
                 }
@@ -387,7 +384,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         }
         else {
             this.context.fillStyle = data ? "red" : "white";
-            this.context.fillRect(x, y, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+            this.context.fillRect(x, y, this.project.tileSize * this.zoomMultiplier, this.project.tileSize * this.zoomMultiplier);
         }
     }
 
@@ -489,15 +486,15 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     protected canvasToFullMap(val: number) {
-        return Math.ceil(val / (TILE_SIZE * this.zoomMultiplier));
+        return Math.ceil(val / (this.project.tileSize * this.zoomMultiplier));
     }
 
     protected canvasToMap(val: number) {
-        return Math.floor(val / (TILE_SIZE * this.zoomMultiplier));
+        return Math.floor(val / (this.project.tileSize * this.zoomMultiplier));
     }
 
     protected mapToCanvas(val: number) {
-        return val * TILE_SIZE * this.zoomMultiplier
+        return val * this.project.tileSize * this.zoomMultiplier
     }
 
     protected clientToCanvas(coord: ClientCoordinates): ClientCoordinates {

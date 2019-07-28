@@ -2,7 +2,6 @@ import * as React from 'react';
 import '../css/navigator.css';
 import { GestureTarget, ClientCoordinates, bindGestureEvents } from '../util';
 import { MapRect, MapLog } from '../map';
-import { TileSet } from '../tileset';
 import { Project } from '../project';
 
 interface NavigatorProps {

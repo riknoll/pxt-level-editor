@@ -1,6 +1,5 @@
 import { MapObjectLayers, MapObject, MapArea, MapObjectLayer, MapRect, SetMultiTileOp, MapOperation } from "./map"
 import { Bitmask, MapTools } from "./util";
-import { TileSet } from "./tileset";
 import { Project } from "./project";
 
 

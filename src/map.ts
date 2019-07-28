@@ -1,6 +1,5 @@
 import { OperationLog } from "./opLog";
 import { Bitmask } from "./util";
-import { TileSet } from "./tileset";
 
 export interface MapRect {
     left: number;
