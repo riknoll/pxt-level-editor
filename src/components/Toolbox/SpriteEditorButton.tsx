@@ -1,6 +1,7 @@
 /// <reference path="../../../dist/js/spriteEditor.d.ts" />
 
 import * as React from 'react';
+import { pxt } from 'lib/pxtextensions';
 
 interface ISpriteEditorProps {
     onChange: (v: string) => void;
@@ -56,14 +57,12 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
           contentDiv.className = 'sprite-editor-container sprite-editor-dropdown-bg sprite-editor-dropdown';
           spriteEditor.addKeyListeners();
           spriteEditor.onClose(() => {
-              const newSpriteState = pxtsprite
-                .bitmapToImageLiteral(spriteEditor.bitmap().image);
-              this.setState({
-                  open: false,
+                this.props.onChange(toImageURI(spriteEditor.bitmap().image));
+                this.setState({
+                    open: false,
                 });
-              spriteEditor.removeKeyListeners();
-              this.props.onChange(newSpriteState);
-              spriteEditor = undefined;
+                spriteEditor.removeKeyListeners();
+                spriteEditor = undefined;
           });
       }
 
@@ -105,3 +104,40 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
 . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . .
 `;
+
+function toImageURI(bitmap: pxtsprite.Bitmap) {
+    const colors = [
+        "#ffffff",
+        "#ff2121",
+        "#ff93c4",
+        "#ff8135",
+        "#fff609",
+        "#249ca3",
+        "#78dc52",
+        "#003fad",
+        "#87f2ff",
+        "#8e2ec4",
+        "#a4839f",
+        "#5c406c",
+        "#e5cdc4",
+        "#91463d",
+        "#000000"
+    ]
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+
+    let context: CanvasRenderingContext2D;
+    context = canvas.getContext("2d");
+
+    for (let x = 0; x < bitmap.width; x++) {
+        for (let y = 0; y < bitmap.height; y++) {
+            if (bitmap.get(x, y)) {
+                context.fillStyle = colors[bitmap.get(x, y)];
+                context.fillRect(x, y, 1, 1);
+            }
+        }
+    }
+
+    return canvas.toDataURL();
+}

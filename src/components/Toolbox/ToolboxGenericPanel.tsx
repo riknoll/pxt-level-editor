@@ -33,10 +33,16 @@ export class ToolboxGenericPanel extends React.Component<Props, State> {
     }
 
     private onTileAdd = (v: string) => {
-        // this.props.project.newTemplate(this.props.layer, {
-        //     src: pxtsprite.imageLiteralToBitmap(v),
-        //     name: `${MapObjectLayers[this.props.layer]} ${this.props.project.templates[this.props.layer].length}`
-        // })
+        const { project, layer } = this.props;
+        project.newTemplate(layer, {
+            src: v,
+            name: `${MapObjectLayers[layer]} ${project.templates[layer].length}`
+        });
+
+        project.loadImagesAsync()
+            .then(() => {
+                this.props.onChange(layer, project.templates[layer].length - 1);
+            })
     }
 
 }
