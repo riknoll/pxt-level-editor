@@ -29,11 +29,13 @@ export class MapObject extends MapLocation implements MapRect {
     public readonly id: number;
     public width = 1;
     public height = 1;
+    public readonly properties: {[key: string]: string};
 
     constructor(column = 0, row = 0) {
         super(column, row);
 
         this.id = MapObject.getID();
+        this.properties = {};
     }
 
     get left() {
@@ -50,6 +52,14 @@ export class MapObject extends MapLocation implements MapRect {
 
     get bottom() {
         return this.row + this.height - 1;
+    }
+
+    setProp(key: string, value: string) {
+        this.properties[key] = value;
+    }
+
+    removeProp(key: string) {
+        delete this.properties[key];
     }
 
     clone() {

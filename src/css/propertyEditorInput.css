@@ -1,0 +1,27 @@
+.inputContainer {
+    display: flex;
+    align-items: center;
+}
+
+.inputContainer > i {
+    cursor: pointer;
+}
+
+.propertyEditorInput {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    padding: 0.5em;
+}
+
+.propertyEditorInput label {
+    margin-right: 1em;
+    max-width: 8em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.propertyEditorInput input {
+    max-width: 8em;
+}
