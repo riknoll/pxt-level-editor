@@ -8,7 +8,7 @@ export interface Sprite {
     name: string;
 }
 
-interface GalleryStore {
+interface SpriteSheet {
     name: string,
     image: string,
     height?: number,
@@ -41,7 +41,7 @@ const getSpritesFromGallery = function (name: string): Sprite[] {
         }
     }
 }
-const gallery: GalleryStore[] = [
+const gallery: SpriteSheet[] = [
     { name: 'bigFood', image: './gallery-icons/bigFood/big.png', height: 32, width: 32, frames: ['Burger', 'Drumstick', 'Ham', 'Pizza', 'Taco', 'Cake', 'Donut', 'IceCream'] },
     // { name: 'plate', image: './gallery-icons/bigFood/plate.png', frames: [] },
     { name: 'heroFrontAttack', image: './gallery-icons/castle/heroFrontAttack.png', height: 24, width: 24, frames: ['1'] },

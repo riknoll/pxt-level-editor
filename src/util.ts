@@ -10,6 +10,10 @@ export function isTouchEnabled(): boolean {
             || (navigator && navigator.maxTouchPoints > 0));       // works on IE10/11 and Surface);
 }
 
+export function isBitmapSupported(): boolean {
+    return !!window.createImageBitmap;
+}
+
 export enum MapTools {
     Pan,
     Stamp,
@@ -101,6 +105,39 @@ export async function loadImageAsync(src: string) {
         el.src = src;
     })
 }
+
+export async function loadBitmapAsync(src: string): Promise<ImageBitmap | HTMLCanvasElement> {
+    const el = await loadImageAsync(src);
+
+    if (isBitmapSupported()) {
+        const canvas = document.createElement("canvas") as HTMLCanvasElement;
+        canvas.width = el.width;
+        canvas.height = el.height;
+        canvas.getContext("2d").drawImage(el, 0, 0);
+        return canvas
+    }
+
+    return createImageBitmap(el);
+}
+
+export async function requestJSONAsync(url: string) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", () => {
+            const resp = xhr.responseText;
+
+            try {
+                resolve(JSON.parse(resp))
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+        xhr.open("GET", url);
+        xhr.send();
+    })
+}
+
 
 export interface GestureTarget {
     onClick(coord: ClientCoordinates): void;

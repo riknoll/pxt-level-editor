@@ -1,0 +1,782 @@
+{
+    "terrain": [
+        {
+            "name": "purple_inner_northwest",
+            "x": 0,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_north1",
+            "x": 16,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_north2",
+            "x": 32,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_north_torch",
+            "x": 48,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_northeast",
+            "x": 64,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile1",
+            "x": 80,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile2",
+            "x": 96,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile3",
+            "x": 112,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_west_torch",
+            "x": 0,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_east",
+            "x": 64,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile4",
+            "x": 80,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile5",
+            "x": 96,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile6",
+            "x": 112,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_open_west",
+            "x": 128,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_open_south",
+            "x": 144,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_open_north",
+            "x": 160,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_open_east",
+            "x": 176,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_west1",
+            "x": 0,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_outer_northwest",
+            "x": 16,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_outer_northeast",
+            "x": 32,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_east2",
+            "x": 64,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile1",
+            "x": 80,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile2",
+            "x": 96,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile3",
+            "x": 112,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_west2",
+            "x": 0,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_outer_southwest",
+            "x": 16,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_outer_southeast",
+            "x": 32,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_east_torch",
+            "x": 64,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile4",
+            "x": 80,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile5",
+            "x": 96,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile6",
+            "x": 112,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "stairs_west",
+            "x": 128,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "stairs_south",
+            "x": 144,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "stairs_north",
+            "x": 160,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "stairs_east",
+            "x": 176,
+            "y": 48,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_southwest",
+            "x": 0,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_south_torch",
+            "x": 16,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_south1",
+            "x": 32,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_south2",
+            "x": 48,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_inner_southeast",
+            "x": 64,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_tile7",
+            "x": 80,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile7",
+            "x": 96,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "light_tile8",
+            "x": 112,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_northwest",
+            "x": 0,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_north1",
+            "x": 16,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_north2",
+            "x": 32,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_north_torch",
+            "x": 48,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_northeast",
+            "x": 64,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_northwest",
+            "x": 80,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_north",
+            "x": 96,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_northeast",
+            "x": 112,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_west_torch",
+            "x": 0,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_east1",
+            "x": 64,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_west",
+            "x": 80,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern",
+            "x": 96,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_east",
+            "x": 112,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_west1",
+            "x": 0,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_outer_northwest",
+            "x": 16,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_outer_northeast",
+            "x": 32,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_east2",
+            "x": 64,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_southwest",
+            "x": 80,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_south",
+            "x": 96,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_southeast",
+            "x": 112,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "obstacle",
+            "x": 176,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_west",
+            "x": 0,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_outer_southwest",
+            "x": 16,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_outer_southeast",
+            "x": 32,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_east_torch",
+            "x": 64,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_outer_northwest",
+            "x": 80,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_outer_northeast",
+            "x": 96,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "water1",
+            "x": 112,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "lava1",
+            "x": 128,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "space1",
+            "x": 144,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_southwest",
+            "x": 0,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_south_torch",
+            "x": 16,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_south1",
+            "x": 32,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_south2",
+            "x": 48,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_inner_southeast",
+            "x": 64,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_outer_southwest",
+            "x": 80,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "dark_pattern_outer_southeast",
+            "x": 96,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "water2",
+            "x": 112,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "lava2",
+            "x": 128,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "space2",
+            "x": 144,
+            "y": 144,
+            "width": 16,
+            "height": 16
+        }
+    ],
+    "decorations": [
+        {
+            "name": "light_statue",
+            "x": 128,
+            "y": 64,
+            "width": 16,
+            "height": 32
+        },
+        {
+            "name": "dark_statue",
+            "x": 144,
+            "y": 64,
+            "width": 16,
+            "height": 32
+        }
+    ],
+    "interactables": [
+        {
+            "name": "chest_closed",
+            "x": 160,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "chest_open",
+            "x": 176,
+            "y": 128,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "pink_button_up",
+            "x": 160,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "pink_button_down",
+            "x": 176,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "teal_button_up",
+            "x": 160,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "teal_button_down",
+            "x": 176,
+            "y": 80,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "orange_button_up",
+            "x": 160,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "orange_button_down",
+            "x": 176,
+            "y": 64,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_switch_on",
+            "x": 16,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "purple_switch_off",
+            "x": 32,
+            "y": 16,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_switch_on",
+            "x": 16,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_switch_off",
+            "x": 32,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_closed_west",
+            "x": 128,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_closed_south",
+            "x": 144,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_closed_north",
+            "x": 160,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_closed_east",
+            "x": 176,
+            "y": 0,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_locked_west",
+            "x": 128,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_locked_south",
+            "x": 144,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_locked_north",
+            "x": 160,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "door_locked_east",
+            "x": 176,
+            "y": 32,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "stairs",
+            "x": 144,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        }
+    ],
+    "collectibles": [
+        {
+            "name": "red_orb",
+            "x": 128,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "green_orb",
+            "x": 144,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        }
+    ],
+    "spawners": [
+        {
+            "name": "portal",
+            "x": 128,
+            "y": 96,
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "crate",
+            "x": 160,
+            "y": 112,
+            "width": 16,
+            "height": 16
+        }
+    ]
+}

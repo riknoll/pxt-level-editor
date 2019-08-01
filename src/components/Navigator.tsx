@@ -2,12 +2,12 @@ import * as React from 'react';
 import '../css/navigator.css';
 import { GestureTarget, ClientCoordinates, bindGestureEvents } from '../util';
 import { MapRect, MapLog } from '../map';
-import { TileSet } from '../tileset';
+import { Project } from '../project';
 
 interface NavigatorProps {
-    map: MapLog,
-    tileSet: TileSet
-    viewport: MapRect
+    map: MapLog;
+    project: Project;
+    viewport: MapRect;
 }
 
 interface NavigatorState {
@@ -48,7 +48,7 @@ export class Navigator extends React.Component<NavigatorProps, NavigatorState> {
 
     componentWillReceiveProps(props: NavigatorProps) {
         if (!this.workspace) return;
-        if (props.tileSet != this.props.tileSet) this.workspace.setTileSet(props.tileSet);
+        if (props.project != this.props.project) this.workspace.setProject(props.project);
     }
 
     protected setMaskStyle() {
@@ -88,7 +88,7 @@ export class Navigator extends React.Component<NavigatorProps, NavigatorState> {
 
     protected setWorkspace() {
         if (this.canvasRef) {
-            this.workspace = new NavigatorCanvas(this.canvasRef, this.props.map, this.props.tileSet);
+            this.workspace = new NavigatorCanvas(this.canvasRef, this.props.map, this.props.project);
             this.workspace.setResizeCallabck(this.setCanvasSize.bind(this));
         }
     }
@@ -98,7 +98,7 @@ export class NavigatorCanvas implements GestureTarget {
     protected context: CanvasRenderingContext2D;
     protected setCanvasSize: (w: number, h: number, s: number) => void;
 
-    constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected tileSet: TileSet) {
+    constructor(protected canvas: HTMLCanvasElement, protected log: MapLog, protected project: Project) {
         this.context = canvas.getContext("2d");
 
         bindGestureEvents(canvas, this);
@@ -109,8 +109,8 @@ export class NavigatorCanvas implements GestureTarget {
         return this.log.currentState()
     }
 
-    setTileSet(tiles: TileSet) {
-        this.tileSet = tiles;
+    setProject(proj: Project) {
+        this.project = proj;
         this.redraw();
     }
 
@@ -148,7 +148,7 @@ export class NavigatorCanvas implements GestureTarget {
                         continue
                     }
 
-                    let rgb = this.tileSet.getColor(tile_index).split(' ');
+                    let rgb = this.project.getColor(tile_index).split(' ');
 
                     let r = parseInt(rgb[0]); // Random colors
                     let g = parseInt(rgb[1]);
