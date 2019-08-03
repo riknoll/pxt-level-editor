@@ -1,21 +1,19 @@
 import * as React from 'react';
-import { ClientCoordinates, GestureTarget, bindGestureEvents, loadImageAsync, Bitmask } from '../util';
-import { TILE_SIZE, TileSet } from '../tileset';
-import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, SetTileOp, SetMultiTileOp, MapLocation } from '../map';
+import { ClientCoordinates, GestureTarget, bindGestureEvents } from '../util';
+import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
 import { EditorToolHost, EditorLocation, EditorTool, StampTool, PanTool, EraseTool } from '../editorTool';
 
 import '../css/map.css';
-import { OperationLog } from '../opLog';
+import { ProjectSprite, isSpriteSheetReference, Project } from '../project';
 
 export interface MapProps {
-    tileSelected: Tile;
-    selectedTiles: MapRect;
+    selectedTiles: number[][];
     tool: MapTools;
     map: MapLog;
     activeLayer: MapObjectLayers;
-    tileSet: TileSet;
+    project: Project;
     onRectChange: (rect: MapRect) => void;
 }
 
@@ -38,7 +36,7 @@ export class Map extends React.Component<MapProps, MapState> {
         return (
             <div className="map">
                 <canvas ref={this.handleCanvasRef} />
-                { (this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.column}, {this.state.canvasCoordinates.row}</div> }
+                {(this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.column}, {this.state.canvasCoordinates.row}</div>}
                 <div className="zoom">
                     <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
                     <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
@@ -59,7 +57,7 @@ export class Map extends React.Component<MapProps, MapState> {
     }
 
     componentWillReceiveProps(props: MapProps) {
-        this.workspace.setTileSet(props.tileSet);
+        this.workspace.setProject(props.project);
     }
 
     componentDidUpdate() {
@@ -69,7 +67,7 @@ export class Map extends React.Component<MapProps, MapState> {
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
         if (ref) this.workspace = new MapCanvas(
-            ref, this.props.map, this.props.tileSet, this.props.selectedTiles);
+            ref, this.props.map, this.props.project, this.props.selectedTiles);
     };
 
     handleResize = () => {
@@ -125,10 +123,10 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     protected onRectChange: (rect: MapRect) => void;
 
     constructor(
-            protected canvas: HTMLCanvasElement,
-            protected log: MapLog,
-            protected tileSet: TileSet,
-            protected selectedTiles: MapRect,
+        protected canvas: HTMLCanvasElement,
+        protected log: MapLog,
+        protected project: Project,
+        protected selectedTiles: number[][],
     ) {
         this.context = canvas.getContext("2d");
         this.log.addChangeListener(() => this.redraw())
@@ -144,12 +142,12 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         return this.log.currentState()
     }
 
-    setTileSet(tiles: TileSet) {
+    setProject(proj: Project) {
         // TODO(dz): handle undo/redo?
-        this.tileSet = tiles;
+        this.project = proj;
     }
 
-    setSelectedTiles(tiles: MapRect) {
+    setSelectedTiles(tiles: number[][]) {
         this.selectedTiles = tiles;
     }
 
@@ -181,7 +179,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
                     if (this.mouseX === c && this.mouseY === r) {
                         this.context.fillStyle = "#5a5a5a"
                         this.context.globalAlpha = 0.5;
-                        this.context.fillRect(left, top, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+                        this.context.fillRect(left, top, this.project.tileSize * this.zoomMultiplier, this.project.tileSize * this.zoomMultiplier);
                         this.context.globalAlpha = 1;
                     }
                 }
@@ -230,20 +228,16 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         this.clearCursor();
     }
 
-    private triggerOperation(op: MapOperation) {
-        this.log.do(op)
-    }
-
     static applyOperation(state: MapData, op: MapOperation): MapData {
         if (op.kind === "settile") {
-            state.setTileGroup(op.col, op.row, op.selectedTiles, op.tileSet);
+            state.setTileGroup(op.col, op.row, op.selectedTiles);
         } else if (op.kind === "setobj") {
             state.addObjectToLayer(op.layer, op.obj)
         } else if (op.kind === "multitile") {
             for (let c = 0; c < op.bitmask.width; c++) {
                 for (let r = 0; r < op.bitmask.height; r++) {
                     if (op.bitmask.get(c, r) === 1) {
-                        state.setTileGroup(op.col + c, op.row + r, op.selectedTiles, op.tileSet);
+                        state.setTileGroup(op.col + c, op.row + r, op.selectedTiles);
                     }
                 }
             }
@@ -266,32 +260,6 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     onClick(coord: ClientCoordinates) {
-        const canvasCoords = this.clientToCanvas(coord);
-        let data = null
-        let mapUpdate = false
-        switch (this.tool) {
-            case MapTools.Stamp:
-                data = this.selectedTiles;
-                mapUpdate = true
-                break;
-            case MapTools.Erase:
-                data = null
-                mapUpdate = true
-                break;
-        }
-
-        if (mapUpdate) {
-            let op: SetTileOp = {
-                kind: "settile",
-                row: this.canvasToMap(canvasCoords.clientY - this.offsetY),
-                col: this.canvasToMap(canvasCoords.clientX - this.offsetX),
-                tileSet: this.tileSet,
-                selectedTiles: data,
-            }
-            console.log(op);
-            this.triggerOperation(op)
-        }
-
         if (this.editorTool) this.editorTool.onClick(this.clientToEditorLocation(coord));
     }
 
@@ -377,7 +345,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     visibleBounds(): MapRect {
-       return this.visibleRect();
+        return this.visibleRect();
     }
 
     pan(dx: number, dy: number) {
@@ -395,7 +363,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     commitAction(action: MapOperation): void {
-        this.triggerOperation(action);
+        this.log.do(action)
         this.stagedOp = undefined;
     }
 
@@ -403,21 +371,41 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         return this.selectedTiles;
     }
 
-    getTileSet() {
-        return this.tileSet;
+    getProject() {
+        return this.project;
     }
 
     protected drawTile(x: number, y: number, data: number) {
         if (data === -1) return;
 
-        if (this.tileSet && data != null) {
+        if (this.project && data != null) {
             this.context.imageSmoothingEnabled = false;
-            const coord = this.tileSet.indexToCoord(data);
-            this.context.drawImage(this.tileSet.src, coord.clientX, coord.clientY, TILE_SIZE, TILE_SIZE, x, y, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier)
+            this.drawSprite(x, y, this.project.tiles[data]);
         }
         else {
             this.context.fillStyle = data ? "red" : "white";
-            this.context.fillRect(x, y, TILE_SIZE * this.zoomMultiplier, TILE_SIZE * this.zoomMultiplier);
+            this.context.fillRect(x, y, this.project.tileSize * this.zoomMultiplier, this.project.tileSize * this.zoomMultiplier);
+        }
+    }
+
+    protected drawSprite(x: number, y: number, sprite: ProjectSprite) {
+        this.context.imageSmoothingEnabled = false;
+
+        if (isSpriteSheetReference(sprite)) {
+            this.context.drawImage(
+                sprite.sheet.loaded,
+                sprite.x,
+                sprite.y,
+                sprite.width,
+                sprite.height,
+                x,
+                y,
+                sprite.width * this.zoomMultiplier,
+                sprite.height * this.zoomMultiplier
+            );
+        }
+        else {
+            this.context.drawImage(sprite.loaded, x, y);
         }
     }
 
@@ -498,15 +486,15 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     }
 
     protected canvasToFullMap(val: number) {
-        return Math.ceil(val / (TILE_SIZE * this.zoomMultiplier));
+        return Math.ceil(val / (this.project.tileSize * this.zoomMultiplier));
     }
 
     protected canvasToMap(val: number) {
-        return Math.floor(val / (TILE_SIZE * this.zoomMultiplier));
+        return Math.floor(val / (this.project.tileSize * this.zoomMultiplier));
     }
 
     protected mapToCanvas(val: number) {
-        return val * TILE_SIZE * this.zoomMultiplier
+        return val * this.project.tileSize * this.zoomMultiplier
     }
 
     protected clientToCanvas(coord: ClientCoordinates): ClientCoordinates {
@@ -520,7 +508,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         const canvasCoords = this.clientToCanvas(coord);
 
         return {
-            column : this.canvasToMap(canvasCoords.clientX - this.offsetX),
+            column: this.canvasToMap(canvasCoords.clientX - this.offsetX),
             row: this.canvasToMap(canvasCoords.clientY - this.offsetY),
             canvasX: canvasCoords.clientX,
             canvasY: canvasCoords.clientY

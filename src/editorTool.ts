@@ -1,6 +1,6 @@
 import { MapObjectLayers, MapObject, MapArea, MapObjectLayer, MapRect, SetMultiTileOp, MapOperation } from "./map"
 import { Bitmask, MapTools } from "./util";
-import { TileSet } from "./tileset";
+import { Project } from "./project";
 
 
 export interface EditorLocation {
@@ -18,8 +18,8 @@ export interface EditorToolHost {
     setCursor(cursor: string): void;
     clearCursor(): void;
     visibleBounds(): MapRect;
-    getSelectedTiles(): MapRect;
-    getTileSet(): TileSet;
+    getSelectedTiles(): number[][];
+    getProject(): Project;
     pan(dx: number, dy: number): void;
 
     stageAction(action: MapOperation): void;
@@ -66,8 +66,7 @@ export class StampTool extends BaseTool {
             kind: "settile",
             row: location.row,
             col: location.column,
-            selectedTiles: this.getSelectedTiles(),
-            tileSet: this.host.getTileSet()
+            selectedTiles: this.getSelectedTiles()
         });
     }
 
@@ -81,8 +80,7 @@ export class StampTool extends BaseTool {
             bitmask: new Bitmask(editArea.width, editArea.height),
             col: editArea.left,
             row: editArea.top,
-            selectedTiles: this.getSelectedTiles(),
-            tileSet: this.host.getTileSet()
+            selectedTiles: this.getSelectedTiles()
         };
 
         this.setTile(location.column, location.row);
@@ -110,13 +108,13 @@ export class StampTool extends BaseTool {
         this.host.stageAction(this.action);
     }
 
-    protected getSelectedTiles(): MapRect {
+    protected getSelectedTiles(): number[][] {
         return this.host.getSelectedTiles();
     }
 }
 
 export class EraseTool extends StampTool {
-    protected getSelectedTiles(): MapRect {
+    protected getSelectedTiles(): number[][] {
         return null;
     }
 }

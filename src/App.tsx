@@ -10,11 +10,10 @@ import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
 import { MapData, MapRect, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
 import { MapTools, loadImageAsync } from './util';
-import { TileSet, TILE_SIZE } from './tileset';
-import { Tile } from './components/Toolbox/toolboxTypes';
 
 import './css/index.css'
 import { OperationLog } from './opLog';
+import { loadExampleAsync, Project } from './project';
 
 export interface AppProps {
     client: PXTClient;
@@ -22,18 +21,17 @@ export interface AppProps {
 }
 
 export interface AppState {
-    tileSelected?: Tile;
     tileSetLoaded: boolean;
     target: string;
     tool: MapTools;
-    selectedTiles?: MapRect;
+    selectedObjects: number[];
+    selectedTiles?: number[][];
     visibleRect: MapRect;
 }
 
 export class App extends React.Component<AppProps, AppState> {
-
     protected map: MapLog;
-    protected tileSet: TileSet;
+    protected project: Project;
 
     constructor(props: AppProps) {
         super(props);
@@ -42,15 +40,16 @@ export class App extends React.Component<AppProps, AppState> {
             target: props.target,
             tool: MapTools.Stamp,
             tileSetLoaded: false,
-            visibleRect: null
+            visibleRect: null,
+            selectedObjects: []
         };
 
         this.deserialize = this.deserialize.bind(this);
         this.serialize = this.serialize.bind(this);
 
-        loadImageAsync("./tile.png")
-            .then(el => {
-                this.tileSet = new TileSet(el, TILE_SIZE);
+        loadExampleAsync("tile_dungeon")
+            .then(proj => {
+                this.project = proj;
                 this.setState({ tileSetLoaded: true })
             });
 
@@ -81,11 +80,16 @@ export class App extends React.Component<AppProps, AppState> {
         pxt.extensions.write(code, JSON.stringify(json));
     }
 
-    private onTileChange = (tile: Tile) => {
-        this.setState({ tileSelected: tile });
+    private onObjectSelectionChange = (layer: MapObjectLayers, index: number) => {
+        const selectedObjects = this.state.selectedObjects.slice();
+        selectedObjects[layer] = index;
+
+        this.setState({
+            selectedObjects
+        });
     }
 
-    private onTileSelectionChange = (selection: MapRect) => {
+    private onTileSelectionChange = (selection: number[][]) => {
         this.setState({selectedTiles: selection});
     }
 
@@ -94,25 +98,28 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
-        const { target } = this.state;
+        if (!this.project) {
+            return <div className="app"></div>
+        }
+
         return (
             <div className="app">
                 <div className="sidebar">
-                    <Navigator map={this.map} tileSet={this.tileSet} viewport={this.state.visibleRect} />
+                    <Navigator map={this.map} project={this.project} viewport={this.state.visibleRect} />
                     <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
                     <Toolbox
-                        tileset={this.tileSet}
-                        onChange={this.onTileChange}
+                        project={this.project}
+                        selections={this.state.selectedObjects}
+                        onChange={this.onObjectSelectionChange}
                         onTileSelectionChange={this.onTileSelectionChange}
                     />
                 </div>
                 <div className="main">
                     <Map
-                        tileSelected={this.state.tileSelected}
                         tool={this.state.tool}
                         map={this.map}
                         activeLayer={MapObjectLayers.Area}
-                        tileSet={this.tileSet}
+                        project={this.project}
                         selectedTiles={this.state.selectedTiles}
                         onRectChange={this.setVisibleRect.bind(this)}
                     />
