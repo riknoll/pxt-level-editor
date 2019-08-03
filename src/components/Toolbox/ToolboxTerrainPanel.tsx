@@ -5,11 +5,16 @@ import { ToolboxPanel } from './ToolboxPanel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
 import { GestureTarget, ClientCoordinates, clientCoord, bindGestureEvents } from '../../util';
 import { MapRect } from '../../map';
-import { Project, ProjectSprite, isSpriteSheetReference } from '../../project';
+import { Project, ProjectSprite, isSpriteSheetReference, SpriteSheetReference } from '../../project';
 
 interface TerrainPanelProps {
     project: Project,
     onChange: (selection: number[][]) => void,
+}
+
+interface TilesetReference {
+    index: number;
+    sprite: ProjectSprite;
 }
 
 export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> implements GestureTarget {
@@ -19,8 +24,12 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
 
     protected selectionStart: {row: number, col: number};
     protected selectedArea: MapRect;
-    protected columns = 7;
     protected rows: number;
+    protected grid: TilesetReference[][];
+
+    get columns(): number {
+        return this.grid ? this.grid.length : 0;
+    }
 
     constructor(props: TerrainPanelProps) {
         super(props);
@@ -49,6 +58,13 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
 
     componentDidUpdate() {
         if (this.props.project && this.canvas) {
+            this.grid = layoutTiles(this.props.project.tiles);
+            this.rows = 0;
+
+            for (const column of this.grid) {
+                if (column) this.rows = Math.max(column.length, this.rows);
+            }
+
             this.redraw();
         }
     }
@@ -61,20 +77,48 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
     }
 
     redraw() {
-        const proj = this.props.project;
-        this.rows = Math.ceil(proj.tiles.length / this.columns);
+        if (!this.grid) return;
 
-        this.canvas.width = proj.tileSize * this.scale * this.columns;
+        const proj = this.props.project;
+
+        this.canvas.width = proj.tileSize * this.scale * 7;
         this.canvas.height = proj.tileSize * this.scale * this.rows;
+
         const ctx = this.canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        for (let i = 0; i < proj.tiles.length; i++) {
-            this.drawTile(proj.tiles[i], proj.tileSize, i);
+        for (let c = 0; c < this.columns; c++) {
+            for (let r = 0; r < this.rows; r++) {
+                if (this.grid[c] && this.grid[c][r]) {
+                    this.drawTile(this.grid[c][r].sprite, c * proj.tileSize * this.scale, r * proj.tileSize * this.scale);
+                }
+            }
         }
 
+        ctx.strokeStyle = "#9e9e9e";
+        ctx.setLineDash([1, 2]);
+
+        for (let c = 1; c < 7; c++) {
+            ctx.beginPath();
+            ctx.moveTo(this.scale * proj.tileSize * c, 0);
+            ctx.lineTo(this.scale * proj.tileSize * c, this.canvas.height);
+            ctx.stroke();
+        }
+        for (let r = 0; r < this.rows; r++) {
+            ctx.beginPath();
+            ctx.moveTo(0, this.scale * proj.tileSize * r);
+            ctx.lineTo(this.canvas.width, this.scale * proj.tileSize * r);
+            ctx.stroke();
+        }
+
+
+        // for (let i = 0; i < proj.tiles.length; i++) {
+            //     this.drawTile(proj.tiles[i], proj.tileSize, i);
+            // }
+
+        ctx.setLineDash([]);
         ctx.strokeStyle = "red"
         let tileSize = this.props.project.tileSize * this.scale
         ctx.strokeRect(
@@ -98,14 +142,17 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
     protected getTileSelection() {
         const selection: number[][] = [];
 
-        for (let c = 0; c < this.selectedArea.width; c++) {
-            selection.push([]);
-            let index = this.selectedArea.top * this.columns + this.selectedArea.left + c;
-            for (let r = 0; r < this.selectedArea.height; r++) {
-                selection[c][r] = index;
-                index += this.columns;
+        if (this.grid) {
+            for (let c = 0; c < this.selectedArea.width; c++) {
+                selection.push([]);
+                for (let r = 0; r < this.selectedArea.height; r++) {
+                    const gc = c + this.selectedArea.left;
+                    const gr = r + this.selectedArea.top;
+                    selection[c][r] = (this.grid[gc] && this.grid[gc][gr]) ? this.grid[gc][gr].index : -1;
+                }
             }
         }
+
 
         return selection;
     }
@@ -179,12 +226,9 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
         }
     }
 
-    protected drawTile(sprite: ProjectSprite, tileSize: number, index: number) {
+    protected drawTile(sprite: ProjectSprite, x: number, y: number) {
         const ctx = this.canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
-
-        const x = (index % this.columns) * tileSize * this.scale;
-        const y = Math.floor(index / this.columns) * tileSize * this.scale;
 
         if (isSpriteSheetReference(sprite)) {
             ctx.drawImage(
@@ -203,4 +247,84 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             ctx.drawImage(sprite.loaded, x, y);
         }
     }
+}
+
+
+class TileGroup {
+    tiles: TilesetReference[];
+
+    columns: number;
+    rows: number;
+    originX: number;
+    originY: number;
+
+    constructor(public group: string, public tileSize: number) {
+        this.tiles = [];
+    }
+
+    calculateDimensions() {
+        if (!this.tiles.length) return;
+
+        let minX = (this.tiles[0].sprite as SpriteSheetReference).x;
+        let minY = (this.tiles[0].sprite as SpriteSheetReference).y;
+        let maxX = (this.tiles[0].sprite as SpriteSheetReference).x;
+        let maxY = (this.tiles[0].sprite as SpriteSheetReference).y;
+
+        for (const sprite of this.tiles) {
+            minX = Math.min((sprite.sprite as SpriteSheetReference).x, minX);
+            minY = Math.min((sprite.sprite as SpriteSheetReference).y, minY);
+            maxX = Math.max((sprite.sprite as SpriteSheetReference).x + this.tileSize, maxX);
+            maxY = Math.max((sprite.sprite as SpriteSheetReference).y + this.tileSize, maxY);
+        }
+
+        this.originX = minX;
+        this.originY = minY;
+        this.columns = Math.ceil((maxX - minX) / this.tileSize);
+        this.rows = Math.ceil((maxY - minY) / this.tileSize);
+    }
+}
+
+function layoutTiles(refs: ProjectSprite[]): TilesetReference[][] {
+    const groups: {[index: string]: TileGroup} = {};
+    const unsorted: TilesetReference[] = [];
+
+    for (let i = 0; i < refs.length; i++) {
+        const ref = refs[i];
+        if (isSpriteSheetReference(ref) && ref.group) {
+            if (!groups[ref.group]) groups[ref.group] = new TileGroup(ref.group, ref.width);
+
+            groups[ref.group].tiles.push({ index: i, sprite: ref});
+        }
+        else {
+            unsorted.push({ index: i, sprite: ref });
+        }
+    }
+
+    const groupList = Object.keys(groups).map(k => groups[k]);
+    groupList.forEach(g => g.calculateDimensions());
+
+    const spriteGrid: TilesetReference[][] = [];
+    let top = 0;
+
+    for (const group of groupList) {
+        for (const tile of group.tiles) {
+            const col = ((tile.sprite as SpriteSheetReference).x - group.originX) / group.tileSize;
+            const row = ((tile.sprite as SpriteSheetReference).y - group.originY) / group.tileSize;
+
+            if (!spriteGrid[col]) spriteGrid[col] = [];
+
+            spriteGrid[col][top + row] = tile;
+        }
+
+        top += group.rows;
+    }
+
+    for (let i = 0; i < unsorted.length; i++) {
+        const col = i % spriteGrid.length;
+        const row = Math.floor(i / spriteGrid.length);
+
+        spriteGrid[col][top + row] = unsorted[i];
+    }
+
+    return spriteGrid;
 }

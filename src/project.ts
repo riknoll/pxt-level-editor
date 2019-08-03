@@ -121,6 +121,7 @@ export interface SpriteSheetReference {
     y: number;
     height: number;
     width: number;
+    group?: string;
     sheet?: ProjectSpriteSheet;
 }
 
