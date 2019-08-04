@@ -56,17 +56,12 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
         );
     }
 
+    componentDidMount() {
+        this.setTiles();
+    }
+
     componentDidUpdate() {
-        if (this.props.project && this.canvas) {
-            this.grid = layoutTiles(this.props.project.tiles);
-            this.rows = 0;
-
-            for (const column of this.grid) {
-                if (column) this.rows = Math.max(column.length, this.rows);
-            }
-
-            this.redraw();
-        }
+        this.setTiles();
     }
 
     handleCanvasRef = (ref: HTMLCanvasElement) => {
@@ -153,8 +148,20 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
             }
         }
 
-
         return selection;
+    }
+
+    protected setTiles() {
+        if (this.props.project && this.canvas) {
+            this.grid = layoutTiles(this.props.project.tiles);
+            this.rows = 0;
+
+            for (const column of this.grid) {
+                if (column) this.rows = Math.max(column.length, this.rows);
+            }
+
+            this.redraw();
+        }
     }
 
     onClick(coord: ClientCoordinates) {

@@ -1,4 +1,9 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+
+import { IStore } from '../store/reducer';
+import { dispatchChangeVisibleRect } from '../actions/dispatch';
+
 import { ClientCoordinates, GestureTarget, bindGestureEvents } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
@@ -14,7 +19,7 @@ export interface MapProps {
     map: MapLog;
     activeLayer: MapObjectLayers;
     project: Project;
-    onRectChange: (rect: MapRect) => void;
+    dispatchChangeVisibleRect: (rect: MapRect) => void;
     showPropertyEditor: (show: boolean, obj?: MapObject) => void;
 }
 
@@ -22,7 +27,7 @@ export interface MapState {
     canvasCoordinates: MapLocation;
 }
 
-export class Map extends React.Component<MapProps, MapState> {
+class MapComponent extends React.Component<MapProps, MapState> {
     protected workspace: MapCanvas;
 
     constructor(props: MapProps) {
@@ -50,7 +55,7 @@ export class Map extends React.Component<MapProps, MapState> {
         window.addEventListener("resize", this.handleResize);
         window.addEventListener("keyup", this.handleKeyup);
 
-        this.workspace.setOnRectChange(this.props.onRectChange);
+        this.workspace.setOnRectChange(this.props.dispatchChangeVisibleRect);
         this.workspace.setShowPropertyEditor(this.props.showPropertyEditor);
     }
 
@@ -525,3 +530,17 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         }
     }
 }
+
+function mapStateToProps(state: IStore) {
+    if (!state) return null;
+    return {
+        tool: state.tool,
+        selectedTiles: state.selectedTiles
+    };
+}
+
+const mapDispatchToProps = {
+    dispatchChangeVisibleRect
+};
+
+export const Map = connect(mapStateToProps, mapDispatchToProps)(MapComponent);
