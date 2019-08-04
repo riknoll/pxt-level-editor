@@ -3,7 +3,7 @@ import { ClientCoordinates, GestureTarget, bindGestureEvents } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
 import { Tile } from './Toolbox/toolboxTypes';
-import { EditorToolHost, EditorLocation, EditorTool, StampTool, PanTool, EraseTool } from '../editorTool';
+import { EditorToolHost, EditorLocation, EditorTool, StampTool, PanTool, EraseTool, ObjectTool } from '../editorTool';
 
 import '../css/map.css';
 import { ProjectSprite, isSpriteSheetReference, Project } from '../project';
@@ -15,6 +15,7 @@ export interface MapProps {
     activeLayer: MapObjectLayers;
     project: Project;
     onRectChange: (rect: MapRect) => void;
+    showPropertyEditor: (show: boolean, obj?: MapObject) => void;
 }
 
 export interface MapState {
@@ -50,6 +51,7 @@ export class Map extends React.Component<MapProps, MapState> {
         window.addEventListener("keyup", this.handleKeyup);
 
         this.workspace.setOnRectChange(this.props.onRectChange);
+        this.workspace.setShowPropertyEditor(this.props.showPropertyEditor);
     }
 
     componentWillUnmount() {
@@ -121,6 +123,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     protected stagedOp: MapOperation;
 
     protected onRectChange: (rect: MapRect) => void;
+    public showPropertyEditor: (show: boolean, obj?: MapObject) => void;
 
     constructor(
         protected canvas: HTMLCanvasElement,
@@ -153,6 +156,10 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
 
     setOnRectChange(cb: (rect: MapRect) => void) {
         this.onRectChange = cb;
+    }
+
+    setShowPropertyEditor(cb: (show: boolean, obj?: MapObject) => void) {
+        this.showPropertyEditor = cb;
     }
 
     centerOnTile(x: number, y: number) {
@@ -221,6 +228,9 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
                     break;
                 case MapTools.Erase:
                     this.tools[tool] = new EraseTool(this);
+                    break;
+                case MapTools.Object:
+                    this.tools[tool] = new ObjectTool(this);
                     break;
             }
         }

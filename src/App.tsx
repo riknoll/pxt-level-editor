@@ -6,9 +6,10 @@ import { pxt, PXTClient } from '../lib/pxtextensions';
 import { Map, MapCanvas } from './components/Map';
 import { Navigator } from './components/Navigator';
 import { EditingTools } from './components/EditingTools';
+import { PropertyEditor } from './components/PropertyEditor';
 import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
-import { MapData, MapRect, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
+import { MapData, MapRect, MapObject, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
 import { MapTools, loadImageAsync } from './util';
 
 import './css/index.css'
@@ -27,6 +28,8 @@ export interface AppState {
     selectedObjects: number[];
     selectedTiles?: number[][];
     visibleRect: MapRect;
+    showPropertyEditor?: boolean;
+    selectedObject?: MapObject;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -93,8 +96,15 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({selectedTiles: selection});
     }
 
-    protected setVisibleRect(rect: MapRect) {
+    protected setVisibleRect = (rect: MapRect) => {
         this.setState({ visibleRect: rect });
+    }
+
+    protected showPropertyEditor = (show: boolean, obj?: MapObject) => {
+        this.setState({
+            showPropertyEditor: show,
+            selectedObject: obj
+        });
     }
 
     render() {
@@ -121,8 +131,11 @@ export class App extends React.Component<AppProps, AppState> {
                         activeLayer={MapObjectLayers.Area}
                         project={this.project}
                         selectedTiles={this.state.selectedTiles}
-                        onRectChange={this.setVisibleRect.bind(this)}
+                        onRectChange={this.setVisibleRect}
+                        showPropertyEditor={this.showPropertyEditor}
                     />
+                    {this.state.showPropertyEditor && this.state.selectedObject &&
+                        <PropertyEditor object={this.state.selectedObject} showPropertyEditor={this.showPropertyEditor} />}
                 </div>
             </div>
         );

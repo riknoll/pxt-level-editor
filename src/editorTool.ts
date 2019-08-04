@@ -21,6 +21,7 @@ export interface EditorToolHost {
     getSelectedTiles(): number[][];
     getProject(): Project;
     pan(dx: number, dy: number): void;
+    showPropertyEditor: (show: boolean, obj?: MapObject) => void;
 
     stageAction(action: MapOperation): void;
     commitAction(action: MapOperation): void;
@@ -116,6 +117,13 @@ export class StampTool extends BaseTool {
 export class EraseTool extends StampTool {
     protected getSelectedTiles(): number[][] {
         return null;
+    }
+}
+
+export class ObjectTool extends BaseTool {
+    onClick(location: EditorLocation) {
+        let object = this.host.getObjectAtLocation(location, this.host.activeLayer());
+        this.host.showPropertyEditor(true, object);
     }
 }
 

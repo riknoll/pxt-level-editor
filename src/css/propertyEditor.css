@@ -1,0 +1,26 @@
+.propertyEditor {
+    position: absolute;
+    flex-direction: column;
+    padding: 1em;
+
+    background: #fff;
+    border: 4px dashed yellow;
+}
+
+.propertyEditor .actions {
+    margin: 1em 0.5em 0.5em;
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.propertyEditor .actions > div {
+    background: yellow;
+    padding: .5em .75em;
+    margin-left: .5em;
+    cursor: pointer;
+}
+
+.newProperty > div {
+    cursor: pointer;
+}

@@ -51,7 +51,8 @@ export class EditingTools extends React.Component<EditingToolsProps, {}> {
                 tool: MapTools.Stamp,
                 title: "Stamp tool",
                 icon: "fas fa-pencil-alt",
-            },            {
+            },
+            {
                 tool: MapTools.Erase,
                 title: "Erase tool",
                 icon: "fas fa-eraser",
