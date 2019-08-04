@@ -125,9 +125,6 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     protected onRectChange: (rect: MapRect) => void;
     public showPropertyEditor: (show: boolean, obj?: MapObject) => void;
 
-    // TODO delete, for testing only
-    public obj: MapObject = new MapObject();
-
     constructor(
         protected canvas: HTMLCanvasElement,
         protected log: MapLog,
