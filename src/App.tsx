@@ -27,15 +27,6 @@ export interface AppProps {
 export interface AppState {
     tileSetLoaded: boolean;
     target: string;
-<<<<<<< 31a9c9fe1e79c9ccc009bbf5bf4dbc1e0b448a4d
-    tool: MapTools;
-    selectedObjects: number[];
-    selectedTiles?: number[][];
-    visibleRect: MapRect;
-    showPropertyEditor?: boolean;
-    selectedObject?: MapObject;
-=======
->>>>>>> Wiring up redux, move shared app state into redux store
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -86,13 +77,6 @@ export class App extends React.Component<AppProps, AppState> {
         pxt.extensions.write(code, JSON.stringify(json));
     }
 
-    protected showPropertyEditor = (show: boolean, obj?: MapObject) => {
-        this.setState({
-            showPropertyEditor: show,
-            selectedObject: obj
-        });
-    }
-
     render() {
         if (!this.project) {
             return <div className="app"></div>
@@ -107,13 +91,8 @@ export class App extends React.Component<AppProps, AppState> {
                         <Toolbox project={this.project} />
                     </div>
                     <div className="main">
-                        <Map
-                            map={this.map}
-                            activeLayer={MapObjectLayers.Area}
-                            project={this.project}
-                        />
-                        {this.state.showPropertyEditor && this.state.selectedObject &&
-                            <PropertyEditor object={this.state.selectedObject} showPropertyEditor={this.showPropertyEditor} />}
+                        <Map map={this.map} activeLayer={MapObjectLayers.Area} project={this.project} />
+                        <PropertyEditor />
                     </div>
                 </div>
             </Provider>

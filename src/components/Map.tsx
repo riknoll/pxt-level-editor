@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { IStore } from '../store/reducer';
-import { dispatchChangeVisibleRect } from '../actions/dispatch';
+import { dispatchChangeVisibleRect, dispatchTogglePropertyEditor } from '../actions/dispatch';
 
 import { ClientCoordinates, GestureTarget, bindGestureEvents } from '../util';
 import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
@@ -20,7 +20,7 @@ export interface MapProps {
     activeLayer: MapObjectLayers;
     project: Project;
     dispatchChangeVisibleRect: (rect: MapRect) => void;
-    showPropertyEditor: (show: boolean, obj?: MapObject) => void;
+    dispatchTogglePropertyEditor: (show: boolean, obj?: MapObject) => void;
 }
 
 export interface MapState {
@@ -56,7 +56,7 @@ class MapComponent extends React.Component<MapProps, MapState> {
         window.addEventListener("keyup", this.handleKeyup);
 
         this.workspace.setOnRectChange(this.props.dispatchChangeVisibleRect);
-        this.workspace.setShowPropertyEditor(this.props.showPropertyEditor);
+        this.workspace.setShowPropertyEditor(this.props.dispatchTogglePropertyEditor);
     }
 
     componentWillUnmount() {
@@ -540,7 +540,8 @@ function mapStateToProps(state: IStore) {
 }
 
 const mapDispatchToProps = {
-    dispatchChangeVisibleRect
+    dispatchChangeVisibleRect,
+    dispatchTogglePropertyEditor
 };
 
 export const Map = connect(mapStateToProps, mapDispatchToProps)(MapComponent);

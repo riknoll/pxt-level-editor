@@ -1,18 +1,22 @@
 import * as actions from '../actions/types'
 import { MapTools } from '../util';
-import { MapRect } from '../map';
+import { MapRect, MapObject } from '../map';
 
 export interface IStore {
     tool: MapTools;
     selectedObjects: number[];
     selectedTiles: number[][];
+    showPropertyEditor: boolean;
+    activeObject: MapObject;
     visibleRect?: MapRect;
 }
 
 const initialState: IStore =  {
     tool: MapTools.Stamp,
     selectedObjects: [],
-    selectedTiles: []
+    selectedTiles: [],
+    activeObject: null,
+    showPropertyEditor: false
 }
 
 const reducer = (state: IStore = initialState, action: any) => {
@@ -25,6 +29,8 @@ const reducer = (state: IStore = initialState, action: any) => {
           return { ...state, selectedTiles: action.tiles };
       case actions.CHANGE_VISIBLE_RECT:
           return { ...state, visibleRect: action.rect };
+      case actions.TOGGLE_PROPERTY_EDITOR:
+          return { ...state, showPropertyEditor: action.show, activeObject: action.obj };
       default:
           return state;
   }

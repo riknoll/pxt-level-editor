@@ -1,25 +1,31 @@
 import * as React from 'react';
-import '../css/propertyEditor.css';
+import { connect } from 'react-redux';
+
+import { IStore } from '../store/reducer';
+import { dispatchTogglePropertyEditor } from '../actions/dispatch';
 
 import { PropertyEditorInput } from './PropertyEditorInput';
 import { MapObject } from '../map';
 
+import '../css/propertyEditor.css';
+
 interface IPropertyEditorProps {
+    show: boolean;
     object: MapObject;
-    showPropertyEditor: (show: boolean, obj?: MapObject) => void;
+    dispatchTogglePropertyEditor: (show: boolean, obj?: MapObject) => void;
 }
 
 interface IPropertyEditorState {
     fields: {[key: string]: string};
 }
 
-export class PropertyEditor extends React.Component<IPropertyEditorProps, IPropertyEditorState> {
+class PropertyEditorComponent extends React.Component<IPropertyEditorProps, IPropertyEditorState> {
     protected newProperty: HTMLInputElement;
 
     constructor(props: IPropertyEditorProps) {
         super(props);
 
-        this.state = { fields: Object.assign({}, props.object.properties) };
+        this.state = { fields: Object.assign({}, props.object ? props.object.properties : {}) };
     }
 
     protected setProp = (name: string, value?: string): void => {
@@ -58,10 +64,11 @@ export class PropertyEditor extends React.Component<IPropertyEditorProps, IPrope
     }
 
     protected handleClose = (): void => {
-        this.props.showPropertyEditor(false);
+        this.props.dispatchTogglePropertyEditor(false);
     }
 
     render() {
+        if (!this.props.show) return null;
         return (
             <div className="propertyEditor">
                 {Object.keys(this.state.fields).map((f, i) =>
@@ -79,3 +86,16 @@ export class PropertyEditor extends React.Component<IPropertyEditorProps, IPrope
         );
     }
 }
+
+function mapStateToProps(state: IStore) {
+    return {
+        show: state.showPropertyEditor,
+        object: state.activeObject
+    };
+}
+
+const mapDispatchToProps = {
+    dispatchTogglePropertyEditor
+};
+
+export const PropertyEditor = connect(mapStateToProps, mapDispatchToProps)(PropertyEditorComponent);
