@@ -1,8 +1,13 @@
 import * as React from 'react';
-import '../css/navigator.css';
+import { connect } from 'react-redux';
+
+import { IStore } from '../store/reducer'
+
 import { GestureTarget, ClientCoordinates, bindGestureEvents } from '../util';
 import { MapRect, MapLog } from '../map';
 import { Project } from '../project';
+
+import '../css/navigator.css';
 
 interface NavigatorProps {
     map: MapLog;
@@ -11,12 +16,12 @@ interface NavigatorProps {
 }
 
 interface NavigatorState {
-    width: number,
-    height: number,
-    scale: number
+    width: number;
+    height: number;
+    scale: number;
 }
 
-export class Navigator extends React.Component<NavigatorProps, NavigatorState> {
+class NavigatorComponent extends React.Component<NavigatorProps, NavigatorState> {
     protected workspace: NavigatorCanvas;
     protected canvasRef: HTMLCanvasElement;
 
@@ -94,7 +99,7 @@ export class Navigator extends React.Component<NavigatorProps, NavigatorState> {
     }
 }
 
-export class NavigatorCanvas implements GestureTarget {
+class NavigatorCanvas implements GestureTarget {
     protected context: CanvasRenderingContext2D;
     protected setCanvasSize: (w: number, h: number, s: number) => void;
 
@@ -167,3 +172,12 @@ export class NavigatorCanvas implements GestureTarget {
     onDragMove(coord: ClientCoordinates) { };
     onDragEnd(coord: ClientCoordinates) { };
 }
+
+function mapStateToProps(state: IStore) {
+    if (!state) return {};
+    return {
+        viewport: state.visibleRect
+    };
+}
+
+export const Navigator = connect(mapStateToProps)(NavigatorComponent);

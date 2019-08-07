@@ -1,32 +1,44 @@
 import * as React from 'react';
-import { ToolboxGenericPanel } from './ToolboxGenericPanel';
+import { connect } from 'react-redux';
 
-import '../../css/toolbox.css';
+import { IStore } from '../../store/reducer';
+import { dispatchChangeSelectedObjects, dispatchChangeSelectedTiles } from '../../actions/dispatch';
+
+import { ToolboxGenericPanel } from './ToolboxGenericPanel';
 import { ToolboxTerrainPanel } from './ToolboxTerrainPanel';
 import { Project } from '../../project';
 import { MapObjectLayers } from '../../map';
 
-interface State {
+import '../../css/toolbox.css';
+
+interface ToolboxState {
 }
 
-interface Props {
+interface ToolboxProps {
     project: Project;
     selections: number[];
-    onChange: (layer: MapObjectLayers, index: number) => void;
-    onTileSelectionChange: (selection: number[][]) => void;
+    dispatchChangeSelectedTiles: (selection: number[][]) => void;
+    dispatchChangeSelectedObjects: (objects: number[]) => void;
 }
 
-export class Toolbox extends React.Component<Props, State> {
-    constructor(props: Props) {
+class ToolboxComponent extends React.Component<ToolboxProps, ToolboxState> {
+    constructor(props: ToolboxProps) {
         super(props);
 
         this.state = {};
     }
 
+    private onChange = (layer: MapObjectLayers, index: number) => {
+        const selectedObjects = this.props.selections.slice();
+        selectedObjects[layer] = index;
+
+        this.props.dispatchChangeSelectedObjects(selectedObjects);
+    }
+
     renderPanel(layer: MapObjectLayers) {
         return (
             <ToolboxGenericPanel
-                onChange={this.props.onChange}
+                onChange={this.onChange}
                 selectedIndex={this.props.selections[layer]}
                 layer={layer}
                 project={this.props.project}
@@ -38,7 +50,7 @@ export class Toolbox extends React.Component<Props, State> {
             <div className="toolbox" id="toolbox">
                 <div>
                     <ToolboxTerrainPanel
-                        onChange={this.props.onTileSelectionChange}
+                        onChange={this.props.dispatchChangeSelectedTiles}
                         project={this.props.project}
                     />
                     {this.renderPanel(MapObjectLayers.Decoration)}
@@ -51,3 +63,16 @@ export class Toolbox extends React.Component<Props, State> {
         );
     }
 }
+
+function mapStateToProps(state: IStore) {
+    return {
+        selections: state && state.selectedObjects ? state.selectedObjects : []
+    };
+}
+
+const mapDispatchToProps = {
+    dispatchChangeSelectedObjects,
+    dispatchChangeSelectedTiles
+};
+
+export const Toolbox = connect(mapStateToProps, mapDispatchToProps)(ToolboxComponent);

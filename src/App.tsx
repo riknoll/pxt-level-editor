@@ -1,8 +1,11 @@
 /// <reference path="./localtypings/extension.d.ts" />
 
 import * as React from 'react';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
 
 import { pxt, PXTClient } from '../lib/pxtextensions';
+import store from './store/store'
 import { Map, MapCanvas } from './components/Map';
 import { Navigator } from './components/Navigator';
 import { EditingTools } from './components/EditingTools';
@@ -24,12 +27,6 @@ export interface AppProps {
 export interface AppState {
     tileSetLoaded: boolean;
     target: string;
-    tool: MapTools;
-    selectedObjects: number[];
-    selectedTiles?: number[][];
-    visibleRect: MapRect;
-    showPropertyEditor?: boolean;
-    selectedObject?: MapObject;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -41,10 +38,7 @@ export class App extends React.Component<AppProps, AppState> {
 
         this.state = {
             target: props.target,
-            tool: MapTools.Stamp,
-            tileSetLoaded: false,
-            visibleRect: null,
-            selectedObjects: []
+            tileSetLoaded: false
         };
 
         this.deserialize = this.deserialize.bind(this);
@@ -83,61 +77,25 @@ export class App extends React.Component<AppProps, AppState> {
         pxt.extensions.write(code, JSON.stringify(json));
     }
 
-    private onObjectSelectionChange = (layer: MapObjectLayers, index: number) => {
-        const selectedObjects = this.state.selectedObjects.slice();
-        selectedObjects[layer] = index;
-
-        this.setState({
-            selectedObjects
-        });
-    }
-
-    private onTileSelectionChange = (selection: number[][]) => {
-        this.setState({selectedTiles: selection});
-    }
-
-    protected setVisibleRect = (rect: MapRect) => {
-        this.setState({ visibleRect: rect });
-    }
-
-    protected showPropertyEditor = (show: boolean, obj?: MapObject) => {
-        this.setState({
-            showPropertyEditor: show,
-            selectedObject: obj
-        });
-    }
-
     render() {
         if (!this.project) {
             return <div className="app"></div>
         }
 
         return (
-            <div className="app">
-                <div className="sidebar">
-                    <Navigator map={this.map} project={this.project} viewport={this.state.visibleRect} />
-                    <EditingTools onToolSelected={tool => this.setState({ tool })} selected={this.state.tool} />
-                    <Toolbox
-                        project={this.project}
-                        selections={this.state.selectedObjects}
-                        onChange={this.onObjectSelectionChange}
-                        onTileSelectionChange={this.onTileSelectionChange}
-                    />
+            <Provider store={store}>
+                <div className="app">
+                    <div className="sidebar">
+                        <Navigator map={this.map} project={this.project} />
+                        <EditingTools />
+                        <Toolbox project={this.project} />
+                    </div>
+                    <div className="main">
+                        <Map map={this.map} activeLayer={MapObjectLayers.Area} project={this.project} />
+                        <PropertyEditor />
+                    </div>
                 </div>
-                <div className="main">
-                    <Map
-                        tool={this.state.tool}
-                        map={this.map}
-                        activeLayer={MapObjectLayers.Area}
-                        project={this.project}
-                        selectedTiles={this.state.selectedTiles}
-                        onRectChange={this.setVisibleRect}
-                        showPropertyEditor={this.showPropertyEditor}
-                    />
-                    {this.state.showPropertyEditor && this.state.selectedObject &&
-                        <PropertyEditor object={this.state.selectedObject} showPropertyEditor={this.showPropertyEditor} />}
-                </div>
-            </div>
+            </Provider>
         );
     }
 }

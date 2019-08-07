@@ -1,10 +1,15 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+
+import { IStore } from '../store/reducer'
+import { dispatchChangeTool } from '../actions/dispatch'
+
 import '../css/editingTools.css';
 import { EditButton } from './EditButton';
 import { MapTools } from '../util';
 
 export interface EditingToolsProps {
-    onToolSelected: (tool: MapTools) => void;
+    dispatchChangeTool: (tool: MapTools) => void;
     selected: MapTools;
 }
 
@@ -14,7 +19,7 @@ interface ToolInfo {
     title: string;
 }
 
-export class EditingTools extends React.Component<EditingToolsProps, {}> {
+class EditingToolsComponent extends React.Component<EditingToolsProps, {}> {
     constructor(props: EditingToolsProps) {
         super(props);
     }
@@ -36,7 +41,7 @@ export class EditingTools extends React.Component<EditingToolsProps, {}> {
     }
 
     setTool(tool: MapTools) {
-        this.props.onToolSelected(tool);
+        this.props.dispatchChangeTool(tool);
     }
 
 
@@ -65,3 +70,15 @@ export class EditingTools extends React.Component<EditingToolsProps, {}> {
         ]
     }
 }
+
+function mapStateToProps(state: IStore) {
+    return {
+        selected: state ? state.tool : null
+    };
+}
+
+const mapDispatchToProps = {
+    dispatchChangeTool
+};
+
+export const EditingTools = connect(mapStateToProps, mapDispatchToProps)(EditingToolsComponent);
