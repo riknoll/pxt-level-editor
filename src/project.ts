@@ -1,5 +1,5 @@
 import { MapObjectLayers } from "./map";
-import { loadBitmapAsync, requestJSONAsync } from "./util";
+import { loadBitmapAsync, requestJSONAsync, Color } from "./util";
 
 export class Project {
     images: ProjectImage[];
@@ -8,7 +8,7 @@ export class Project {
     tileSize = 16;
     canvas: HTMLCanvasElement;
 
-    protected tileColors: string[];
+    protected tileColors: Color[];
 
     constructor() {
         this.images = [];
@@ -53,11 +53,11 @@ export class Project {
         this.tileColors.push(this.computeAvgColor(sprite));
     }
 
-    getColor(index: number): string {
+    getColor(index: number): Color {
         return this.tileColors[index];
     }
 
-    computeAvgColor(sprite: ProjectSprite): string {
+    computeAvgColor(sprite: ProjectSprite): Color {
         const ctx = this.canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
 
@@ -72,27 +72,22 @@ export class Project {
             ctx.drawImage(sprite.loaded, 0, 0);
         }
 
-        let imageColor = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let iter = 0;
-        for (let k = 0; k<this.tileSize*this.tileSize; k+=4){
-            r += imageColor.data[k];
-            g += imageColor.data[k+1];
-            b += imageColor.data[k+2];
-            iter++;
+        let tile = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        let color: Color = {r: 0, g: 0, b: 0};
+
+        let tilePixels = this.tileSize * this.tileSize;
+
+        for (let k = 0; k < tilePixels; k++) {
+            color.r += tile.data[4 * k];
+            color.g += tile.data[4 * k + 1];
+            color.b += tile.data[4 * k + 2];
         }
-        r/=iter;
-        g/=iter;
-        b/=iter;
-        let rgb = "";
-        rgb += r;
-        rgb += " ";
-        rgb += g;
-        rgb += " ";
-        rgb += b;
-        return rgb;
+
+        color.r /= tilePixels;
+        color.g /= tilePixels;
+        color.b /= tilePixels;
+
+        return color;
     }
 };
 

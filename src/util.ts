@@ -259,3 +259,5 @@ export function bindGestureEvents(el: HTMLElement, target: GestureTarget) {
         el.addEventListener(evId, startGesture);
     });
 }
+
+export interface Color { r: number, g: number, b: number, a?: number }
