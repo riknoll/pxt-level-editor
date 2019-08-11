@@ -111,7 +111,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     protected editorTool: EditorTool;
     protected layer: MapObjectLayers;
 
-    protected zoomMultiplier = 10;
+    protected zoomMultiplier = 8;
     protected minMultiplier = 1;
     protected maxMultiplier = 70;
     protected amountToZoom = 3;
@@ -144,6 +144,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         bindGestureEvents(canvas, this);
         canvas.addEventListener(pointerEvents.move, this.onMouseMove.bind(this));
         canvas.addEventListener(pointerEvents.leave, this.onMouseLeave.bind(this));
+        this.centerOnTile(0, 0);
     }
 
     map(): ReadonlyMapData {
@@ -198,7 +199,10 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
             }
 
             this.drawObjectLayers(bounds);
+            this.context.setLineDash([1, 2]);
             this.drawGridlines(bounds, "#dedede", 1, (pos: number) => true); // Draws light grey gridlines every tile
+
+            this.context.setLineDash([]);
             this.drawGridlines(bounds, "#9e9e9e", 2, (pos: number) => pos % 5 === 0); // Draws dark grey gridlines every 5 tiles
             this.drawGridlines(bounds, "#000", 3, (pos: number) => pos === 0); // Draws black gridlines at the origin
         })
@@ -396,10 +400,6 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         if (this.project && data != null) {
             this.context.imageSmoothingEnabled = false;
             this.drawSprite(x, y, this.project.tiles[data]);
-        }
-        else {
-            this.context.fillStyle = data ? "red" : "white";
-            this.context.fillRect(x, y, this.project.tileSize * this.zoomMultiplier, this.project.tileSize * this.zoomMultiplier);
         }
     }
 

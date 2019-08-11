@@ -1,5 +1,6 @@
-.editingTools {
+.toolbox-title.editingTools {
     /* values for display of the button icons in the row */
     justify-content:flex-start;
     align-items:flex-start;
+    background: #333333;
 }

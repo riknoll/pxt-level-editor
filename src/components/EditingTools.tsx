@@ -26,7 +26,7 @@ class EditingToolsComponent extends React.Component<EditingToolsProps, {}> {
 
     render() {
         return (
-            <div className="editingTools">
+            <div className="editingTools toolbox-title">
                 {this.getTools().map(t =>
                     <EditButton
                         className={t.icon + (t.tool === this.props.selected ? " selected" : "")}

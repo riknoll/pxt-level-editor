@@ -1,5 +1,4 @@
 .toolbox-panel {
-  border: 1px solid #ccc;
   background-color: #eee;
   color: #7f8c8d;
   cursor: pointer;
@@ -12,16 +11,12 @@
 
 .toolbox-panel h3 {
   margin: 0;
-  padding: 0.5em;
+  padding: 1em;
 }
 
 .toolbox-panel > .panel-title {
   display: flex; flex-flow: row; justify-content: space-between;
   cursor: pointer;
-  border-bottom: 1px solid #ccc;
-  background-color: #20bf6b;
-  color: white;
-  margin: 0px;
   display: flex;
   flex-flow: row;
   justify-content: space-between;

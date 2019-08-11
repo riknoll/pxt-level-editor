@@ -29,8 +29,8 @@ export class ToolboxPanel extends React.Component<Props, { expanded: boolean }> 
     render() {
         return (
             <div className="toolbox-panel">
-                <h3 className="panel-title" onClick={this.clickTitle}>{this.props.title}
-                    <i className={this.state.expanded ? "panel-icon fas fa-chevron-circle-up" : "panel-icon fas fa-chevron-circle-down"}></i>
+                <h3 className="panel-title toolbox-title" onClick={this.clickTitle}>{this.props.title}
+                    <i className={this.state.expanded ? "panel-icon fas fa-chevron-up" : "panel-icon fas fa-chevron-down"}></i>
                 </h3>
 
                 {this.renderPanel()}
