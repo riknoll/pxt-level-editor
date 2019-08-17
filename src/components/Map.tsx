@@ -5,9 +5,8 @@ import { IStore } from '../store/reducer';
 import { dispatchChangeVisibleRect, dispatchTogglePropertyEditor } from '../actions/dispatch';
 
 import { ClientCoordinates, GestureTarget, bindGestureEvents } from '../util';
-import { MapRect, MapData, MapObject, MapArea, overlaps, MapObjectLayers, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
+import { MapRect, MapData, MapObject, MapArea, overlaps, Layer, MapLog, ReadonlyMapData, MapOperation, MapLocation } from '../map';
 import { MapTools, pointerEvents, clientCoord } from '../util';
-import { Tile } from './Toolbox/toolboxTypes';
 import { EditorToolHost, EditorLocation, EditorTool, StampTool, PanTool, EraseTool, ObjectTool } from '../editorTool';
 
 import '../css/map.css';
@@ -17,7 +16,7 @@ export interface MapProps {
     selectedTiles: number[][];
     tool: MapTools;
     map: MapLog;
-    activeLayer: MapObjectLayers;
+    activeLayer: Layer;
     project: Project;
     dispatchChangeVisibleRect: (rect: MapRect) => void;
     dispatchTogglePropertyEditor: (show: boolean, obj?: MapObject) => void;
@@ -109,7 +108,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
     protected tool: MapTools;
     protected tools: EditorTool[];
     protected editorTool: EditorTool;
-    protected layer: MapObjectLayers;
+    protected layer: Layer;
 
     protected zoomMultiplier = 8;
     protected minMultiplier = 1;
@@ -274,7 +273,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         this.log.redo()
     }
 
-    updateActiveLayer(layer: MapObjectLayers) {
+    updateActiveLayer(layer: Layer) {
         this.layer = layer;
     }
 
@@ -338,12 +337,12 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         this.redraw();
     }
 
-    getObjectAtLocation(location: EditorLocation, layer: MapObjectLayers): MapObject {
+    getObjectAtLocation(location: EditorLocation, layer: Layer): MapObject {
         return this.map().getLayer(layer).getObjectOnTile(location.column, location.row)
     }
 
     getAreaAtLocation(location: EditorLocation): MapArea {
-        return this.map().getLayer(MapObjectLayers.Area).getObjectOnTile(location.column, location.row) as MapArea;
+        return this.map().getLayer(Layer.Area).getObjectOnTile(location.column, location.row) as MapArea;
     }
 
     getTile(location: EditorLocation): number {
@@ -373,7 +372,7 @@ export class MapCanvas implements GestureTarget, EditorToolHost {
         this.redraw();
     }
 
-    activeLayer(): MapObjectLayers {
+    activeLayer(): Layer {
         return this.layer;
     }
 

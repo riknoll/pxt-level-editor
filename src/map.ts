@@ -204,17 +204,18 @@ export class MapObjectLayer {
     }
 }
 
-export enum MapObjectLayers {
-    Decoration = 0,
-    Item = 1,
-    Interactable = 2,
-    Spawner = 3,
-    Area = 4,
+export enum Layer {
+    Decoration,
+    Item,
+    Interactable,
+    Spawner,
+    Area,
+    Terrain
 }
 
 export interface ReadonlyMapData {
     getTile(column: number, row: number): number;
-    getLayer(layer: MapObjectLayers): MapObjectLayer;
+    getLayer(layer: Layer): MapObjectLayer;
     getLayers(): ReadonlyArray<MapObjectLayer>;
     getBounds(): MapRect;
     clone(): MapData;
@@ -236,7 +237,7 @@ export interface SetMultiTileOp {
 export interface SetObjectOp {
     kind: "setobj",
     obj: MapObject,
-    layer: MapObjectLayers
+    layer: Layer
 }
 
 export type MapOperation = SetTileOp | SetMultiTileOp | SetObjectOp
@@ -260,10 +261,10 @@ export class MapData implements ReadonlyMapData {
 
         this.layers = [];
 
-        this.layers[MapObjectLayers.Decoration] = new MapObjectLayer();
-        this.layers[MapObjectLayers.Item] = new MapObjectLayer();
-        this.layers[MapObjectLayers.Interactable] = new MapObjectLayer();
-        this.layers[MapObjectLayers.Spawner] = new MapObjectLayer();
+        this.layers[Layer.Decoration] = new MapObjectLayer();
+        this.layers[Layer.Item] = new MapObjectLayer();
+        this.layers[Layer.Interactable] = new MapObjectLayer();
+        this.layers[Layer.Spawner] = new MapObjectLayer();
     }
 
     setTile(column: number, row: number, data: number) {
@@ -313,13 +314,13 @@ export class MapData implements ReadonlyMapData {
         return this.getQuadrant(column, row).getTile(column, row);
     }
 
-    addObjectToLayer(layer: MapObjectLayers, obj: MapObject): void {
+    addObjectToLayer(layer: Layer, obj: MapObject): void {
         if (this.layers[layer]) {
             this.layers[layer].addObject(obj);
         }
     }
 
-    getLayer(layer: MapObjectLayers): MapObjectLayer {
+    getLayer(layer: Layer): MapObjectLayer {
         return this.layers[layer];
     }
 

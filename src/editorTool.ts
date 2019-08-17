@@ -1,4 +1,4 @@
-import { MapObjectLayers, MapObject, MapArea, MapObjectLayer, MapRect, SetMultiTileOp, MapOperation } from "./map"
+import { Layer, MapObject, MapArea, MapObjectLayer, MapRect, SetMultiTileOp, MapOperation } from "./map"
 import { Bitmask, MapTools } from "./util";
 import { Project } from "./project";
 
@@ -11,10 +11,10 @@ export interface EditorLocation {
 }
 
 export interface EditorToolHost {
-    getObjectAtLocation(location: EditorLocation, layer: MapObjectLayers): MapObject;
+    getObjectAtLocation(location: EditorLocation, layer: Layer): MapObject;
     getAreaAtLocation(location: EditorLocation): MapArea;
     getTile(location: EditorLocation): number;
-    activeLayer(): MapObjectLayers;
+    activeLayer(): Layer;
     setCursor(cursor: string): void;
     clearCursor(): void;
     visibleBounds(): MapRect;

@@ -1,15 +1,17 @@
 import * as React from 'react';
-import SpriteSheet from './SpriteSheet';
-import { Tile } from './toolboxTypes';
 import { ToolboxPanel } from './ToolboxPanel';
-import { ToolboxPanelGrid } from './ToolboxPanelGrid';
 import { GestureTarget, ClientCoordinates, clientCoord, bindGestureEvents } from '../../util';
-import { MapRect } from '../../map';
+import { MapRect, Layer } from '../../map';
 import { Project, ProjectSprite, isSpriteSheetReference, SpriteSheetReference } from '../../project';
+import { dispatchChangeActiveLayer } from '../../actions/dispatch';
+import { IStore } from '../../store/reducer';
+import { connect } from 'react-redux';
 
 interface TerrainPanelProps {
-    project: Project,
-    onChange: (selection: number[][]) => void,
+    project: Project;
+    onChange: (selection: number[][]) => void;
+    activeLayer: Layer;
+    dispatchChangeActiveLayer: (layer: Layer) => void;
 }
 
 interface TilesetReference {
@@ -17,7 +19,7 @@ interface TilesetReference {
     sprite: ProjectSprite;
 }
 
-export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> implements GestureTarget {
+export class ToolboxTerrainPanelImpl extends React.Component<TerrainPanelProps, {}> implements GestureTarget {
     protected canvas: HTMLCanvasElement;
     protected selectedTile: number;
     protected scale: number;
@@ -48,13 +50,18 @@ export class ToolboxTerrainPanel extends React.Component<TerrainPanelProps, {}> 
     }
 
     render() {
+        const { activeLayer } = this.props;
         return (
-            <ToolboxPanel expandedByDefault={true} title="Terrain">
+            <ToolboxPanel showHeader={activeLayer === null} expanded={activeLayer === Layer.Terrain} onTitleClick={this.onTitleClick} title="Terrain">
                 {/* <ToolboxPanelGrid tiles={this.state.tiles} ></ToolboxPanelGrid> */}
                 <canvas ref={this.handleCanvasRef}/>
             </ToolboxPanel>
         );
     }
+
+    protected onTitleClick = () => {
+        const { dispatchChangeActiveLayer, activeLayer } = this.props;
+        dispatchChangeActiveLayer(Layer.Terrain === activeLayer ? null : Layer.Terrain);    }
 
     componentDidMount() {
         this.setTiles();
@@ -335,3 +342,16 @@ function layoutTiles(refs: ProjectSprite[]): TilesetReference[][] {
 
     return spriteGrid;
 }
+
+function mapStateToProps(state: IStore) {
+    if (!state) return {};
+    return {
+        activeLayer: state.activeLayer
+    };
+}
+
+const mapDispatchToProps = {
+    dispatchChangeActiveLayer
+};
+
+export const ToolboxTerrainPanel = connect(mapStateToProps, mapDispatchToProps)(ToolboxTerrainPanelImpl);

@@ -3,40 +3,45 @@ import { ToolboxPanel } from './ToolboxPanel';
 import { ToolboxPanelGrid } from './ToolboxPanelGrid';
 
 import '../../css/toolbox.css';
-import { MapObjectLayers } from '../../map';
 import { Project } from '../../project';
+import { dispatchChangeActiveLayer } from '../../actions/dispatch';
+import { IStore } from '../../store/reducer';
+import { Layer } from '../../map';
+import { connect } from 'react-redux';
 
 interface Props {
-    onChange: (layer: MapObjectLayers, index: number) => void;
+    onChange: (layer: Layer, index: number) => void;
     project: Project;
     selectedIndex: number;
-    layer: MapObjectLayers;
+    layer: Layer;
+    dispatchChangeActiveLayer: (layer: Layer) => void;
+    activeLayer: Layer;
 }
 
 interface State {
 }
 
-export class ToolboxGenericPanel extends React.Component<Props, State> {
+class ToolboxGenericPanelImpl extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
     }
 
     render() {
-        const { project, layer } = this.props;
+        const { project, layer, activeLayer } = this.props;
         const sprites = project.templates[layer].map(p => p.sprite);
 
         return (
-            <ToolboxPanel title={MapObjectLayers[layer]}>
+            <ToolboxPanel title={Layer[layer]} showHeader={activeLayer === null} expanded={activeLayer == layer} onTitleClick={this.onTitleClick}>
                 <ToolboxPanelGrid onChange={index => this.props.onChange(layer, index)} selectedIndex={this.props.selectedIndex} sprites={sprites} onTileAdd={this.onTileAdd}/>
             </ToolboxPanel>
         );
     }
 
-    private onTileAdd = (v: string) => {
+    protected onTileAdd = (v: string) => {
         const { project, layer } = this.props;
         project.newTemplate(layer, {
             src: v,
-            name: `${MapObjectLayers[layer]} ${project.templates[layer].length}`
+            name: `${Layer[layer]} ${project.templates[layer].length}`
         });
 
         project.loadImagesAsync()
@@ -45,4 +50,21 @@ export class ToolboxGenericPanel extends React.Component<Props, State> {
             })
     }
 
+    protected onTitleClick = () => {
+        const { dispatchChangeActiveLayer, layer, activeLayer } = this.props;
+        dispatchChangeActiveLayer(layer === activeLayer ? null : layer);
+    }
 }
+
+function mapStateToProps(state: IStore) {
+    if (!state) return {};
+    return {
+        activeLayer: state.activeLayer
+    };
+}
+
+const mapDispatchToProps = {
+    dispatchChangeActiveLayer
+};
+
+export const ToolboxGenericPanel = connect(mapStateToProps, mapDispatchToProps)(ToolboxGenericPanelImpl);

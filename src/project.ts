@@ -1,4 +1,4 @@
-import { MapObjectLayers } from "./map";
+import { Layer } from "./map";
 import { loadBitmapAsync, requestJSONAsync, Color } from "./util";
 
 export class Project {
@@ -32,7 +32,7 @@ export class Project {
         }
     }
 
-    newTemplate(layer: MapObjectLayers, sprite: ProjectSprite) {
+    newTemplate(layer: Layer, sprite: ProjectSprite) {
         if (!this.templates[layer]) this.templates[layer] = [];
 
         if (isSpriteSheetReference(sprite)) {
@@ -143,7 +143,7 @@ export class MapObjectProperty {
 export class MapObjectTemplate {
     props: MapObjectProperty[];
 
-    constructor(public layer: MapObjectLayers, public sprite?: ProjectSprite) {
+    constructor(public layer: Layer, public sprite?: ProjectSprite) {
         this.props = [];
     }
 
@@ -188,22 +188,22 @@ export async function loadExampleAsync(name: string) {
 
     for (const sprite of meta.decorations) {
         sprite.sheet = sheet;
-        p.newTemplate(MapObjectLayers.Decoration, sprite);
+        p.newTemplate(Layer.Decoration, sprite);
     }
 
     for (const sprite of meta.collectibles) {
         sprite.sheet = sheet;
-        p.newTemplate(MapObjectLayers.Item, sprite);
+        p.newTemplate(Layer.Item, sprite);
     }
 
     for (const sprite of meta.interactables) {
         sprite.sheet = sheet;
-        p.newTemplate(MapObjectLayers.Interactable, sprite);
+        p.newTemplate(Layer.Interactable, sprite);
     }
 
     for (const sprite of meta.spawners) {
         sprite.sheet = sheet;
-        p.newTemplate(MapObjectLayers.Spawner, sprite);
+        p.newTemplate(Layer.Spawner, sprite);
     }
 
     return p;
