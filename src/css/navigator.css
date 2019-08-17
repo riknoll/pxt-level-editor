@@ -12,6 +12,6 @@
 
 .viewport {
     position: absolute;
-    border: 2px solid red;
+    border: 2px solid var(--navigator-viewport-color);
     box-sizing: border-box;
 }

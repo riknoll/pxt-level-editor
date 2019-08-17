@@ -36,6 +36,6 @@
 
 .toolbox-title {
   font-weight: lighter;
-  color: #cccccc;
-  background: #3c3c3c;
+  color: var(--sidebar-header-text-color);
+  background: var(--sidebar-header-bg-color);
 }

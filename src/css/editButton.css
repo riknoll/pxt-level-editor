@@ -8,11 +8,11 @@
     flex-grow: 1;
     text-align: center;
     font-size: 1.5em;
-    color: #ffffff1a;
+    color: var(--edit-button-inactive-color);
 }
 
 .editButton.selected {
-    color: #FFFFFF;
+    color: var(--edit-button-active-color);
 }
 
 
