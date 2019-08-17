@@ -43,8 +43,12 @@ class MapComponent extends React.Component<MapProps, MapState> {
                 <canvas ref={this.handleCanvasRef} />
                 {(this.state.canvasCoordinates) && <div className="coordinate">{this.state.canvasCoordinates.column}, {this.state.canvasCoordinates.row}</div>}
                 <div className="zoom">
-                    <span ref="minus" className="fas fa-minus-square fa-lg" onClick={(event) => this.workspace.zoomIn(false)}></span>
-                    <span ref="plus" className="fas fa-plus-square fa-lg" onClick={(event) => this.workspace.zoomIn(true)}></span>
+                    <div className="circle-button" onClick={() => this.workspace.zoomIn(false)}>
+                        <span ref="minus" className="fas fa-minus fa-lg"></span>
+                    </div>
+                    <div className="circle-button" onClick={() => this.workspace.zoomIn(true)}>
+                        <span ref="plus" className="fas fa-plus fa-lg"></span>
+                    </div>
                 </div>
             </div>
         );

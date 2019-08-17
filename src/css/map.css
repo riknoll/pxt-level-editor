@@ -5,12 +5,20 @@
 .zoom {
     cursor: pointer;
     position: absolute;
-    bottom: 70px;
-    right: 30px;
+    bottom: 1rem;
+    right: 1rem;
 }
 
-.zoom span {
-    margin: 3px;
+.circle-button {
+    text-align: center;
+    /* vertical-align: middle; */
+    width: 3rem;
+    height: 3rem;
+    background: var(--map-button-bg-color);
+    color: var(--map-button-icon-color);
+    border-radius: 50%;
+    line-height: 3.2rem;
+    margin: 0.5rem;
 }
 
 .coordinate {
