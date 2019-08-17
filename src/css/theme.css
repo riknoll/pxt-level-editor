@@ -1,0 +1,16 @@
+:root {
+    --editor-bg-color: #1e1e1e;
+
+    --sidebar-bg-color: #252526;
+    --sidebar-header-bg-color: #3c3c3c;
+    --sidebar-header-text-color: #cccccc;
+
+    --editing-tools-bg-color: #333333;
+    --edit-button-inactive-color: #ffffff1a;
+    --sidebar-icon-active-color: #ffffff;
+
+    --navigator-viewport-color: #ff0000;
+
+    --map-button-bg-color: #3c3c3c;
+    --map-button-icon-color: #cccccc;
+  }

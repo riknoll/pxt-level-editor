@@ -1,27 +1,45 @@
 .toolbox-panel {
-  border: 1px solid #ccc;
-  background-color: #eee;
   color: #7f8c8d;
   cursor: pointer;
   padding: 0px;
   width: 100%;
   text-align: left;
   outline: none;
-  transition: 0.4s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbox-panel.expanded {
+  height: 100%;
+}
+
+.panel-contents:not(.collapsed) {
+  height: 100%;
+  overflow: auto;
+}
+
+.collapsible {
+  max-height: 100vh;
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.3s;
+}
+
+.collapsible.collapsed {
+  max-height: 0px;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .toolbox-panel h3 {
   margin: 0;
-  padding: 0.5em;
+  padding: 1em;
 }
 
 .toolbox-panel > .panel-title {
   display: flex; flex-flow: row; justify-content: space-between;
   cursor: pointer;
-  border-bottom: 1px solid #ccc;
-  background-color: #20bf6b;
-  color: white;
-  margin: 0px;
   display: flex;
   flex-flow: row;
   justify-content: space-between;

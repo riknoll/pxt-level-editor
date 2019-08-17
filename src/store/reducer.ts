@@ -1,6 +1,6 @@
 import * as actions from '../actions/types'
 import { MapTools } from '../util';
-import { MapRect, MapObject } from '../map';
+import { MapRect, MapObject, Layer } from '../map';
 
 export interface IStore {
     tool: MapTools;
@@ -9,6 +9,7 @@ export interface IStore {
     showPropertyEditor: boolean;
     activeObject: MapObject;
     visibleRect?: MapRect;
+    activeLayer: Layer;
 }
 
 const initialState: IStore =  {
@@ -16,7 +17,8 @@ const initialState: IStore =  {
     selectedObjects: [],
     selectedTiles: [],
     activeObject: null,
-    showPropertyEditor: false
+    showPropertyEditor: false,
+    activeLayer: Layer.Terrain
 }
 
 const reducer = (state: IStore = initialState, action: any) => {
@@ -31,6 +33,8 @@ const reducer = (state: IStore = initialState, action: any) => {
           return { ...state, visibleRect: action.rect };
       case actions.TOGGLE_PROPERTY_EDITOR:
           return { ...state, showPropertyEditor: action.show, activeObject: action.obj };
+      case actions.CHANGE_ACTIVE_LAYER:
+          return { ...state, activeLayer: action.activeLayer };
       default:
           return state;
   }

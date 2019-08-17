@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
 
 import { pxt, PXTClient } from '../lib/pxtextensions';
 import store from './store/store'
@@ -12,9 +11,9 @@ import { EditingTools } from './components/EditingTools';
 import { PropertyEditor } from './components/PropertyEditor';
 import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
-import { MapData, MapRect, MapObject, MapObjectLayers, MapLog, ReadonlyMapData } from './map';
-import { MapTools, loadImageAsync } from './util';
+import { MapData, Layer, MapLog } from './map';
 
+import './css/theme.css'
 import './css/index.css'
 import { OperationLog } from './opLog';
 import { loadExampleAsync, Project } from './project';
@@ -91,7 +90,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <Toolbox project={this.project} />
                     </div>
                     <div className="main">
-                        <Map map={this.map} activeLayer={MapObjectLayers.Area} project={this.project} />
+                        <Map map={this.map} activeLayer={Layer.Area} project={this.project} />
                         <PropertyEditor />
                     </div>
                 </div>

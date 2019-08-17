@@ -1,9 +1,9 @@
 .toolbox {
-  border: 1px solid #ccc;
-  overflow-y: auto;
-  overflow-x: hidden;
   height: 100%;
   min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .toolbox > div {
@@ -12,25 +12,15 @@
   height: 100%;
 }
 
-.addSpriteButton {
-  font-size: 34px;
-  height: 48px;
-  width: 48px;
-  border: 1px black solid;
-  border-radius: 5px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.addSpriteButton:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
 .sprite-editor-container.sprite-editor-dropdown-bg.sprite-editor-dropdown {
   top: 10px;
   left: 100px;
   position: fixed;
   z-index: 9999;
+}
+
+.toolbox-title {
+  font-weight: lighter;
+  color: var(--sidebar-header-text-color);
+  background: var(--sidebar-header-bg-color);
 }

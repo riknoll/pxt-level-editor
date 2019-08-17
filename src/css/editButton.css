@@ -2,14 +2,17 @@
     /* values for the font awesome icon displays for buttons */
     height: 1em;
     width: 1em;
-    border: 1px solid black;
     padding: .25em;
     margin: .15em;
     display:inline-block;
+    flex-grow: 1;
+    text-align: center;
+    font-size: 1.5em;
+    color: var(--edit-button-inactive-color);
 }
 
 .editButton.selected {
-    color: #FF0000;
+    color: var(--edit-button-active-color);
 }
 
 

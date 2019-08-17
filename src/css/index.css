@@ -11,7 +11,9 @@
     display: flex;
     width: 100%;
     height: 100%;
+    background: var(--editor-bg-color);
 }
+
 
 .app > div {
     display: flex;
@@ -20,6 +22,7 @@
 .sidebar {
     flex-direction: column;
     width: 16em;
+    background: var(--sidebar-bg-color);
 }
 
 .main {
@@ -29,6 +32,5 @@
 /* temporary values for display */
 .app > div > div {
     display: flex;
-    margin: 0.2em;
     font-family: "Roboto Mono", monospace;
 }

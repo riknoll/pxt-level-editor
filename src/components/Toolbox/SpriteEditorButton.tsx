@@ -76,7 +76,7 @@ export class SpriteEditorButton extends React.Component<ISpriteEditorProps, ISpr
               <div className='toolbox-panel-grid-tile'>
                     <div
                         role='button'
-                        className={"addSpriteButton fas fa-plus"}
+                        className={"circle-button fas fa-plus"}
                         onClick={this.openSpriteEditor} id={'Add sprite'}
                     ></div>
                     {open && <div ref="spriteEditorContainer"></div>}
