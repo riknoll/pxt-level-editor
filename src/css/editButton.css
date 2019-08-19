@@ -8,7 +8,7 @@
     flex-grow: 1;
     text-align: center;
     font-size: 1.5em;
-    color: var(--edit-button-inactive-color);
+    color: var(--sidebar-icon-inactive-color);
 }
 
 .editButton.selected {

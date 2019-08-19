@@ -13,6 +13,8 @@ import { Toolbox } from './components/Toolbox';
 import { EmitterFactory } from "./exporter/factory";
 import { MapData, Layer, MapLog } from './map';
 
+import { ImageEditor } from './components/ImageEditor/ImageEditor';
+
 import './css/theme.css'
 import './css/index.css'
 import { OperationLog } from './opLog';
@@ -94,6 +96,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <PropertyEditor />
                     </div>
                 </div>
+                <ImageEditor />
             </Provider>
         );
     }
