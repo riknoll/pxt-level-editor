@@ -30,7 +30,7 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
             <div className="image-editor-canvas-spacer" />
             <div className="image-editor-canvas-inner">
                 <div className="image-editor-canvas-spacer" />
-                <canvas ref="paint-surface" className="paint-surface" />
+                <canvas ref="paint-surface" className="paint-surface checkerboard" />
                 <div className="image-editor-canvas-spacer" />
             </div>
             <div className="image-editor-canvas-spacer" />
@@ -42,10 +42,13 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
         bindGestureEvents(this.canvas, this);
 
         this.redraw();
+        this.updateBackground();
     }
 
     componentDidUpdate() {
         this.redraw();
+
+        this.updateBackground();
     }
 
     onClick(coord: ClientCoordinates): void {
@@ -148,10 +151,22 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
         const context = this.canvas.getContext("2d");
         for (let x = x0; x < this.canvas.width; x++) {
             for (let y = y0; y < this.canvas.height; y++) {
-                context.fillStyle = colors[bitmap.get(x, y)];
-                context.fillRect(x, y, 1, 1);
+                const index = bitmap.get(x, y);
+
+                if (index) {
+                    context.fillStyle = colors[index];
+                    context.fillRect(x, y, 1, 1);
+                }
+                else {
+                    context.clearRect(x, y, 1, 1);
+                }
             }
         }
+    }
+
+    protected updateBackground() {
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.setAttribute("style", `--unit:${rect.width / this.canvas.width}px`);
     }
 }
 

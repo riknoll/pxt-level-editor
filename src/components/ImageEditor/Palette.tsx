@@ -20,44 +20,40 @@ class PaletteImpl extends React.Component<PaletteProps,{}> {
 
         const width = 3 * SPACER + 2 * HEIGHT;
 
-        return <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${width} ${ROWS * (SPACER + HEIGHT) + HEIGHT * 1.5}`}>
-            <g>
-                <rect
-                    fill={colors[1]}
-                    x={width - (SPACER << 1) - (HEIGHT * 1.5)}
-                    y={SPACER << 2}
-                    width={HEIGHT * 1.5}
-                    height={HEIGHT}
-                    stroke="#3c3c3c"
-                    strokeWidth="0.5">
-                </rect>
-                <rect
-                    fill={colors[selected]}
-                    x={SPACER << 1}
-                    y={SPACER}
-                    width={HEIGHT * 1.5}
-                    height={HEIGHT}
-                    stroke="#3c3c3c"
-                    strokeWidth="0.5">
-                </rect>
-            </g>
-            <g transform={`translate(0 ${HEIGHT * 1.5})`}>
+        return <div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${width} ${HEIGHT * 1.5}`}>
+                <g>
+                    <rect
+                        fill={colors[1]}
+                        x={width - (SPACER << 1) - (HEIGHT * 1.5)}
+                        y={SPACER << 2}
+                        width={HEIGHT * 1.5}
+                        height={HEIGHT}
+                        stroke="#3c3c3c"
+                        strokeWidth="0.5">
+                    </rect>
+                    <rect
+                        fill={colors[selected]}
+                        x={SPACER << 1}
+                        y={SPACER}
+                        width={HEIGHT * 1.5}
+                        height={HEIGHT}
+                        stroke="#3c3c3c"
+                        strokeWidth="0.5">
+                    </rect>
+                </g>
+            </svg>
+            <div className="image-editor-color-buttons">
                 {this.props.colors.map((color, index) =>
-                    <g key={index}>
-                        <rect
-                            fill={color}
-                            x={SPACER + (index % 2) * (SPACER + HEIGHT)}
-                            y={SPACER + (index >> 1) * (SPACER + HEIGHT)}
-                            width={HEIGHT}
-                            height={HEIGHT}
-                            rx="1.5"
-                            ry="1.5"
-                            onClick={this.clickHandler(index)}>
-                        </rect>
-                    </g>
+                    <div key={index}
+                        className={`image-editor-button ${index === 0 ? "checkerboard" : ""}`}
+                        role="button"
+                        title={`Color ${index}`}
+                        onClick={this.clickHandler(index)}
+                        style={index === 0 ? null : { backgroundColor: color }} />
                 )}
-            </g>
-        </svg>;
+            </div>
+        </div>;
     }
 
     protected clickHandler(index: number) {

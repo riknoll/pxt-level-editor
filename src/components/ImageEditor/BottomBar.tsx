@@ -3,18 +3,32 @@ import './css/bottomBar.css'
 
 import { connect } from 'react-redux';
 import { ImageEditorStore } from './store/imageReducer';
-import { dispatchChangeImageDimensions } from './actions/dispatch';
+import { dispatchChangeImageDimensions, dispatchUndoImageEdit, dispatchRedoImageEdit } from './actions/dispatch';
 import { IconButton } from "./Button";
 
 export interface BottomBarProps {
     dispatchChangeImageDimensions: (dimensions: [number, number]) => void;
     imageDimensions: [number, number];
     cursorLocation: [number, number];
+
+    hasUndo: boolean;
+    hasRedo: boolean;
+
+    dispatchUndoImageEdit: () => void;
+    dispatchRedoImageEdit: () => void;
 }
 
 export class BottomBarImpl extends React.Component<BottomBarProps, {}> {
     render() {
-        const { imageDimensions, cursorLocation } = this.props;
+        const {
+            imageDimensions,
+            cursorLocation,
+            hasUndo,
+            hasRedo,
+            dispatchUndoImageEdit,
+            dispatchRedoImageEdit
+        } = this.props;
+
         return (
             <div className="image-editor-bottombar">
                 <div className="image-editor-resize">
@@ -34,14 +48,16 @@ export class BottomBarImpl extends React.Component<BottomBarProps, {}> {
                 </div>
                 <div className="image-editor-undo-redo">
                     <IconButton
-                        title="undo"
+                        title="Undo"
                         iconClass="fas fa-undo"
-                        onClick={this.handleUndoClick}
+                        onClick={hasUndo ? dispatchUndoImageEdit : null}
+                        disabled={!hasUndo}
                     />
                     <IconButton
-                        title="redo"
+                        title="Redo"
                         iconClass="fas fa-redo"
-                        onClick={this.handleRedoClick}
+                        onClick={hasRedo ? dispatchRedoImageEdit : null}
+                        disabled={!hasRedo}
                     />
                 </div>
             </div>
@@ -61,12 +77,16 @@ function mapStateToProps(state: ImageEditorStore) {
     if (!state) return {};
     return {
         imageDimensions: state.imageDimensions,
-        cursorLocation: state.cursorLocation
+        cursorLocation: state.cursorLocation,
+        hasUndo: !!state.canvasState.past.length,
+        hasRedo: !!state.canvasState.future.length,
     };
 }
 
 const mapDispatchToProps = {
-    dispatchChangeImageDimensions
+    dispatchChangeImageDimensions,
+    dispatchUndoImageEdit,
+    dispatchRedoImageEdit
 };
 
 

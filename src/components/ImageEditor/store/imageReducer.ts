@@ -62,7 +62,7 @@ const initialState: ImageEditorStore =  {
         "#91463d",
         "#000000"
     ],
-    selectedColor: 0,
+    selectedColor: 3,
 
     tool: ImageEditorTool.Paint,
     cursorSize: CursorSize.One,
