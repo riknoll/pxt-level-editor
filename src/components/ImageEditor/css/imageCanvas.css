@@ -3,6 +3,20 @@
 
     display: flex;
     flex-direction: column;
+
+    max-height: 500px;
+}
+
+.image-editor-canvas.portrait > .image-editor-canvas-spacer {
+    flex-grow: 0;
+}
+
+.image-editor-canvas.portrait .paint-surface, .image-editor-canvas.portrait .image-editor-canvas-inner {
+    height: 100%;
+}
+
+.image-editor-canvas.landscape .paint-surface {
+    width: 100%;
 }
 
 .image-editor-canvas-inner {
@@ -15,9 +29,6 @@
 }
 
 .paint-surface {
-    margin: auto;
-    width: 100%;
-
     image-rendering: optimizeSpeed;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;

@@ -26,7 +26,10 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
     protected cursorLocation: [number, number];
 
     render() {
-        return <div className="image-editor-canvas">
+        const { imageState } = this.props;
+        const isPortrait = !imageState || (imageState.bitmap.height > imageState.bitmap.width);
+
+        return <div className={`image-editor-canvas ${isPortrait ? "portrait" : "landscape"}`}>
             <div className="image-editor-canvas-spacer" />
             <div className="image-editor-canvas-inner">
                 <div className="image-editor-canvas-spacer" />
