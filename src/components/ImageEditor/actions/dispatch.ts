@@ -12,3 +12,5 @@ export const dispatchChangeCursorLocation = (cursorLocation: [number, number]) =
 export const dispatchImageEdit = (newState: ImageState) => ({ type: actions.IMAGE_EDIT, newState });
 export const dispatchUndoImageEdit = () => ({ type: actions.UNDO_IMAGE_EDIT });
 export const dispatchRedoImageEdit = () => ({ type: actions.REDO_IMAGE_EDIT });
+
+export const dispatchToggleAspectRatioLocked = () => ({ type: actions.TOGGLE_ASPECT_RATIO });

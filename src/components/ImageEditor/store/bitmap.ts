@@ -95,6 +95,10 @@ export class Bitmap {
         };
     }
 
+    resize(width: number, height: number): Bitmap {
+        return resizeBitmap(this, width, height);
+    }
+
     protected coordToIndex(col: number, row: number) {
         return col + row * this.width;
     }

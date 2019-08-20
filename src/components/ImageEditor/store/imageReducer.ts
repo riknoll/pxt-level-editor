@@ -33,7 +33,8 @@ export interface ImageEditorStore {
 
     keyModifiers?: number;
     cursorLocation?: [number, number];
-    imageDimensions?: [number, number];
+
+    aspectRatioLocked: boolean;
 
     canvasState: {
         past: ImageState[],
@@ -66,7 +67,8 @@ const initialState: ImageEditorStore =  {
 
     tool: ImageEditorTool.Paint,
     cursorSize: CursorSize.One,
-    imageDimensions: [16, 16],
+
+    aspectRatioLocked: true,
 
     canvasState: {
         past: [],
@@ -87,12 +89,24 @@ const reducer = (state: ImageEditorStore = initialState, action: any) => {
             return { ...state, cursorSize: action.cursorSize };
         case actions.CHANGE_SELECTED_COLOR:
             return { ...state, selectedColor: action.selectedColor };
-        case actions.CHANGE_IMAGE_DIMENSIONS:
-            return { ...state, imageDimensions: action.imageDimensions };
         case actions.CHANGE_KEY_MODIFIERS:
             return { ...state, keyModifiers: action.keyModifiers };
         case actions.CHANGE_CURSOR_LOCATION:
             return { ...state, cursorLocation: action.cursorLocation };
+        case actions.TOGGLE_ASPECT_RATIO:
+            return { ...state, aspectRatioLocked: !state.aspectRatioLocked };
+        case actions.CHANGE_IMAGE_DIMENSIONS:
+            const [width, height] = action.imageDimensions as [number, number];
+            return {
+                ...state,
+                canvasState: {
+                    past: canvasState.present ? [...canvasState.past, canvasState.present] : canvasState.past,
+                    present: {
+                        bitmap: Bitmap.fromData(canvasState.present.bitmap).resize(width, height).data()
+                    },
+                    future: [] as ImageState[],
+                }
+            };
         case actions.IMAGE_EDIT:
             return {
                 ...state,
