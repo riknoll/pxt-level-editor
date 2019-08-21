@@ -7,7 +7,7 @@ import { ImageState, Bitmap } from './store/bitmap';
 import { GestureTarget, ClientCoordinates, bindGestureEvents } from '../../util';
 
 import './css/imageCanvas';
-import { Edit, EditState, getEdit, getEditState } from './toolDefinitions';
+import { Edit, EditState, getEdit, getEditState, ToolCursor, tools } from './toolDefinitions';
 
 export interface ImageCanvasProps {
     dispatchImageEdit: (state: ImageState) => void;
@@ -21,9 +21,12 @@ export interface ImageCanvasProps {
 
 class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements GestureTarget {
     protected canvas: HTMLCanvasElement;
+    protected floatingLayer: HTMLDivElement;
+
     protected edit: Edit;
     protected editState: EditState;
     protected cursorLocation: [number, number];
+    protected cursor: ToolCursor | string = ToolCursor.Crosshair;
 
     render() {
         const { imageState } = this.props;
@@ -37,20 +40,29 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
                 <div className="image-editor-canvas-spacer" />
             </div>
             <div className="image-editor-canvas-spacer" />
+            <div ref="floating-layer-border" className="image-editor-floating-layer" />
         </div>
     }
 
     componentDidMount() {
         this.canvas = this.refs["paint-surface"] as HTMLCanvasElement;
+        this.floatingLayer = this.refs["floating-layer-border"] as HTMLDivElement;
         bindGestureEvents(this.canvas, this);
+        bindGestureEvents(this.floatingLayer, this);
+
+        const { imageState } = this.props;
+        this.editState = getEditState(imageState);
 
         this.redraw();
         this.updateBackground();
     }
 
     componentDidUpdate() {
+        if (!this.edit || !this.editState) {
+            const { imageState } = this.props;
+            this.editState = getEditState(imageState);
+        }
         this.redraw();
-
         this.updateBackground();
     }
 
@@ -75,6 +87,8 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
     onDragEnd(coord: ClientCoordinates): void {
         if (this.updateCursorLocation(coord))
             this.updateEdit(this.cursorLocation[0], this.cursorLocation[1]);
+
+        this.edit.end(this.cursorLocation[0], this.cursorLocation[1], this.editState);
         this.commitEdit();
     }
 
@@ -86,6 +100,8 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
 
             if (!this.cursorLocation || x !== this.cursorLocation[0] || y !== this.cursorLocation[1]) {
                 this.cursorLocation = [x, y];
+
+                this.udpateCursor(!!this.edit, this.editState.inFloatingLayer(x, y));
                 return true;
             }
 
@@ -96,10 +112,36 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
         return false;
     }
 
-    protected startEdit() {
-        const { tool, toolWidth, selectedColor, imageState } = this.props;
+    protected udpateCursor(isDown: boolean, inLayer: boolean) {
+        const { tool } = this.props;
+        const def = tools.filter(td => td.tool === tool)[0];
 
-        this.editState = getEditState(imageState);
+        if (!def) this.updateCursorCore(ToolCursor.Default)
+        else if (inLayer) {
+            if (isDown) {
+                this.updateCursorCore(def.downLayerCursr || def.hoverLayerCursor || def.downCursor || def.hoverCursor);
+            }
+            else {
+                this.updateCursorCore(def.hoverLayerCursor || def.hoverCursor);
+            }
+        }
+        else if (isDown) {
+            this.updateCursorCore(def.downCursor || def.hoverCursor);
+        }
+        else {
+            this.updateCursorCore(def.hoverCursor);
+        }
+    }
+
+    protected updateCursorCore(cursor: ToolCursor | string) {
+        this.cursor = cursor || ToolCursor.Default;
+
+        this.updateBackground();
+    }
+
+    protected startEdit() {
+        const { tool, toolWidth, selectedColor } = this.props;
+
         this.edit = getEdit(tool, this.editState, selectedColor, toolWidth);
         this.edit.start(this.cursorLocation[0], this.cursorLocation[1], this.editState);
     }
@@ -113,9 +155,10 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
     }
 
     protected commitEdit() {
-        const { dispatchImageEdit } = this.props;
+        const { dispatchImageEdit, imageState } = this.props;
 
         if (this.edit) {
+            this.editState = getEditState(imageState);
             this.edit.doEdit(this.editState);
 
             dispatchImageEdit({
@@ -126,7 +169,6 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
             });
 
             this.edit = undefined;
-            this.editState = undefined;
         }
     }
 
@@ -141,27 +183,42 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
                 const clone = this.editState.copy();
                 this.edit.doEdit(clone);
                 this.drawBitmap(clone.image);
+                this.redrawFloatingLayer(clone);
             }
             else {
-                this.drawBitmap(Bitmap.fromData(imageState.bitmap));
+                this.drawBitmap(this.editState.image);
+                this.redrawFloatingLayer(this.editState);
             }
         }
     }
 
-    protected drawBitmap(bitmap: Bitmap, x0 = 0, y0 = 0) {
+    protected redrawFloatingLayer(state: EditState) {
+        if (state.floatingLayer) {
+            this.drawBitmap(state.floatingLayer, state.layerOffsetX, state.layerOffsetY, true);
+
+            const border = this.refs["floating-layer-border"] as HTMLDivElement;
+            const rect = this.canvas.getBoundingClientRect();
+            border.style.left = (rect.left - 2 + (rect.width / state.width) * state.layerOffsetX) + "px";
+            border.style.top = (rect.top - 2 + (rect.height / state.height) * state.layerOffsetY) + "px";
+            border.style.width = ((rect.width / state.width) * state.floatingLayer.width) + "px";
+            border.style.height = ((rect.height / state.height) * state.floatingLayer.height) + "px";
+        }
+    }
+
+    protected drawBitmap(bitmap: Bitmap, x0 = 0, y0 = 0, transparent = false) {
         const { colors } = this.props;
 
         const context = this.canvas.getContext("2d");
-        for (let x = x0; x < this.canvas.width; x++) {
-            for (let y = y0; y < this.canvas.height; y++) {
+        for (let x = 0; x < bitmap.width; x++) {
+            for (let y = 0; y < bitmap.height; y++) {
                 const index = bitmap.get(x, y);
 
                 if (index) {
                     context.fillStyle = colors[index];
-                    context.fillRect(x, y, 1, 1);
+                    context.fillRect(x + x0, y + y0, 1, 1);
                 }
                 else {
-                    context.clearRect(x, y, 1, 1);
+                    if (!transparent) context.clearRect(x + x0, y + y0, 1, 1);
                 }
             }
         }
@@ -169,7 +226,8 @@ class ImageCanvasImpl extends React.Component<ImageCanvasProps, {}> implements G
 
     protected updateBackground() {
         const rect = this.canvas.getBoundingClientRect();
-        this.canvas.setAttribute("style", `--unit:${rect.width / this.canvas.width}px`);
+        this.canvas.setAttribute("style", `--unit:${rect.width / this.canvas.width}px; cursor:${this.cursor}`);
+        this.floatingLayer.style.cursor = this.cursor;
     }
 }
 

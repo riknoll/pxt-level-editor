@@ -45,3 +45,10 @@
     background-size: var(--unit) var(--unit);
     background-position: 0 0, 0 calc(var(--unit)*0.5), calc(var(--unit)*0.5) calc(var(--unit)*-0.5), calc(var(--unit)*-0.5) 0px;
 }
+
+.image-editor-floating-layer {
+    position: fixed;
+    height: 0px;
+    width: 0px;
+    border: 2px dotted #000000;
+}

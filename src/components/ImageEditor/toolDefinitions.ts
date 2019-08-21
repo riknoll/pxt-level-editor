@@ -2,12 +2,13 @@ import { ImageEditorTool } from "./store/imageReducer";
 import { Coord, Bitmap, Bitmask, ImageState } from "./store/bitmap";
 
 export enum ToolCursor {
-    None = 0,
-    Pointer,
-    Crosshairs,
-    OpenHand,
-    ClosedHand,
-    EyeDropper
+    None = "none",
+    Default = "default",
+    Pointer = "pointer",
+    Crosshair = "crosshair",
+    Grab = "grab",
+    Grabbing = "grabbing",
+    EyeDropper = ""
 }
 
 export interface ToolInfo {
@@ -21,6 +22,8 @@ export interface ToolInfo {
 
     hoverCursor?: ToolCursor;
     downCursor?: ToolCursor;
+    hoverLayerCursor?: ToolCursor;
+    downLayerCursr?: ToolCursor;
 }
 
 export const tools: ToolInfo[] = [
@@ -28,52 +31,54 @@ export const tools: ToolInfo[] = [
         tool: ImageEditorTool.Paint,
         iconClass: "fas fa-paint-brush",
         title: "Paint Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     },
     {
         tool: ImageEditorTool.Erase,
         iconClass: "fas fa-eraser",
         title: "Erase Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     },
     {
         tool: ImageEditorTool.Rect,
         iconClass: "far fa-square",
         title: "Rectangle Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     },
     {
         tool: ImageEditorTool.Fill,
         iconClass: "fas fa-fill",
         title: "Fill Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     },
     {
         tool: ImageEditorTool.Circle,
         hiddenTool: true,
         iconClass: "far fa-circle",
         title: "Circle Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     },
     {
         tool: ImageEditorTool.Line,
         hiddenTool: true,
         iconClass: "fas fa-slash",
         title: "Line Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     },
     {
         tool: ImageEditorTool.Marquee,
         iconClass: "fas fa-vector-square",
         title: "Marquee Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
+        hoverLayerCursor: ToolCursor.Grab,
+        downLayerCursr: ToolCursor.Grabbing
     },
     {
         tool: ImageEditorTool.ColorSelect,
         hiddenTool: true,
         iconClass: "fas fa-eye-dropper",
         title: "Color Select Tool",
-        hoverCursor: ToolCursor.Crosshairs,
+        hoverCursor: ToolCursor.Crosshair,
     }
 ];
 
